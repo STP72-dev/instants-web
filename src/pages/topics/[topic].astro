@@ -1,0 +1,506 @@
+---
+import Base from '../../layouts/Base.astro';
+import EntryCard from '../../components/EntryCard.astro';
+import TagChip from '../../components/TagChip.astro';
+import TopicMotif from '../../components/TopicMotif.astro';
+import { FORMAT_SHORT, formatsOf, getTopic, manifest, topicAccent, topicEntries } from '../../lib/content.ts';
+import { guidedPath, musicChapters } from '../../lib/hub.ts';
+import type { Format } from '../../lib/manifest.ts';
+
+export function getStaticPaths() {
+  return manifest.topics.map((t) => ({ params: { topic: t.slug } }));
+}
+
+const topic = getTopic(Astro.params.topic!);
+const entries = topicEntries(topic);
+const isMusic = topic.kind === 'music';
+const music = isMusic ? musicChapters(topic, entries) : null;
+const path = isMusic ? [] : guidedPath(entries);
+
+// Most-used tags across the topic (the topic's own slug tag says nothing new).
+const tagCounts = new Map<string, number>();
+for (const e of entries) for (const t of e.tags) if (t !== topic.slug) tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1);
+const topTags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).slice(0, 10).map(([t]) => t);
+
+const formatCounts = (['md', 'mermaid', 'excalidraw'] as Format[])
+  .map((f) => ({ f, n: entries.filter((e) => formatsOf(e).includes(f)).length }))
+  .filter((x) => x.n > 0);
+
+const intro = isMusic
+  ? 'Each track is told as a story: what it is, how it is built, how to remake it in Suno, and the workflow that gets you there. Read a chapter top to bottom.'
+  : 'A guided path from orientation to detail. Start at the top; every stage builds on the one before it.';
+const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+---
+
+<Base title={topic.title} accent={topicAccent(topic.slug)} section="topics" description={`${topic.title} — ${intro}`}>
+  <header class="hero">
+    <div class="motif" aria-hidden="true">
+      <TopicMotif slug={topic.slug} kind={topic.kind} />
+    </div>
+    <div class="container hero-inner">
+      <nav aria-label="Breadcrumb" class="crumbs eyebrow">
+        <a href="/">Library</a><span aria-hidden="true">/</span><a href="/#topics">Topics</a><span aria-hidden="true">/</span><span
+          aria-current="page">{topic.title}</span
+        >
+      </nav>
+      <p class="eyebrow kind rise">
+        <span class="dot" aria-hidden="true"></span>
+        {isMusic ? 'Track-DNA stories' : 'Guided path'} · {count(entries.length, 'entry', 'entries')}
+        {isMusic && ` · ${count(topic.tracks.length, 'track', 'tracks')}`}
+      </p>
+      <h1 class="rise" style="--i: 1">{topic.title}</h1>
+      <p class="intro rise" style="--i: 2">{intro}</p>
+      <div class="meta rise" style="--i: 3">
+        <ul class="formats" aria-label="Formats in this topic">
+          {
+            formatCounts.map(({ f, n }) => (
+              <li>
+                <span class="fmt">{FORMAT_SHORT[f]}</span> {n}
+              </li>
+            ))
+          }
+        </ul>
+        {/* #7 adds the topic zip download here. */}
+      </div>
+      {
+        topTags.length > 0 && (
+          <ul class="tags" aria-label="Common tags">
+            {topTags.map((t) => (
+              <li>
+                <TagChip tag={t} />
+              </li>
+            ))}
+          </ul>
+        )
+      }
+      {
+        music && (
+          <nav class="chapters-nav" aria-label="Tracks">
+            {music.chapters.map((c, i) => (
+              <a href={`#track-${c.slug}`}>
+                <span class="eyebrow">Track {String(i + 1).padStart(2, '0')}</span>
+                <span class="name">{c.title}</span>
+              </a>
+            ))}
+          </nav>
+        )
+      }
+    </div>
+  </header>
+
+  {
+    music && (
+      <div class="container chapters">
+        {music.chapters.map((c, i) => (
+          <section class="chapter" id={`track-${c.slug}`} aria-labelledby={`h-${c.slug}`}>
+            <header class="chapter-head">
+              <p class="eyebrow">Track {String(i + 1).padStart(2, '0')}</p>
+              <h2 id={`h-${c.slug}`}>{c.title}</h2>
+              {c.overview?.summary && <p class="chapter-lede">{c.overview.summary}</p>}
+              <ol class="story-index" aria-label="Story">
+                {c.stages.map((s) => (
+                  <li>
+                    <a href={`#${c.slug}-${s.id}`}>{s.label}</a>
+                    <span class="count">{s.entries.length}</span>
+                  </li>
+                ))}
+              </ol>
+            </header>
+            <div class="chapter-body">
+              {c.stages.map((s, si) => (
+                <div class="stage" id={`${c.slug}-${s.id}`}>
+                  <h3 class="stage-label">
+                    <span class="num" aria-hidden="true">
+                      {String(si + 1).padStart(2, '0')}
+                    </span>
+                    {s.label}
+                  </h3>
+                  <ul class:list={['cards', { single: s.entries.length === 1 }]}>
+                    {s.entries.map((e) => (
+                      <li>
+                        <EntryCard entry={e} level={4} wide={s.entries.length === 1} context={[`${topic.title} — ${c.title}`, topic.title]} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
+        {music.rest.length > 0 && (
+          <section class="across" aria-labelledby="h-across">
+            <p class="eyebrow">Across the tracks</p>
+            <h2 id="h-across">Topic-wide workflows</h2>
+            <ul class="cards">
+              {music.rest.map((e) => (
+                <li>
+                  <EntryCard entry={e} level={3} context={[topic.title]} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+    )
+  }
+
+  {
+    !isMusic && (
+      <div class="container">
+        <ol class="path">
+          {path.map((s, i) => (
+            <li class="path-stage" aria-labelledby={`h-${s.id}`}>
+              <span class="node" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <div class="path-body">
+                <h2 id={`h-${s.id}`}>{s.label}</h2>
+                <ul class:list={['cards', { single: s.entries.length === 1 }]}>
+                  {s.entries.map((e) => (
+                    <li>
+                      <EntryCard entry={e} step={entries.indexOf(e) + 1} level={3} wide={s.entries.length === 1} context={[topic.title]} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    )
+  }
+</Base>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--line);
+    padding-block: var(--space-7) var(--space-7);
+  }
+
+  .motif {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 18rem;
+    opacity: 0.35;
+    mask-image: linear-gradient(180deg, #000 10%, transparent 95%);
+    pointer-events: none;
+  }
+
+  .hero-inner {
+    position: relative;
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .crumbs a {
+    text-decoration: none;
+  }
+
+  .crumbs a:hover {
+    color: var(--text);
+  }
+
+  .kind {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+  }
+
+  .dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+  }
+
+  h1 {
+    font-size: var(--step-5);
+    font-weight: 300;
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    overflow-wrap: anywhere;
+  }
+
+  .intro {
+    max-width: 58ch;
+    font-size: var(--step-1);
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .formats {
+    display: flex;
+    gap: var(--space-4);
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--text-muted);
+  }
+
+  .fmt {
+    color: var(--accent);
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding: 0;
+    list-style: none;
+  }
+
+  .chapters-nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+  }
+
+  .chapters-nav a {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    background: color-mix(in oklab, var(--surface) 80%, transparent);
+    text-decoration: none;
+    transition:
+      border-color var(--dur-2) var(--ease-out),
+      transform var(--dur-2) var(--ease-out);
+  }
+
+  .chapters-nav a:hover {
+    border-color: color-mix(in oklab, var(--accent) 50%, var(--line));
+    transform: translateY(-2px);
+  }
+
+  .chapters-nav .name {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    line-height: 1.1;
+  }
+
+  /* ---------- Music chapters ---------- */
+
+  .chapters {
+    display: grid;
+    gap: var(--space-9);
+    padding-top: var(--space-8);
+  }
+
+  .chapter {
+    display: grid;
+    grid-template-columns: minmax(0, 19rem) minmax(0, 1fr);
+    gap: var(--space-7);
+    align-items: start;
+    scroll-margin-top: 5rem;
+  }
+
+  .chapter-head {
+    position: sticky;
+    top: 5.5rem;
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .chapter-head h2 {
+    font-size: var(--step-4);
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  .chapter-lede {
+    color: var(--text-muted);
+  }
+
+  .story-index {
+    display: grid;
+    gap: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: s;
+    border-left: 1px solid var(--line-strong);
+    margin-top: var(--space-2);
+  }
+
+  .story-index li {
+    counter-increment: s;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-1) 0 var(--space-1) var(--space-4);
+    position: relative;
+  }
+
+  .story-index li::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1px solid var(--accent);
+    transform: translateY(-50%);
+  }
+
+  .story-index a {
+    text-decoration: none;
+    color: var(--text-muted);
+  }
+
+  .story-index a:hover {
+    color: var(--text);
+  }
+
+  .count {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--text-faint);
+  }
+
+  .chapter-body {
+    display: grid;
+    gap: var(--space-7);
+  }
+
+  .stage {
+    scroll-margin-top: 5rem;
+  }
+
+  .stage-label {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    font-family: var(--font-sans);
+    font-size: var(--step-0);
+    font-weight: 500;
+    letter-spacing: 0;
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .num {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--accent);
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    gap: var(--space-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .cards.single {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .across {
+    display: grid;
+    gap: var(--space-3);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--line);
+  }
+
+  .across h2 {
+    font-size: var(--step-3);
+    margin-bottom: var(--space-3);
+  }
+
+  /* ---------- Technical guided path ---------- */
+
+  .path {
+    position: relative;
+    display: grid;
+    gap: var(--space-8);
+    padding: var(--space-8) 0 0;
+    list-style: none;
+  }
+
+  .path::before {
+    content: '';
+    position: absolute;
+    left: 1.25rem;
+    top: calc(var(--space-8) + 2.5rem);
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 60%, transparent), var(--line) 60%, transparent);
+  }
+
+  .path-stage {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: var(--space-5);
+  }
+
+  .node {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: 1px solid color-mix(in oklab, var(--accent) 60%, transparent);
+    background: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+
+  .path-body h2 {
+    font-size: var(--step-3);
+    line-height: 1.1;
+    margin: 0.2rem 0 var(--space-4);
+  }
+
+  @media (max-width: 56rem) {
+    .chapter {
+      grid-template-columns: 1fr;
+      gap: var(--space-5);
+    }
+
+    .chapter-head {
+      position: static;
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .path-stage {
+      grid-template-columns: 1.75rem minmax(0, 1fr);
+      gap: var(--space-3);
+    }
+
+    .node {
+      width: 1.75rem;
+      height: 1.75rem;
+      font-size: 0.7rem;
+    }
+
+    .path::before {
+      left: 0.875rem;
+    }
+  }
+</style>
