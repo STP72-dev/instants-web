@@ -1,0 +1,59 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'a'> {
+  variant?: 'primary' | 'ghost';
+}
+
+const { variant = 'ghost', class: className, ...attrs } = Astro.props;
+---
+
+<a class:list={['btn', variant, className]} {...attrs}><slot /></a>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    padding: 0 var(--space-5);
+    border-radius: var(--radius-pill);
+    font-weight: 500;
+    font-size: 0.95rem;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      transform var(--dur-1) var(--ease-out),
+      background-color var(--dur-1) var(--ease-out),
+      border-color var(--dur-1) var(--ease-out);
+  }
+
+  .btn:active {
+    transform: translateY(1px);
+  }
+
+  .primary {
+    background: var(--accent);
+    color: var(--text-on-accent);
+  }
+
+  .primary:hover {
+    background: color-mix(in oklab, var(--accent) 85%, white);
+  }
+
+  .ghost {
+    border: 1px solid var(--line-strong);
+    color: var(--text);
+  }
+
+  .ghost:hover {
+    border-color: var(--text-muted);
+    background: var(--surface);
+  }
+
+  .btn :global(svg) {
+    width: 1rem;
+    height: 1rem;
+  }
+</style>

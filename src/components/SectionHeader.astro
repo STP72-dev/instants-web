@@ -1,0 +1,39 @@
+---
+interface Props {
+  kicker?: string;
+  title: string;
+  id?: string;
+  level?: 2 | 3;
+}
+
+const { kicker, title, id, level = 2 } = Astro.props;
+const Heading = `h${level}` as 'h2' | 'h3';
+---
+
+<div class="section-header">
+  {kicker && <p class="eyebrow">{kicker}</p>}
+  <Heading id={id}>{title}</Heading>
+  <slot />
+</div>
+
+<style>
+  .section-header {
+    display: grid;
+    gap: var(--space-2);
+    margin-bottom: var(--space-5);
+  }
+
+  h2 {
+    font-size: var(--step-3);
+    line-height: var(--leading-tight);
+  }
+
+  h3 {
+    font-size: var(--step-2);
+  }
+
+  .section-header :global(p:not(.eyebrow)) {
+    color: var(--text-muted);
+    max-width: 60ch;
+  }
+</style>

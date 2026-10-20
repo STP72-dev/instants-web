@@ -1,0 +1,50 @@
+---
+import { searchUrl } from '../lib/content.ts';
+
+interface Props {
+  tag: string;
+  /** Render as plain text instead of a link to the filtered search. */
+  static?: boolean;
+}
+
+const { tag, static: isStatic = false } = Astro.props;
+---
+
+{
+  isStatic ? (
+    <span class="chip">#{tag}</span>
+  ) : (
+    <a class="chip" href={searchUrl({ tag })} aria-label={`Show entries tagged ${tag}`}>
+      #{tag}
+    </a>
+  )
+}
+
+<style>
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.75rem;
+    padding: 0 0.6rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    color: var(--text-muted);
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      color var(--dur-1) var(--ease-out),
+      border-color var(--dur-1) var(--ease-out),
+      background-color var(--dur-1) var(--ease-out);
+  }
+
+  a.chip:hover {
+    color: var(--text);
+    border-color: var(--accent);
+    border-color: color-mix(in oklab, var(--accent) 60%, transparent);
+    background: var(--surface);
+    background: color-mix(in oklab, var(--accent) 10%, transparent);
+  }
+</style>

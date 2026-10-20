@@ -1,0 +1,67 @@
+---
+import '@fontsource-variable/fraunces/opsz.css';
+import '@fontsource-variable/fraunces/opsz-italic.css';
+import '@fontsource-variable/geist';
+import '@fontsource-variable/geist-mono';
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { accentVar, type Accent } from '../lib/content.ts';
+
+interface Props {
+  title: string;
+  description?: string;
+  accent?: Accent;
+  /** Current top-level section, for aria-current in the nav. */
+  section?: 'home' | 'topics' | 'search';
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = 'INSTANTS — a dark library of instant solutions: diagrams, sketches and copy-ready notes.',
+  accent = 'cyan',
+  section,
+  noindex = false,
+} = Astro.props;
+const fullTitle = title === 'INSTANTS' ? 'INSTANTS — instant-solution library' : `${title} · INSTANTS`;
+---
+
+<!doctype html>
+<html lang="en" style={accentVar(accent)}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0b0c0e" />
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>{fullTitle}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <SiteHeader section={section} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>
+
+<style>
+  main {
+    display: block;
+    min-height: 60vh;
+  }
+
+  /* Programmatic focus from the skip link stays visible for keyboard users. */
+  main:focus {
+    outline: none;
+  }
+
+  main:focus-visible {
+    outline: 2px dashed var(--focus);
+    outline-offset: -6px;
+  }
+</style>
