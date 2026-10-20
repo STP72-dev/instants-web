@@ -9,15 +9,30 @@ interface Props {
   /** Heading level for the card title, so cards nest correctly under section headings. */
   level?: 2 | 3 | 4;
   showPreview?: boolean;
+  /** Horizontal layout (preview beside text) for stages with a single entry. */
+  wide?: boolean;
+  /** Context already shown around the card (e.g. "NONCONFORMIST — hell YEAH"); stripped from the title. */
+  context?: string[];
 }
 
-const { entry, step, level = 3, showPreview = true } = Astro.props;
+const { entry, step, level = 3, showPreview = true, wide = false, context = [] } = Astro.props;
+// "NONCONFORMIST — hell YEAH, release facts" → "release facts" when topic and track are already on screen.
+// The link's accessible name keeps the full title; only the visible text is shortened.
+let title = entry.title;
+for (const prefix of context) {
+  for (const sep of [' — ', ', ']) {
+    const rest = title.startsWith(prefix + sep) ? title.slice(prefix.length + sep.length).trim() : '';
+    if (rest) title = rest;
+  }
+}
+title = title.charAt(0).toUpperCase() + title.slice(1);
+const shortened = title !== entry.title;
 const Heading = `h${level}` as 'h2' | 'h3' | 'h4';
 const preview = showPreview ? thumbnail(entry) : null;
 const formats = formatsOf(entry);
 ---
 
-<article class:list={['card', { 'has-preview': preview }]}>
+<article class:list={['card', { 'has-preview': preview, wide: wide && preview }]}>
   {
     preview && (
       <div class:list={['preview', { light: preview.light }]} aria-hidden="true">
@@ -31,7 +46,7 @@ const formats = formatsOf(entry);
       <span>{ROLE_LABEL[entry.role]}</span>
     </p>
     <Heading class="title">
-      <a href={entryUrl(entry.slug)}>{entry.title}</a>
+      <a href={entryUrl(entry.slug)} aria-label={shortened ? entry.title : undefined} title={shortened ? entry.title : undefined}>{title}</a>
     </Heading>
     {entry.summary && <p class="summary">{entry.summary}</p>}
     <ul class="formats" aria-label="Formats">
@@ -62,6 +77,24 @@ const formats = formatsOf(entry);
     border-color: var(--line-strong);
     border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
     background: var(--surface-hover);
+  }
+
+  @media (min-width: 40rem) {
+    .card.wide {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    }
+
+    .card.wide .preview {
+      aspect-ratio: auto;
+      min-height: 100%;
+      border-bottom: 0;
+      border-right: 1px solid var(--line);
+    }
+
+    .card.wide .body {
+      padding: var(--space-5);
+    }
   }
 
   .preview {
