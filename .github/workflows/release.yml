@@ -142,6 +142,16 @@ jobs:
             echo "Image: \`$IMAGE@$DIGEST\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
+      # Gate the Vercel deploy on the published image passing the browser CSP check.
+      - name: CSP check against the published image
+        env:
+          DIGEST: ${{ steps.existing.outputs.digest || steps.build.outputs.digest }}
+        run: |
+          docker run -d --name web -p 18080:8080 "$IMAGE@$DIGEST"
+          for _ in $(seq 1 30); do curl -fsS -o /dev/null http://localhost:18080/ && break; sleep 1; done
+          npx playwright install --with-deps chromium
+          npm run csp-check -- http://localhost:18080
+
       - name: Deploy to Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}

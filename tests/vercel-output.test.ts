@@ -104,7 +104,7 @@ describe('Content-Security-Policy', () => {
     expect(directive(csp, 'font-src')).toBe("font-src 'self' data:");
     expect(directive(csp, 'connect-src')).toBe("connect-src 'self'");
     expect(directive(csp, 'worker-src')).toBe("worker-src 'self' blob:");
-    expect(directive(csp, 'object-src')).toBe("object-src 'self'");
+    expect(directive(csp, 'object-src')).toBe("object-src 'none'");
     expect(directive(csp, 'frame-src')).toBe("frame-src 'self'");
     expect(directive(csp, 'frame-ancestors')).toBe("frame-ancestors 'self'");
     expect(directive(csp, 'base-uri')).toBe("base-uri 'self'");

@@ -75,7 +75,8 @@ export function buildCsp(scriptHashes: string[] = []): string {
     "font-src 'self' data:",
     "connect-src 'self'",
     "worker-src 'self' blob:",
-    "object-src 'self'",
+    // PDF previews use <iframe> (frame-src); nothing needs <object>/<embed>.
+    "object-src 'none'",
     "frame-src 'self'",
     "frame-ancestors 'self'",
     "base-uri 'self'",

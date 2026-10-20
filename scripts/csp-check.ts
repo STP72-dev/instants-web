@@ -4,16 +4,31 @@
  *   default base-url http://localhost:8080 (run it against the Docker image, e.g. WEB_PORT=18080).
  * Visits every page type, exercises the interactive parts (Mermaid, Excalidraw canvas, source toggles, PDF
  * preview, code copy) and exits 1 on any CSP violation (securitypolicyviolation event, CSP console error,
- * request blocked by CSP) or any request to a non-localhost origin. A missing CSP / Permissions-Policy header
- * on an HTML response also fails, unless --allow-missing-csp (`astro preview` sends no headers).
+ * request blocked by CSP), any uncaught page error, or any request to an origin other than the site's own.
+ * Every HTML response must carry exactly the policy buildCsp() produces (only 'self' + sha256 hashes in script-src)
+ * and the expected Permissions-Policy, unless --allow-missing-csp (`astro preview` sends no headers).
  */
 import { chromium, type Page } from 'playwright';
+import { buildCsp, PERMISSIONS_POLICY } from './vercel-output.ts';
 
 const args = process.argv.slice(2);
 const allowMissingCsp = args.includes('--allow-missing-csp');
 const base = (args.find((a) => !a.startsWith('--')) ?? 'http://localhost:8080').replace(/\/$/, '');
 
-const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
+// Same-origin only: works against the Docker image and a real deployment alike.
+const SITE_ORIGIN = new URL(base).origin;
+
+/** Exact policy check: script-src may hold only 'self' and sha256 hashes; everything else must equal buildCsp(). */
+function policyProblem(csp: string): string | null {
+  const scriptSrc = csp.split(';').map((d) => d.trim()).find((d) => d.startsWith('script-src '));
+  if (!scriptSrc) return 'no script-src directive';
+  const sources = scriptSrc.split(/\s+/).slice(1);
+  const hashes = sources.filter((t) => /^'sha256-[A-Za-z0-9+/]+={0,2}'$/.test(t));
+  const other = sources.filter((t) => t !== "'self'" && !/^'sha256-/.test(t));
+  if (other.length > 0) return `script-src allows ${other.join(' ')}`;
+  const normalise = (p: string) => p.split(';').map((d) => d.trim().replace(/\s+/g, ' ')).filter(Boolean).join('; ');
+  return normalise(csp) === normalise(buildCsp(hashes)) ? null : `policy differs from buildCsp(): ${csp}`;
+}
 
 interface PageSpec {
   path: string;
@@ -123,7 +138,7 @@ try {
     page.on('request', (req) => {
       requests++;
       const url = new URL(req.url());
-      if (/^(https?|wss?):$/.test(url.protocol) && !LOCAL_HOSTS.has(url.hostname)) external.push(req.url());
+      if (/^(https?|wss?):$/.test(url.protocol) && url.origin !== SITE_ORIGIN) external.push(req.url());
     });
     page.on('requestfailed', (req) => {
       if (req.failure()?.errorText.includes('BLOCKED_BY_CSP')) violations.push(`request blocked by CSP: ${req.url()}`);
@@ -133,7 +148,8 @@ try {
       if (/Content[- ]Security[- ]Policy|violates the following/i.test(text)) violations.push(`console: ${text.slice(0, 200)}`);
       else if (msg.type() === 'error') warnings.push(`console error: ${text.slice(0, 160)}`);
     });
-    page.on('pageerror', (err) => warnings.push(`page error: ${err.message.slice(0, 160)}`));
+    const pageErrors: string[] = [];
+    page.on('pageerror', (err) => pageErrors.push(err.message.slice(0, 160)));
 
     const label = spec.path.padEnd(42);
     const fail = (msg: string) => problems.push(`${spec.path}: ${msg}`);
@@ -150,8 +166,10 @@ try {
       const csp = headers['content-security-policy'];
       if (!csp || !headers['permissions-policy']) {
         if (!allowMissingCsp) fail('missing Content-Security-Policy / Permissions-Policy header');
-      } else if (!/script-src 'self'/.test(csp) || /unsafe-eval/.test(csp)) {
-        fail(`unexpected policy: ${csp}`);
+      } else {
+        const problem = policyProblem(csp);
+        if (problem) fail(problem);
+        if (headers['permissions-policy'] !== PERMISSIONS_POLICY) fail(`unexpected Permissions-Policy: ${headers['permissions-policy']}`);
       }
 
       await settle(page);
@@ -163,7 +181,8 @@ try {
 
     for (const v of new Set(violations)) fail(`CSP violation: ${v}`);
     for (const u of new Set(external)) fail(`external request: ${u}`);
-    const bad = violations.length + external.length;
+    for (const e of new Set(pageErrors)) fail(`page error: ${e}`);
+    const bad = violations.length + external.length + pageErrors.length;
     console.log(`${bad === 0 ? 'ok   ' : 'FAIL '} ${label} ${requests} requests, ${violations.length} violations, ${external.length} external`);
     for (const w of new Set(warnings)) console.log(`      warn: ${w}`);
     await context.close();

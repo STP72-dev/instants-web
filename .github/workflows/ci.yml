@@ -16,7 +16,7 @@ jobs:
   ci:
     name: ci
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -36,3 +36,15 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+
+      # The shipped artifact: build the Docker image, serve it, and prove the CSP holds in a real browser.
+      - name: Build and start the Docker image
+        run: |
+          docker build -t instants-web:ci .
+          docker run -d --name web -p 18080:8080 instants-web:ci
+          for _ in $(seq 1 30); do curl -fsS -o /dev/null http://localhost:18080/ && exit 0; sleep 1; done
+          docker logs web; exit 1
+      - name: Install Chromium for browser checks
+        run: npx playwright install --with-deps chromium
+      - name: CSP + same-origin check against the image
+        run: npm run csp-check -- http://localhost:18080

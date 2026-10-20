@@ -60,7 +60,7 @@ Both hosts send, on every response, the policy built by `buildCsp()` in `scripts
 
 ```
 default-src 'self'; script-src 'self' <hashes>; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:;
-font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'self'; frame-src 'self';
+font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; frame-src 'self';
 frame-ancestors 'self'; base-uri 'self'; form-action 'self'
 ```
 
