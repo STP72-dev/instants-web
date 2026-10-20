@@ -23,10 +23,19 @@ here="$(cd "$(dirname "$0")" && pwd)"
   "/downloads/nonconformist.zip|application/zip" \
   "/thumbs/instants-prime-flow.webp|image/webp"
 
-# The topic zip must be offered as a download, and unknown paths must 404 with the custom page.
-disp="$(curl -sS -o /dev/null -D - "$base/downloads/git.zip" | tr -d '\r' | awk -F': ' 'tolower($1)=="content-disposition"{print $2}')"
-[[ "$disp" == attachment* ]] && echo "ok    /downloads/git.zip  Content-Disposition: $disp" || { echo "FAIL  /downloads/git.zip  Content-Disposition: '$disp'"; exit 1; }
+# The topic zip must exist (200, application/zip) AND be offered as a download — checked on the same response.
+headers="$(curl -sS --max-time 10 -o /dev/null -D - "$base/downloads/git.zip" | tr -d '\r')"
+status="$(head -n1 <<<"$headers" | awk '{print $2}')"
+ctype="$(awk -F': ' 'tolower($1)=="content-type"{print $2}' <<<"$headers")"
+disp="$(awk -F': ' 'tolower($1)=="content-disposition"{print $2}' <<<"$headers")"
+if [[ "$status" == 200 && "${ctype,,}" == application/zip* && "$disp" == attachment* ]]; then
+  echo "ok    /downloads/git.zip  $status $ctype; Content-Disposition: $disp"
+else
+  echo "FAIL  /downloads/git.zip  status=$status type='$ctype' disposition='$disp'"; exit 1
+fi
+
+# Unknown paths must 404 with the custom page.
 page="$(mktemp)"
 trap 'rm -f "$page"' EXIT
-code="$(curl -sS -o "$page" -w '%{http_code}' "$base/definitely-not-here/")"
+code="$(curl -sS --max-time 10 -o "$page" -w '%{http_code}' "$base/definitely-not-here/")"
 [[ "$code" == 404 ]] && grep -q 'not been bottled' "$page" && echo "ok    /definitely-not-here/  404 custom page" || { echo "FAIL  404 page (status $code)"; exit 1; }

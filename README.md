@@ -17,8 +17,9 @@ docker compose up --build
 ```
 
 Port 8080 busy? `WEB_PORT=18080 docker compose up --build` publishes on another host port (the container still listens on 8080).
-The image builds the site from the files in this repo only; it never needs the INSTANTS folder. It runs nginx as a non-root user on a
-read-only filesystem, with a strict Content-Security-Policy and a healthcheck.
+The image builds the site from the files in this repo only; it never needs the INSTANTS folder. It runs nginx as a non-root user with a
+strict Content-Security-Policy and a healthcheck; Compose additionally runs it with a read-only root filesystem, dropped capabilities and
+`no-new-privileges` (for plain `docker run`, add `--read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges`).
 
 ### With Node (for development)
 
@@ -59,7 +60,7 @@ What ingest does (details in DECISIONS.md D6):
 ## Verify
 
 ```bash
-npm run ci                               # lint + typecheck + unit tests + build (what CI runs)
+npm run ci                               # Node checks: lint + typecheck + unit tests + build
 npm run scan:diff                        # secret scan of every commit on your branch vs origin/main
 scripts/verify-site.sh http://localhost:8080
                                          # release smoke test: home, hubs, an entry per format, one download per file type,
@@ -84,7 +85,9 @@ npm run screenshots -- http://localhost:4321 docs/screenshots/<name> / /topics/n
    `deploy`, `docs`.
 3. Run `npm run ci` and `npm run scan:diff`, push, and open a PR. The template asks for `Closes #<n>`, what changed, how it was verified,
    and screenshots for UI changes.
-4. CI (`.github/workflows/ci.yml`, check name `ci`) must pass: secret scan of the PR's commits, lint, typecheck, tests, build.
+4. CI (`.github/workflows/ci.yml`, check name `ci`) must pass: secret scan of the PR's commits, lint, typecheck, tests, build, then the
+   shipped artifact itself — the Docker image is built and served, `npm run csp-check` drives every page type in Chromium (CSP, no requests
+   leaving the site) and `scripts/verify-site.sh` checks every page and file type.
 5. Review, then **squash merge**; the branch is deleted automatically.
 
 The intended branch protection lives in `.github/ruleset-main.json`. GitHub Free does not enforce rulesets on private repositories, so the
