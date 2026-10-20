@@ -38,6 +38,11 @@ describe('search over the committed snapshot', () => {
     expect(top(q)).toContain(slug);
   });
 
+  it('indexes the whole body of long entries', () => {
+    expect(read('files/md/ai-start-guide.md').length).toBeGreaterThan(7000);
+    expect(top('kikényszerítés')).toContain('ai-start-guide');
+  });
+
   it('typos and prefixes still match', () => {
     expect(top('forecastlab')).not.toEqual([]);
     expect(top('pgvectr')).toContain('forecastlabai-rag-pipeline');

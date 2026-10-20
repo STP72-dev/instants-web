@@ -64,9 +64,14 @@ const tags = [...tagCounts.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1));
             }
           </select>
         </label>
-        <noscript><button type="submit" class="apply">Apply</button></noscript>
       </div>
     </form>
+    <noscript>
+      <p class="noscript">
+        Search and filters need JavaScript. Every entry is listed below — or browse by topic:
+        {topics.map((t, i) => <>{i > 0 && ' · '}<a href={`/topics/${t.slug}/`}>{t.title}</a></>)}
+      </p>
+    </noscript>
   </section>
 
   <section class="container results" aria-labelledby="results-title">
@@ -78,7 +83,7 @@ const tags = [...tagCounts.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1));
     <ol class="cards" id="results">
       {
         entries.map((e) => (
-          <li data-slug={e.slug} data-topic={e.topic} data-tags={e.tags.join(' ')} style={accentVar(topicAccent(e.topic))}>
+          <li data-slug={e.slug} data-topic={e.topic} data-tags={JSON.stringify(e.tags)} style={accentVar(topicAccent(e.topic))}>
             <EntryCard entry={e} level={3} />
           </li>
         ))
@@ -107,18 +112,27 @@ const tags = [...tagCounts.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1));
 
   let index: MiniSearch<SearchDoc> | null = null;
   let loading: Promise<void> | null = null;
+  let failed = false;
 
+  // A failed load is reported and retried on the next interaction instead of sticking on "Loading…".
   function loadIndex(): Promise<void> {
     loading ??= fetch('/search-index.json')
-      .then((r) => r.text())
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.text();
+      })
       .then((json) => {
         index = MiniSearch.loadJSON<SearchDoc>(json, INDEX_OPTIONS);
+        failed = false;
       })
       .catch(() => {
-        count.textContent = 'Search index failed to load — filters still work.';
+        failed = true;
+        loading = null;
       });
     return loading;
   }
+
+  const tagsOf = (li: HTMLLIElement): string[] => JSON.parse(li.dataset.tags ?? '[]') as string[];
 
   function state() {
     const topic = (form.querySelector<HTMLInputElement>('input[name="topic"]:checked')?.value ?? '').trim();
@@ -143,14 +157,19 @@ const tags = [...tagCounts.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1));
       ranked = defaultOrder.filter((li) => scores.has(li.dataset.slug!)).sort((a, b) => scores.get(b.dataset.slug!)! - scores.get(a.dataset.slug!)!);
     }
     const visible = ranked.filter(
-      (li) => (!s.tag || li.dataset.tags!.split(' ').includes(s.tag)) && (!s.topic || li.dataset.topic === s.topic),
+      (li) => (!s.tag || tagsOf(li).includes(s.tag)) && (!s.topic || li.dataset.topic === s.topic),
     );
     const shown = new Set(visible);
     for (const li of items) li.hidden = !shown.has(li);
     // Reorder the DOM so reading and tab order follow the ranking.
     for (const li of visible) list.appendChild(li);
     const n = visible.length;
-    count.textContent = s.q && !index ? 'Loading search…' : `${n} ${n === 1 ? 'entry' : 'entries'}${s.q ? ` for “${s.q}”` : ''}`;
+    count.textContent =
+      s.q && !index
+        ? failed
+          ? 'Search index could not be loaded — showing all entries; type again to retry. Topic and tag filters still work.'
+          : 'Loading search…'
+        : `${n} ${n === 1 ? 'entry' : 'entries'}${s.q ? ` for “${s.q}”` : ''}`;
     empty.hidden = n > 0;
     clear.hidden = !s.q && !s.tag && !s.topic;
   }
@@ -353,12 +372,12 @@ const tags = [...tagCounts.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1));
     font-size: 0.85rem;
   }
 
-  .apply {
-    min-height: 2.5rem;
-    padding: 0 var(--space-5);
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--line-strong);
-    background: var(--surface);
+  .noscript {
+    margin-top: var(--space-4);
+    padding: var(--space-4);
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-1);
+    color: var(--text-muted);
   }
 
   .results-head {

@@ -30,7 +30,8 @@ export const INDEX_OPTIONS: Options<SearchDoc> = {
   processTerm: (term) => term.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase(),
 };
 
-const BODY_LIMIT = 6000;
+// Generous cap (well above today's longest entry) so the whole body is searchable; it only guards the index size.
+const BODY_LIMIT = 100_000;
 
 /** Plain text from Markdown: drops frontmatter, code fences' markers, links' URLs and markup characters. */
 export function markdownText(md: string): string {
