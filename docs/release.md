@@ -50,9 +50,37 @@ To change the CLI version: `cd tools/vercel && npm install --save-exact --packag
 ## Vercel config vs nginx
 
 `scripts/vercel-output.ts` mirrors `docker/nginx.conf`: the content types for `.md`/`.mmd`/`.excalidraw`, `Content-Disposition: attachment`
-for `/downloads/<topic>.zip` only, `immutable` caching for `/_astro/*` and `no-cache` otherwise, the same security headers (no CSP until #12),
+for `/downloads/<topic>.zip` only, `immutable` caching for `/_astro/*` and `no-cache` otherwise, the same security headers,
 `/topics/x` → `/topics/x/` redirects, and a 404 fallback to `/404.html` after `handle: filesystem`.
-When you change one side, change the other (the unit tests in `tests/vercel-output.test.ts` pin the Vercel side).
+When you change one side, change the other (the unit tests in `tests/vercel-output.test.ts` pin the Vercel side and the parity).
+
+### Content-Security-Policy and Permissions-Policy
+
+Both hosts send, on every response, the policy built by `buildCsp()` in `scripts/vercel-output.ts` (one source of truth):
+
+```
+default-src 'self'; script-src 'self' <hashes>; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:;
+font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; frame-src 'self';
+frame-ancestors 'self'; base-uri 'self'; form-action 'self'
+```
+
+plus `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()`.
+
+- **Scripts** are `'self'` plus `sha256-` hashes of the inline `<script>`s Astro emits (it inlines small module scripts, and their text changes
+  with every build), so the hashes are computed from the built HTML, never written down. No `'unsafe-inline'`, no `'unsafe-eval'`
+  (the browser check shows Mermaid and Excalidraw run without it).
+- **Styles** keep `'unsafe-inline'`: Astro emits scoped `<style>` blocks and `style=` attributes, and Mermaid and Excalidraw inject styles at runtime.
+- `blob:`/`data:` are limited to images, fonts and workers, which the diagram libraries may use; `frame-src 'self'` serves the PDF preview iframe.
+- **No CDN:** Excalidraw appends an `https://esm.sh/...` fallback to every font source. The policy blocks it (and `csp-check` reports it), so the
+  build must point that fallback at our own origin; see the `excalidraw-fonts-no-cdn` Vite plugin in `astro.config.mjs`.
+- **Vercel:** `writeVercelOutput` hashes the HTML it copies and puts the policy in the first (catch-all) route's headers.
+- **nginx:** the hashes depend on the built site, so the Docker build stage runs `node scripts/vercel-output.ts --nginx-csp dist /tmp/csp.conf`
+  and the runtime stage copies it to `/etc/nginx/csp.conf`, which `docker/nginx.conf` includes. The include is deliberately not optional:
+  an image without it fails to start instead of serving without a CSP. `Permissions-Policy` is a constant in `nginx.conf` (a test keeps it equal
+  to `PERMISSIONS_POLICY`).
+- **Proof:** `node scripts/csp-check.ts http://localhost:18080` (Docker image, `WEB_PORT=18080`) loads every page type, opens the Excalidraw
+  canvas, renders and toggles Mermaid, opens the PDF preview, and fails on any `securitypolicyviolation`, CSP console error, blocked request, or
+  request to a non-localhost origin. `--allow-missing-csp` is for `astro preview`, which sends no headers.
 
 Known differences: nginx redirects any dot-less path without a trailing slash only when the directory exists, while Vercel redirects before the
-filesystem check, so an unknown `/nope` goes `/nope` → `/nope/` → 404. The `/404.html` route has no effect until the site ships a 404 page.
+filesystem check, so an unknown `/nope` goes `/nope` → `/nope/` → 404.

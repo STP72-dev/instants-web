@@ -10,16 +10,21 @@ RUN npm ci
 # Explicit build inputs only (never `COPY . .`): keeps local credentials out of the layers.
 COPY astro.config.mjs tsconfig.json ./
 COPY src ./src
-# public/ and content/ may not exist yet, and COPY cannot take an optional source.
-RUN --mount=type=bind,target=/ctx \
-    for d in public content; do if [ -d "/ctx/$d" ]; then cp -R "/ctx/$d" "./$d"; fi; done
+COPY public ./public
+# The committed content snapshot; the image never needs the INSTANTS folder.
+COPY content ./content
 RUN npm run build
+
+# CSP include for nginx: inline-script hashes are computed from the built HTML (same code path as the Vercel output).
+COPY scripts/vercel-output.ts ./scripts/vercel-output.ts
+RUN node scripts/vercel-output.ts --nginx-csp dist /tmp/csp.conf
 
 # ---- runtime: nginx (non-root) serving dist/ on :8080 ----
 FROM nginxinc/nginx-unprivileged:1-alpine@sha256:b5047b9b76845eac124358373c6852377c52e4b05834a47647e955dd91cb8f1e AS runtime
 
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /tmp/csp.conf /etc/nginx/csp.conf
 
 USER 101
 EXPOSE 8080

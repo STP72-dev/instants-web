@@ -17,7 +17,8 @@
     "scan:diff": "node scripts/scan-diff.ts",
     "ingest": "node scripts/ingest.ts",
     "screenshots": "node scripts/screenshots.ts",
-    "e2e:search": "node scripts/e2e-search.ts"
+    "e2e:search": "node scripts/e2e-search.ts",
+    "csp-check": "node scripts/csp-check.ts"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "7.3.3",
