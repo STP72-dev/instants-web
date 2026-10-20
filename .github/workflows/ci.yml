@@ -48,3 +48,5 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: CSP + same-origin check against the image
         run: npm run csp-check -- http://localhost:18080
+      - name: Smoke test every page and file type against the image
+        run: scripts/verify-site.sh http://localhost:18080

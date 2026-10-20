@@ -21,10 +21,11 @@ Updated in every lead PR to the state after that PR merges (DECISIONS.md D0b).
 | #27 | #28 | Pre-release audit fixes: ingest output guard, bounded fail-closed binary scan, release guards (tag on main, full-history scan, tests before build, immutable re-runs via Packages API, lockfile-pinned Vercel CLI) |
 | #8 | #29 | Search: MiniSearch index, server-rendered cards filtered client-side, URL state, honest no-JS fallback, `npm run e2e:search` |
 | #7 | #30 | Deterministic per-topic zips (dependency-free ZIP writer, README.txt), hub download button, "Whole topic" in every entry's downloads panel |
-| #12 (part) | this PR | CSP (hash-based script-src, no unsafe-eval) + Permissions-Policy in nginx (include generated at image build) and Vercel output; `npm run csp-check` → 0 violations / 0 external requests on 11 page types — worker `infra-docker` + lead |
+| #12 (part) | #31 | CSP (hash-based script-src, no unsafe-eval) + Permissions-Policy in nginx (include generated at image build) and Vercel output; `npm run csp-check` → 0 violations / 0 external requests on 11 page types, enforced in CI against the Docker image and before the Vercel deploy — worker `infra-docker` + lead |
+| #11 | this PR | README (run, refresh content, PR flow, release), `scripts/verify-site.sh` (every page + file type, zip disposition, 404) — also run in CI against the image |
 
 ## In progress
-- #11 docs — `docs/11-readme-smoke`: README + `scripts/verify-site.sh` committed locally; PR after #7.
+- #12 final verification and release v0.1.0 — lead.
 
 ## Dependency graph
 ```
@@ -46,14 +47,14 @@ Updated in every lead PR to the state after that PR merges (DECISIONS.md D0b).
 | ui-entry | claude-code opus 5.5 (auto) | IWEB__BUILD__CLAUDE__ENTRY__04 (w4:t4) | pane w4:p4 | IWEB-06 entry page | #6 | running / alive | #3 ✔ | PR (pending) | report back |
 
 ## Open issues
-- #11, #12; epics #13 (M1: only blocked #18 left), #16 (M4); #14 (M2) and #15 (M3) closed; blocked-on-user #17, #18.
+- #12; epics #13 (M1: only blocked #18 left), #16 (M4); #14 (M2) and #15 (M3) closed; blocked-on-user #17, #18.
 
 ## Blocked on me
 1. #17 Vercel: create/link the project and set secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`; then switch to a staged deploy (see #17 comment).
 2. #18 Branch rules: make the repo public or upgrade to GitHub Pro, then `gh api -X POST repos/w7-mgfcode/instants-web/rulesets --input .github/ruleset-main.json`.
 
 ## Next step
-Merge this PR (CSP) → open #11 (README, verify-site) → final verification on main (docker compose up, verify-site, screenshots of home / music hub / technical hub / entry at desktop + phone) → `gh release create v0.1.0 --generate-notes`.
+Merge #11 → final verification on main (docker compose up, verify-site, screenshots of home / music hub / technical hub / entry at desktop + phone) → `gh release create v0.1.0 --generate-notes`.
 
 ## Verified facts vs assumptions
 - Verified: gh account w7-mgfcode on plan `free` (rulesets 403); herdr 0.9.5; codex 0.163.0; agy 1.4.3; docker 29.9 + compose v5.6; node 24.19.
