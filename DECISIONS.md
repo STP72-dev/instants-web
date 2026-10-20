@@ -106,7 +106,12 @@ Codex sessions: HERDR workspace `IWEB`, tab `IWEB__DECIDE__CODEX__ARCH__01` (cod
   roles overview → sound-dna → variant (`suno-*`) → workflow (`*-workflow`); tracks then topic-level entries. Technical guided path by name tokens:
   overview → concept → practice → reference → detail.
 - **Determinism:** no wall-clock values; source identity = INSTANTS git commit + commit time + dirty flag; locale-independent sort; atomic temp-dir swap.
-  Export freshness = export mtime ≥ source mtime.
+  Export freshness = export mtime ≥ source mtime. This makes the snapshot a pure function of source bytes *and* mtimes — accepted
+  (Codex review #21, finding 4): ingest runs only on the owner's machine and the committed snapshot is what Docker/CI/Vercel consume, so
+  checkouts never re-derive it; the stale label is worth more than byte-stability across machines.
+- **Read-only guarantee:** git queries use `--no-optional-locks` (+ `GIT_OPTIONAL_LOCKS=0`) so `git status` cannot refresh INSTANTS/.git/index;
+  output/staging/backup paths are checked against the source on physical (realpath) paths; symlinked sources/exports are rejected;
+  export bytes are secret-scanned too.
 - **Deviation from Codex sketch:** format keys mirror INSTANTS directory names (`md`, `mermaid`, `excalidraw`); no per-file git SHAs (exports in
   `out/` are git-ignored, so mtime comparison is the only signal); topic-level `tags` added for hub styling.
 

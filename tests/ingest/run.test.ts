@@ -1,4 +1,5 @@
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { IngestError, runIngest } from '../../src/lib/ingest/run.ts';
@@ -125,5 +126,60 @@ describe('runIngest', () => {
     runIngest({ sourceDir: t.source, outDir: t.out });
     expect(snapshotFiles(t.source)).toEqual(before);
     expect(() => runIngest({ sourceDir: t.source, outDir: join(t.source, 'content') })).toThrow(/must not overlap/);
+  });
+
+  it('scans exports and leaves out an export that contains a secret', () => {
+    const t = makeTree({
+      'md/ai-clean.md': md('Clean', ['ai']),
+      'out/md/ai-clean.pdf': '%PDF-1.4 (token ' + 'ghp_' + 'Q'.repeat(36) + ')',
+    });
+    const { manifest, excluded } = runIngest({ sourceDir: t.source, outDir: t.out });
+    expect(excluded).toEqual([{ path: 'out/md/ai-clean.pdf', rules: ['github-token'] }]);
+    expect(manifest.entries[0].formats.md!.exports).toEqual({});
+    expect(existsSync(join(t.out, 'exports/md/ai-clean.pdf'))).toBe(false);
+  });
+
+  it('refuses symlinked sources and exports', () => {
+    const t = makeTree({ 'md/ai-a.md': md('A', ['ai']), 'outside.txt': 'host data' });
+    symlinkSync(join(t.source, 'outside.txt'), join(t.source, 'md/ai-link.md'));
+    expect(() => runIngest({ sourceDir: t.source, outDir: t.out })).toThrow(/md\/ai-link\.md: not a regular file/);
+    const u = makeTree({ 'md/ai-a.md': md('A', ['ai']), 'secret.txt': 'x' });
+    mkdirSync(join(u.source, 'out/md'), { recursive: true });
+    symlinkSync(join(u.source, 'secret.txt'), join(u.source, 'out/md/ai-a.pdf'));
+    expect(() => runIngest({ sourceDir: u.source, outDir: u.out })).toThrow(/out\/md\/ai-a\.pdf: not a regular file/);
+  });
+
+  it('refuses an output dir that reaches the source through a symlink', () => {
+    const t = baseTree();
+    symlinkSync(t.source, join(t.root, 'alias'));
+    expect(() => runIngest({ sourceDir: t.source, outDir: join(t.root, 'alias', 'content') })).toThrow(/must not overlap/);
+    expect(existsSync(join(t.source, 'content'))).toBe(false);
+    expect(existsSync(join(t.source, 'content.tmp-ingest'))).toBe(false);
+  });
+
+  it('replaces the previous snapshot and leaves no staging or backup dirs', () => {
+    const t = baseTree();
+    runIngest({ sourceDir: t.source, outDir: t.out });
+    writeFileSync(join(t.out, 'stale.txt'), 'old');
+    runIngest({ sourceDir: t.source, outDir: t.out });
+    expect(existsSync(join(t.out, 'stale.txt'))).toBe(false);
+    expect(existsSync(`${t.out}.tmp-ingest`)).toBe(false);
+    expect(existsSync(`${t.out}.bak-ingest`)).toBe(false);
+  });
+
+  it('records the source commit without writing the source .git/index', () => {
+    const t = baseTree();
+    const git = (...args: string[]) => execFileSync('git', ['-C', t.source, ...args], { encoding: 'utf8' });
+    git('init', '-q');
+    git('add', '-A');
+    git('-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'init');
+    // Make the index stat-cache stale so a plain `git status` would rewrite it.
+    utimesSync(join(t.source, 'md/git-new-repo.md'), new Date(), new Date(Date.now() + 5000));
+    const index = join(t.source, '.git/index');
+    const before = statSync(index).mtimeMs;
+    const { manifest } = runIngest({ sourceDir: t.source, outDir: t.out });
+    expect(manifest.source).toMatchObject({ dirty: false });
+    expect(manifest.source!.commit).toMatch(/^[0-9a-f]{40}$/);
+    expect(statSync(index).mtimeMs).toBe(before);
   });
 });

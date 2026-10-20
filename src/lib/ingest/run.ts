@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
-import { dirname, join, relative, resolve, sep } from 'node:path';
+import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 import {
   EXPECTED_EXPORTS,
   FORMATS,
@@ -49,20 +49,44 @@ interface Candidate {
 const sha256 = (buf: Buffer | string) => createHash('sha256').update(buf).digest('hex');
 const posix = (p: string) => p.split(sep).join('/');
 
+/** Physical path: realpath of the nearest existing ancestor plus the not-yet-existing tail (defeats symlinked components). */
+function physicalPath(p: string): string {
+  let existing = resolve(p);
+  const tail: string[] = [];
+  while (!existsSync(existing)) {
+    tail.unshift(basename(existing));
+    existing = dirname(existing);
+  }
+  return join(realpathSync(existing), ...tail);
+}
+
 function assertSeparate(sourceDir: string, outDir: string): void {
   const inside = (child: string, parent: string) => {
     const rel = relative(parent, child);
     return rel === '' || (!rel.startsWith('..') && !rel.startsWith(sep) && rel !== '..');
   };
-  if (inside(outDir, sourceDir) || inside(sourceDir, outDir)) {
-    throw new IngestError([`output dir ${outDir} must not overlap the read-only source dir ${sourceDir}`]);
+  const src = physicalPath(sourceDir);
+  // Every path ingest writes: the output, its staging dir and its backup dir.
+  for (const target of [outDir, `${outDir}.tmp-ingest`, `${outDir}.bak-ingest`].map(physicalPath)) {
+    if (inside(target, src) || inside(src, target)) {
+      throw new IngestError([`output dir ${outDir} must not overlap the read-only source dir ${sourceDir}`]);
+    }
   }
 }
 
+/** Only regular files are read; symlinks and special files are rejected so nothing outside INSTANTS is pulled in. */
+function isRegularFile(p: string): boolean {
+  return lstatSync(p).isFile();
+}
+
 function sourceInfo(sourceDir: string): Manifest['source'] {
-  // Read-only git queries; INSTANTS is never modified.
+  // Read-only git queries. --no-optional-locks stops `git status` from refreshing (writing) INSTANTS/.git/index.
   const git = (...args: string[]) =>
-    execFileSync('git', ['-C', sourceDir, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    execFileSync('git', ['--no-optional-locks', '-C', sourceDir, ...args], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+      env: { ...process.env, GIT_OPTIONAL_LOCKS: '0' },
+    }).trim();
   try {
     const [commit, committedAt] = git('log', '-1', '--format=%H %cI').split(' ');
     const dirty = git('status', '--porcelain', '--', ...FORMATS) !== '';
@@ -101,6 +125,10 @@ export function runIngest({ sourceDir: rawSource, outDir: rawOut }: IngestOption
         continue;
       }
       const srcPath = join(dir, name);
+      if (!isRegularFile(srcPath)) {
+        problems.push(`${rel}: not a regular file (symlinks are not followed)`);
+        continue;
+      }
       const text = readFileSync(srcPath, 'utf8');
       scannedFiles += 1;
       const hits = scanText(text);
@@ -168,6 +196,7 @@ export function runIngest({ sourceDir: rawSource, outDir: rawOut }: IngestOption
   };
 
   const missingExports: MissingExport[] = [];
+  const exportProblems: string[] = [];
   const exportCounts: Record<ExportKind, number> = { png: 0, pdf: 0 };
   const fileCounts: Record<Format, number> = { md: 0, mermaid: 0, excalidraw: 0 };
   const entries: Entry[] = [];
@@ -190,6 +219,18 @@ export function runIngest({ sourceDir: rawSource, outDir: rawOut }: IngestOption
           const exp = join(sourceDir, 'out', format, `${m.slug}.${kind}`);
           if (!existsSync(exp)) {
             missingExports.push({ slug: m.slug, format, kind });
+            continue;
+          }
+          const expRel = `out/${format}/${m.slug}.${kind}`;
+          if (!isRegularFile(exp)) {
+            exportProblems.push(`${expRel}: not a regular file (symlinks are not followed)`);
+            continue;
+          }
+          // Exports are binary, but uncompressed text (PDF strings, PNG tEXt chunks) is still scanned.
+          scannedFiles += 1;
+          const expHits = scanText(readFileSync(exp).toString('latin1'));
+          if (expHits.length > 0) {
+            excluded.push({ path: expRel, rules: [...new Set(expHits.map((h) => h.rule))].sort(byCodePoint) });
             continue;
           }
           exportCounts[kind] += 1;
@@ -218,7 +259,13 @@ export function runIngest({ sourceDir: rawSource, outDir: rawOut }: IngestOption
     return topic;
   });
 
+  if (exportProblems.length > 0) {
+    rmSync(tmpDir, { recursive: true, force: true });
+    throw new IngestError(exportProblems);
+  }
+
   entries.sort((a, b) => byCodePoint(a.slug, b.slug));
+  excluded.sort((a, b) => byCodePoint(a.path, b.path));
   missingExports.sort((a, b) => byCodePoint(`${a.slug}/${a.format}/${a.kind}`, `${b.slug}/${b.format}/${b.kind}`));
 
   const manifest: Manifest = {
@@ -232,7 +279,16 @@ export function runIngest({ sourceDir: rawSource, outDir: rawOut }: IngestOption
   };
   writeFileSync(join(tmpDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 
-  rmSync(outDir, { recursive: true, force: true });
-  renameSync(tmpDir, outDir);
+  // Swap: keep the previous snapshot as a backup until the new one is in place; restore it if promotion fails.
+  const backup = `${outDir}.bak-ingest`;
+  rmSync(backup, { recursive: true, force: true });
+  if (existsSync(outDir)) renameSync(outDir, backup);
+  try {
+    renameSync(tmpDir, outDir);
+  } catch (err) {
+    if (existsSync(backup)) renameSync(backup, outDir);
+    throw err;
+  }
+  rmSync(backup, { recursive: true, force: true });
   return { manifest, excluded, missingExports };
 }

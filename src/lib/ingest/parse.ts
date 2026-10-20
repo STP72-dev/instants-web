@@ -60,12 +60,20 @@ export function parseMarkdown(text: string, where: string): { meta: EntryMeta; b
   };
 }
 
-/** Reads `%% title:` / `%% tags:` / `%% source:` header comments from a Mermaid file. */
+/**
+ * Reads the leading `%%` comment header of a Mermaid file (`%% title:` / `%% tags:` / `%% source:` / `%% created:`).
+ * Only the contiguous comment block at the top counts; a recognised key may appear once.
+ */
 export function parseMermaid(text: string, where: string): EntryMeta {
   const fields: Record<string, string> = {};
-  for (const line of text.split('\n')) {
+  for (const line of text.split(/\r?\n/)) {
+    if (line.trim() === '' && Object.keys(fields).length === 0) continue;
+    if (!/^\s*%%/.test(line)) break;
     const m = /^\s*%%\s*(title|tags|source|created)\s*:\s*(.*?)\s*$/i.exec(line);
-    if (m && !(m[1].toLowerCase() in fields)) fields[m[1].toLowerCase()] = m[2];
+    if (!m) continue;
+    const key = m[1].toLowerCase();
+    if (key in fields) throw new MetaError(`${where}: duplicate "%% ${key}:" header`);
+    fields[key] = m[2];
   }
   return {
     title: requireString(fields.title, 'title', where),
@@ -110,9 +118,12 @@ export function summarize(body: string): string | null {
     .map((b) => b.trim().replace(/^>\s?/gm, ''))
     .filter((b) => b && !/^(#|\||[-*+] |\d+\. |<|!\[)/.test(b));
   if (blocks.length === 0) return null;
+  // Code spans keep their content verbatim (e.g. `*.md`); emphasis markers elsewhere are dropped.
   const text = blocks[0]
     .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/[`*_~]/g, '')
+    .split(/(`[^`]*`)/)
+    .map((part) => (part.startsWith('`') && part.endsWith('`') && part.length > 1 ? part.slice(1, -1) : part.replace(/(\*\*|__|~~)|(?<!\w)[*_](?=\S)|(?<=\S)[*_](?!\w)/g, '')))
+    .join('')
     .replace(/\s+/g, ' ')
     .trim();
   if (text.length <= 220) return text;

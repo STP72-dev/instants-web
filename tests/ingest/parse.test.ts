@@ -37,6 +37,15 @@ describe('parseMermaid', () => {
     });
   });
 
+  it('only reads the leading comment header', () => {
+    const text = 'flowchart TD\n  A --> B\n%% title: late\n%% tags: x\n%% source: y\n';
+    expect(() => parseMermaid(text, 'mermaid/late.mmd')).toThrow(/missing "title"/);
+  });
+
+  it('rejects duplicate header keys', () => {
+    expect(() => parseMermaid('%% title: a\n%% title: b\n%% tags: t\n%% source: s\n', 'mermaid/d.mmd')).toThrow(/duplicate "%% title:"/);
+  });
+
   it('fails when a header is missing', () => {
     expect(() => parseMermaid('%% title: x\n%% tags: a\nflowchart TD', 'mermaid/x.mmd')).toThrow(/missing "source"/);
   });
@@ -61,6 +70,7 @@ describe('helpers', () => {
   it('summarize strips markup and skips headings', () => {
     expect(summarize('# T\n\n## Problem\nA **b** [c](d) `e`.\n\nNext')).toBe('A b c e.');
     expect(summarize('# T\n\n> Quoted *intro*\n> line two\n\n- list')).toBe('Quoted intro line two');
+    expect(summarize('Fails for `.claude/commands/*.md` and snake_case, *really*.')).toBe('Fails for .claude/commands/*.md and snake_case, really.');
     expect(summarize('# only headings\n## x')).toBeNull();
   });
 

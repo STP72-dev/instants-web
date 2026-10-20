@@ -414,7 +414,7 @@
       ],
       "source": "INSTANTS /prime fix, 2026-10-19",
       "created": "2026-10-19",
-      "summary": "A custom command in .claude/commands/.md fails as a whole (\"Shell command failed for pattern ...\") when one injected !cmd exits non-zero, e.g. git log in a repo with no commits yet.",
+      "summary": "A custom command in .claude/commands/*.md fails as a whole (\"Shell command failed for pattern ...\") when one injected !cmd exits non-zero, e.g. git log in a repo with no commits yet.",
       "topic": "claude-code",
       "track": null,
       "role": "detail",
@@ -1580,7 +1580,7 @@
       ],
       "source": "Production analysis 2026-10-20 of Audius track yGAOP (Gabe Sage)",
       "created": "2026-10-20",
-      "summary": "Extend the uploaded live-session snippet into a full DJ-mix-length track without losing its identity. Recommended first generation; target 6 min if supported.",
+      "summary": "Extend the uploaded live-session snippet into a full DJ-mix-length track without losing its identity. Recommended first generation; target ~6 min if supported.",
       "topic": "nonconformist",
       "track": "sage-solo",
       "role": "variant",
@@ -1637,7 +1637,7 @@
       ],
       "source": "Production analysis 2026-10-20 of Audius track yGAOP (Gabe Sage)",
       "created": "2026-10-20",
-      "summary": "Evolve the same groove into a deeper late-night warehouse track while keeping the source rhythm and drum breaks. Second experiment, after 3A works; target 6–7 min if supported.",
+      "summary": "Evolve the same groove into a deeper late-night warehouse track while keeping the source rhythm and drum breaks. Second experiment, after 3A works; target ~6–7 min if supported.",
       "topic": "nonconformist",
       "track": "sage-solo",
       "role": "variant",
@@ -2130,7 +2130,7 @@
     }
   ],
   "secretScan": {
-    "scannedFiles": 64,
+    "scannedFiles": 156,
     "excluded": []
   }
 }
