@@ -1,9 +1,315 @@
 ---
 import Base from '../layouts/Base.astro';
+import ButtonLink from '../components/ButtonLink.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import TopicTile from '../components/TopicTile.astro';
+import { manifest, orderedTopics, previewSource, thumbnail, totalFiles } from '../lib/content.ts';
+
+const topics = orderedTopics();
+const { counts } = manifest;
+
+// Hero collage: one dark diagram per topic (Excalidraw exports), most-populated topics first.
+const collage = topics
+  .map((t) => manifest.entries.find((e) => e.topic === t.slug && previewSource(e)?.format === 'excalidraw'))
+  .filter((e) => e !== undefined)
+  .slice(0, 3);
+
+const stats = [
+  { value: counts.entries, label: 'entries' },
+  { value: counts.topics, label: 'topics' },
+  { value: totalFiles(), label: 'downloadable files' },
+  { value: 5, label: 'formats' },
+];
+
+const steps = [
+  { n: '01', title: 'Open', text: 'Find the entry by topic, tag or search. Every entry is one problem, solved once.' },
+  { n: '02', title: 'Copy', text: 'Diagrams render live, notes read cleanly, sources sit one click away in every format.' },
+  { n: '03', title: 'Done', text: 'Paste it into the next project. If it took longer than a minute, the entry needs work.' },
+];
 ---
 
 <Base title="INSTANTS" section="home">
-  <section class="container" style="padding-block: var(--space-9)">
-    <h1>INSTANTS</h1>
+  <section class="hero container">
+    <div class="copy">
+      <p class="eyebrow rise">Instant-solution library · {counts.entries} entries · {counts.topics} topics</p>
+      <h1 class="rise" style="--i: 1">Knowledge, bottled for the <em>next instant</em>.</h1>
+      <p class="lede rise" style="--i: 2">
+        INSTANTS is a personal bank of diagrams, sketches and copy-ready notes pulled from real projects — music production, AI
+        tooling, interviews, git hygiene. Each entry opens in seconds and downloads in every format it exists in.
+      </p>
+      <div class="actions rise" style="--i: 3">
+        <ButtonLink href="#topics" variant="primary">Browse the topics</ButtonLink>
+        <ButtonLink href="/search/">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            ><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg
+          >
+          Search the library
+        </ButtonLink>
+      </div>
+    </div>
+    <div class="collage" aria-hidden="true">
+      {
+        collage.map((entry, i) => (
+          <div class="plate" style={`--n: ${i}`}>
+            <img src={thumbnail(entry)!.src} alt="" width="720" height="405" loading={i === 0 ? 'eager' : 'lazy'} />
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="container" aria-label="Library at a glance">
+    <dl class="stats">
+      {
+        stats.map((s) => (
+          <div>
+            <dt class="eyebrow">{s.label}</dt>
+            <dd>{s.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+
+  <section class="container steps-wrap" aria-labelledby="how">
+    <h2 id="how" class="visually-hidden">How INSTANTS works</h2>
+    <ol class="steps">
+      {
+        steps.map((s) => (
+          <li>
+            <span class="eyebrow num">{s.n}</span>
+            <h3>{s.title}</h3>
+            <p>{s.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="container" id="topics" aria-labelledby="topics-title">
+    <SectionHeader kicker="The library" title="Topics" id="topics-title">
+      <p>Music topics read as stories — overview, sound DNA, variants, workflow. Technical topics read as a guided path from overview to detail.</p>
+    </SectionHeader>
+    {
+      topics.length === 0 ? (
+        <p class="no-topics">The snapshot is empty — run <code>npm run ingest</code> to bottle the first entries.</p>
+      ) : (
+        <div class:list={['topics', { solo: topics.length === 1 }]}>
+          {topics.map((t, i) => (
+            // The 2×2 feature only works with enough siblings to fill the rows beside and below it.
+            <TopicTile topic={t} featured={i === 0 && t.kind === 'music' && topics.length >= 4} />
+          ))}
+        </div>
+      )
+    }
   </section>
 </Base>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-7);
+    padding-block: var(--space-9) var(--space-8);
+  }
+
+  h1 {
+    font-size: var(--step-5);
+    line-height: 0.98;
+    font-weight: 300;
+    letter-spacing: -0.035em;
+    margin-top: var(--space-4);
+    max-width: 14ch;
+  }
+
+  h1 em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--accent);
+  }
+
+  .lede {
+    margin-top: var(--space-5);
+    max-width: 54ch;
+    font-size: var(--step-1);
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+
+  .collage {
+    position: relative;
+    aspect-ratio: 4 / 3.4;
+  }
+
+  .plate {
+    position: absolute;
+    width: 82%;
+    border-radius: var(--radius-2);
+    border: 1px solid var(--line-strong);
+    overflow: hidden;
+    background: var(--bg-raised);
+    box-shadow: 0 30px 80px -30px rgb(0 0 0 / 0.9);
+    transition: transform var(--dur-3) var(--ease-out);
+  }
+
+  .plate:nth-child(1) {
+    top: 0;
+    right: 0;
+    transform: rotate(2.5deg);
+    z-index: 3;
+  }
+
+  .plate:nth-child(2) {
+    top: 30%;
+    left: 0;
+    transform: rotate(-3deg);
+    z-index: 2;
+  }
+
+  .plate:nth-child(3) {
+    bottom: 0;
+    right: 6%;
+    transform: rotate(1deg);
+    z-index: 1;
+  }
+
+  .collage:hover .plate {
+    transform: rotate(0deg) translateY(-4px);
+  }
+
+  .plate img {
+    width: 100%;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-block: 1px solid var(--line);
+  }
+
+  .stats > div {
+    padding: var(--space-5) var(--space-4);
+    display: flex;
+    flex-direction: column-reverse;
+    gap: var(--space-1);
+  }
+
+  .stats > div + div {
+    border-left: 1px solid var(--line);
+  }
+
+  dd {
+    font-family: var(--font-display);
+    font-size: var(--step-4);
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .steps-wrap {
+    padding-block: var(--space-8);
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+    padding: 0;
+    list-style: none;
+  }
+
+  .steps h3 {
+    font-size: var(--step-2);
+    margin-block: var(--space-2);
+  }
+
+  .steps p {
+    color: var(--text-muted);
+  }
+
+  .num {
+    color: var(--accent);
+  }
+
+  .topics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  .topics > :global(.featured) {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .topics.solo > :global(*) {
+    grid-column: 1 / -1;
+  }
+
+  .no-topics {
+    padding: var(--space-6);
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-2);
+    color: var(--text-muted);
+  }
+
+  .no-topics code {
+    font-family: var(--font-mono);
+    color: var(--text);
+  }
+
+  @media (max-width: 60rem) {
+    .hero {
+      grid-template-columns: 1fr;
+      padding-top: var(--space-8);
+    }
+
+    .collage {
+      max-width: 34rem;
+    }
+
+    .topics > :global(.featured) {
+      grid-row: auto;
+    }
+
+    .topics {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stats > div:nth-child(3) {
+      border-left: 0;
+    }
+
+    .stats > div:nth-child(n + 3) {
+      border-top: 1px solid var(--line);
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .topics,
+    .steps {
+      grid-template-columns: 1fr;
+    }
+
+    .topics > :global(.featured) {
+      grid-column: auto;
+      grid-row: auto;
+    }
+
+    .steps {
+      gap: var(--space-5);
+    }
+  }
+</style>
