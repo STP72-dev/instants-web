@@ -1,0 +1,204 @@
+---
+import type { Topic } from '../lib/manifest.ts';
+import { accentVar, topicAccent, topicEntries, topicUrl } from '../lib/content.ts';
+import TopicMotif from './TopicMotif.astro';
+
+interface Props {
+  topic: Topic;
+  featured?: boolean;
+}
+
+const { topic, featured = false } = Astro.props;
+const entries = topicEntries(topic);
+const kindLabel = topic.kind === 'music' ? 'Track-DNA stories' : 'Guided path';
+// Drop a leading "<Topic title> — " only when the title really starts with it.
+const prefix = `${topic.title} — `;
+const highlights =
+  topic.kind === 'music'
+    ? topic.tracks.map((t) => t.title)
+    : entries.slice(0, 3).map((e) => (e.title.startsWith(prefix) ? e.title.slice(prefix.length) : e.title));
+---
+
+<article class:list={['tile', { featured }]} style={accentVar(topicAccent(topic.slug))}>
+  <div class="motif">
+    <TopicMotif slug={topic.slug} kind={topic.kind} />
+  </div>
+  <div class="body">
+    <p class="eyebrow kind"><span class="dot" aria-hidden="true"></span>{kindLabel} · {entries.length} {entries.length === 1 ? 'entry' : 'entries'}</p>
+    <h3><a href={topicUrl(topic.slug)}>{topic.title}</a></h3>
+    {
+      featured && topic.kind === 'music' && (
+        <ol class="story" aria-label="Each track reads as a story">
+          <li>Overview</li>
+          <li>Sound DNA</li>
+          <li>Variants</li>
+          <li>Workflow</li>
+        </ol>
+      )
+    }
+    <ul class="highlights">
+      {highlights.map((h) => <li>{h}</li>)}
+    </ul>
+    <span class="go" aria-hidden="true">Open {topic.kind === 'music' ? 'the stories' : 'the path'} →</span>
+  </div>
+</article>
+
+<style>
+  .tile {
+    position: relative;
+    container-type: inline-size;
+    display: grid;
+    grid-template-rows: 7rem 1fr;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-3);
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--accent) 7%, transparent), transparent 60%),
+      var(--surface);
+    overflow: hidden;
+    transition:
+      transform var(--dur-2) var(--ease-out),
+      border-color var(--dur-2) var(--ease-out);
+  }
+
+  .tile:hover,
+  .tile:focus-within {
+    transform: translateY(-3px);
+    border-color: color-mix(in oklab, var(--accent) 50%, var(--line));
+  }
+
+  .motif {
+    padding: var(--space-4) var(--space-5) 0;
+    opacity: 0.85;
+    mask-image: linear-gradient(180deg, #000 40%, transparent);
+  }
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5) var(--space-5);
+  }
+
+  .kind {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+  }
+
+  h3 {
+    font-size: var(--step-3);
+    line-height: var(--leading-tight);
+    font-weight: 360;
+  }
+
+  .featured {
+    grid-template-rows: minmax(9rem, 1fr) auto;
+  }
+
+  .featured .motif {
+    padding: var(--space-6) var(--space-6) 0;
+  }
+
+  .featured .body {
+    padding: var(--space-5) var(--space-6) var(--space-6);
+    gap: var(--space-4);
+  }
+
+  /* Scales with the tile so long names (e.g. NONCONFORMIST) never clip. */
+  .featured h3 {
+    font-size: clamp(2.2rem, 9cqi, var(--step-5));
+    font-weight: 300;
+    overflow-wrap: anywhere;
+  }
+
+  .story {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+  }
+
+  .story li {
+    counter-increment: step;
+  }
+
+  .story li::before {
+    content: counter(step, decimal-leading-zero) ' ';
+    color: var(--accent);
+  }
+
+  .story li + li::after {
+    content: none;
+  }
+
+  h3 a {
+    text-decoration: none;
+  }
+
+  h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  h3 a:focus-visible {
+    outline: none;
+  }
+
+  .tile:has(h3 a:focus-visible) {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .highlights {
+    display: grid;
+    gap: var(--space-1);
+    padding: 0;
+    list-style: none;
+    color: var(--text-muted);
+    font-size: 0.93rem;
+  }
+
+  .featured .highlights {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .featured .highlights li {
+    padding: 0.2rem 0.7rem;
+    border: 1px solid color-mix(in oklab, var(--accent) 35%, var(--line));
+    border-radius: var(--radius-pill);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    color: var(--text);
+  }
+
+  .highlights li {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .go {
+    margin-top: auto;
+    padding-top: var(--space-2);
+    font-size: 0.88rem;
+    color: var(--accent);
+  }
+</style>
