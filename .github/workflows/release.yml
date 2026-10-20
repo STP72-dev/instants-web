@@ -59,7 +59,7 @@ jobs:
 
       # Secret scan runs before any dependency is installed.
       - name: Secret scan (full history)
-        run: node scripts/scan-diff.ts "$(git rev-list --max-parents=0 HEAD | tail -1)"
+        run: node scripts/scan-diff.ts --all
 
       - name: Verify (lint, typecheck, tests incl. committed-snapshot audit)
         run: |
@@ -93,14 +93,28 @@ jobs:
             type=raw,value=latest,enable=${{ steps.tag.outputs.latest == 'true' }}
 
       # Release tags are immutable: a re-run reuses the image already published for this version.
+      # GitHub Packages API: HTTP 404 = package not published yet (build); any other error fails closed.
       - name: Existing image for this version
         id: existing
         env:
+          GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.tag.outputs.name }}
         run: |
-          if digest="$(docker buildx imagetools inspect "$IMAGE:${TAG#v}" --format '{{json .Manifest.Digest}}' 2>/dev/null | tr -d '"')" && [ -n "$digest" ]; then
-            echo "digest=$digest" >> "$GITHUB_OUTPUT"
-            echo "::notice::$IMAGE:${TAG#v} already published as $digest; reusing it (no rebuild, no re-tag)."
+          version="${TAG#v}"
+          pkg="users/${GITHUB_REPOSITORY_OWNER}/packages/container/${GITHUB_REPOSITORY#*/}/versions"
+          if out="$(gh api --paginate "$pkg" --jq ".[] | select(.metadata.container.tags | index(\"$version\")) | .name" 2>&1)"; then
+            digest="$(printf '%s' "$out" | head -n1)"
+            if [ -n "$digest" ]; then
+              echo "digest=$digest" >> "$GITHUB_OUTPUT"
+              echo "::notice::$IMAGE:$version already published as $digest; reusing it (no rebuild, no re-tag)."
+            else
+              echo "$IMAGE:$version not published yet; building."
+            fi
+          elif printf '%s' "$out" | grep -q 'HTTP 404'; then
+            echo "Package not published yet; building."
+          else
+            echo "::error::Could not determine whether $IMAGE:$version exists; refusing to (re)publish. API said: $out"
+            exit 1
           fi
 
       # The only site build: `npm run build` runs inside this image build (Dockerfile build stage).

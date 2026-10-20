@@ -17,8 +17,9 @@ Before anything is built it refuses tags whose commit is not on `main`, scans th
 dependencies), and runs lint, typecheck and the unit tests — including the committed-snapshot audit that sha256-checks and secret-scans every
 file in `content/` (PNG/PDF exports incl. inflated PDF streams and PNG text chunks).
 
-Release tags are immutable: if `ghcr.io/w7-mgfcode/instants-web:<version>` already exists (a re-run), the workflow reuses that image digest
-instead of rebuilding and re-tagging, and only repeats the extraction and the Vercel step.
+Release tags are immutable: the workflow asks the GitHub Packages API whether `ghcr.io/w7-mgfcode/instants-web:<version>` exists. If it does
+(a re-run), that digest is reused — no rebuild, no re-tag — and only the extraction and the Vercel step repeat. HTTP 404 (package not
+published yet) means build; any other API error stops the release instead of guessing.
 
 The site is built **once**, inside the Docker image build (`npm run build` in the Dockerfile build stage).
 

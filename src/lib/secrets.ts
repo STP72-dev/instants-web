@@ -1,3 +1,5 @@
+import { inflateSync } from 'node:zlib';
+
 /** Secret patterns shared by the ingest snapshot scan and the pre-push diff scan. */
 export interface SecretRule {
   id: string;
@@ -29,68 +31,115 @@ export interface SecretHit {
   line: number;
 }
 
-import { inflateSync } from 'node:zlib';
+/** Long lines are scanned in overlapping windows so one huge binary "line" cannot cause super-linear regex work. */
+const WINDOW = 4096;
+const OVERLAP = 256;
+
+function windows(line: string): string[] {
+  if (line.length <= WINDOW) return [line];
+  const out: string[] = [];
+  for (let i = 0; i < line.length; i += WINDOW - OVERLAP) out.push(line.slice(i, i + WINDOW));
+  return out;
+}
 
 /** Returns every rule hit in `text` (1-based line numbers). Never returns the matched value. */
 export function scanText(text: string): SecretHit[] {
   const hits: SecretHit[] = [];
   text.split('\n').forEach((line, i) => {
+    const parts = windows(line);
     for (const rule of SECRET_RULES) {
-      if (rule.pattern.test(line)) hits.push({ rule: rule.id, line: i + 1 });
+      if (parts.some((part) => rule.pattern.test(part))) hits.push({ rule: rule.id, line: i + 1 });
     }
   });
   return hits;
 }
 
-function tryInflate(bytes: Buffer): string | null {
+/** Limits for binary scanning; exceeding them is reported as a finding (fail closed), never treated as clean. */
+export const BINARY_LIMITS = { maxInput: 64 * 1024 * 1024, maxInflated: 32 * 1024 * 1024, maxTotalInflated: 128 * 1024 * 1024 };
+
+/** Rule id reported when a binary cannot be fully scanned. */
+export const UNSCANNABLE = 'unscannable-content';
+
+class Unscannable extends Error {}
+
+function inflateBounded(bytes: Buffer, budget: { left: number }): string {
+  let out: Buffer;
   try {
-    return inflateSync(bytes).toString('latin1');
+    out = inflateSync(bytes, { maxOutputLength: Math.min(BINARY_LIMITS.maxInflated, budget.left) });
   } catch {
-    return null;
+    throw new Unscannable();
   }
+  budget.left -= out.length;
+  return out.toString('latin1');
 }
 
-/** Text a binary export can carry: raw bytes, inflated PDF streams, and PNG tEXt / zTXt / iTXt chunks. */
-export function binaryTexts(buf: Buffer): string[] {
-  const texts = [buf.toString('latin1')];
-  // PDF: inflate every stream body (FlateDecode); non-deflate streams simply fail to inflate.
-  if (buf.subarray(0, 5).toString('latin1') === '%PDF-') {
-    const raw = texts[0];
-    const re = /stream\r?\n/g;
-    let m: RegExpExecArray | null;
-    while ((m = re.exec(raw)) !== null) {
-      const start = m.index + m[0].length;
-      const end = raw.indexOf('endstream', start);
-      if (end < 0) break;
-      const inflated = tryInflate(buf.subarray(start, end));
-      if (inflated) texts.push(inflated);
-      re.lastIndex = end;
-    }
-  }
-  // PNG: walk chunks; zTXt is always compressed, iTXt when its compression flag is set.
-  if (buf.length > 8 && buf.readUInt32BE(0) === 0x89504e47) {
-    for (let off = 8; off + 12 <= buf.length; ) {
-      const len = buf.readUInt32BE(off);
-      const type = buf.subarray(off + 4, off + 8).toString('latin1');
-      const data = buf.subarray(off + 8, off + 8 + len);
-      const nul = data.indexOf(0);
-      if (type === 'zTXt' && nul >= 0) {
-        const t = tryInflate(data.subarray(nul + 2));
-        if (t) texts.push(t);
-      } else if (type === 'iTXt' && nul >= 0 && data[nul + 1] === 1) {
-        // keyword\0 flag method language\0 translated\0 text
-        const lang = data.indexOf(0, nul + 3);
-        const translated = lang >= 0 ? data.indexOf(0, lang + 1) : -1;
-        const t = translated >= 0 ? tryInflate(data.subarray(translated + 1)) : null;
-        if (t) texts.push(t);
-      }
-      off += 12 + len;
-    }
+const IMAGE_FILTERS = new Set(['DCTDecode', 'JPXDecode', 'CCITTFaxDecode', 'JBIG2Decode', 'RunLengthDecode']);
+
+/**
+ * PDF streams: the length comes from a direct /Length in the stream dictionary (else the next "endstream").
+ * FlateDecode-only streams are inflated (failure → unscannable); image codecs are skipped; any other filter chain
+ * (ASCII85, ASCIIHex, LZW, …) is unscannable.
+ */
+function pdfStreamTexts(buf: Buffer, budget: { left: number }): string[] {
+  const raw = buf.toString('latin1');
+  const texts: string[] = [];
+  // A stream keyword directly follows its dictionary's ">>" (this also skips the "stream" inside "endstream").
+  const re = /(?<=>>[ \t\r\n]{0,4})stream\r?\n/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(raw)) !== null) {
+    const start = m.index + m[0].length;
+    const dictStart = raw.lastIndexOf('<<', m.index);
+    const dict = dictStart >= 0 ? raw.slice(dictStart, m.index) : '';
+    const len = /\/Length\s+(\d+)(?!\s+\d+\s+R)/.exec(dict);
+    const end = len ? start + Number(len[1]) : raw.indexOf('endstream', start);
+    if (end < start || end > raw.length) throw new Unscannable();
+    const filters = [...dict.matchAll(/\/(\w+Decode)\b/g)].map((f) => f[1]);
+    const body = buf.subarray(start, end);
+    if (filters.length === 0) texts.push(body.toString('latin1'));
+    else if (filters.every((f) => f === 'FlateDecode')) texts.push(inflateBounded(body, budget));
+    else if (!filters.every((f) => IMAGE_FILTERS.has(f))) throw new Unscannable();
+    re.lastIndex = end;
   }
   return texts;
 }
 
-/** Secret scan for binary files (exports): raw bytes plus every compressed text payload. */
+/** PNG: zTXt is always compressed, iTXt when its compression flag is set; tEXt is covered by the raw-bytes scan. */
+function pngTexts(buf: Buffer, budget: { left: number }): string[] {
+  const texts: string[] = [];
+  for (let off = 8; off + 12 <= buf.length; ) {
+    const len = buf.readUInt32BE(off);
+    const type = buf.subarray(off + 4, off + 8).toString('latin1');
+    const data = buf.subarray(off + 8, off + 8 + len);
+    const nul = data.indexOf(0);
+    if (type === 'zTXt' && nul >= 0) texts.push(inflateBounded(data.subarray(nul + 2), budget));
+    else if (type === 'iTXt' && nul >= 0 && data[nul + 1] === 1) {
+      // keyword\0 flag method language\0 translated\0 text
+      const lang = data.indexOf(0, nul + 3);
+      const translated = lang >= 0 ? data.indexOf(0, lang + 1) : -1;
+      if (translated < 0) throw new Unscannable();
+      texts.push(inflateBounded(data.subarray(translated + 1), budget));
+    }
+    off += 12 + len;
+  }
+  return texts;
+}
+
+/** Text a binary export can carry: raw bytes, inflated PDF streams, PNG compressed text chunks. Throws Unscannable. */
+export function binaryTexts(buf: Buffer): string[] {
+  if (buf.length > BINARY_LIMITS.maxInput) throw new Unscannable();
+  const budget = { left: BINARY_LIMITS.maxTotalInflated };
+  const texts = [buf.toString('latin1')];
+  if (buf.subarray(0, 5).toString('latin1') === '%PDF-') texts.push(...pdfStreamTexts(buf, budget));
+  if (buf.length > 8 && buf.readUInt32BE(0) === 0x89504e47) texts.push(...pngTexts(buf, budget));
+  return texts;
+}
+
+/** Secret scan for binary files (exports). A file that cannot be fully scanned yields an `unscannable-content` hit. */
 export function scanBinary(buf: Buffer): SecretHit[] {
-  return binaryTexts(buf).flatMap((t) => scanText(t));
+  try {
+    return binaryTexts(buf).flatMap((t) => scanText(t));
+  } catch (err) {
+    if (err instanceof Unscannable) return [{ rule: UNSCANNABLE, line: 0 }];
+    throw err;
+  }
 }
