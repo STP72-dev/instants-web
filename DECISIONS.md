@@ -119,3 +119,20 @@ Codex sessions: HERDR workspace `IWEB`, tab `IWEB__DECIDE__CODEX__ARCH__01` (cod
 `/` · `/topics/<topic>/` · `/entries/<slug>/` · `/search/` + `/search-index.json` · `/files/<format>/<slug>.<ext>` · `/exports/<format>/<slug>.<png|pdf>` ·
 `/downloads/<topic>.zip` · `/_astro/*`. Content types: `.md` text/markdown, `.mmd` text/plain, `.excalidraw` application/vnd.excalidraw+json,
 `.png` image/png, `.pdf` application/pdf, `.zip` application/zip (all text types `charset=utf-8`).
+
+## D7–D10 — lead decisions taken without a full Codex ranking (2026-10-20)
+
+These were bounded implementation choices made during the build. They did not go through the brainstorm/rank protocol;
+each was instead reviewed adversarially by Codex in its PR. Recorded here so they are visible and reversible.
+
+- **D7 Topic zips — own deterministic ZIP writer (PR #30)** instead of a dependency such as fflate. Reasons: `package.json` was owned by a
+  parallel worker at the time; ~100 lines on `node:zlib` (deflate + `crc32`) give byte-identical archives with no new supply-chain surface.
+  Risk accepted: no ZIP64 (guarded: >65535 entries, >4 GiB, oversize names fail loudly). Reversal: swap `createZip` for a library.
+- **D8 Excalidraw fonts self-hosted (PR #26)** from the pinned package via a static endpoint (`/excalidraw/fonts`, CJK Xiaolai excluded,
+  520 KB vs 14 MB). Excalidraw's built-in esm.sh fallback is rewritten by a Vite transform that fails the build if the pattern changes.
+  Found by the CSP browser check, not by unit tests.
+- **D9 Content-Security-Policy (PR #31)**: hash-based `script-src` (hashes computed from the built HTML for both nginx and Vercel),
+  `style-src 'unsafe-inline'` (Mermaid/Excalidraw inject styles), `object-src 'none'`, no `'unsafe-eval'`; enforced in the required `ci`
+  check against the Docker image and before every Vercel deploy.
+- **D10 Orchestration**: at most 4 hosted sessions at once; the decision Codex session (`IWEB__DECIDE__CODEX__ARCH__01`) was reused as a
+  second reviewer/auditor instead of opening a fifth session. Workers never merged; every merge, rebase and evaluation was done by the lead.
