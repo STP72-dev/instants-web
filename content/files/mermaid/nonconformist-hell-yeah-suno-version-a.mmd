@@ -1,0 +1,29 @@
+%% title: NONCONFORMIST — hell YEAH, Version A arrangement timeline
+%% tags: nonconformist, music, techno, suno, arrangement
+%% source: brief in md/nonconformist-hell-yeah-suno-version-a.md (track DNA analysis 2026-10-20)
+%%{init: {"flowchart": {"wrappingWidth": 170}}}%%
+flowchart LR
+    subgraph MOTIF["Rubbery hollow synth motif — repeats under every section"]
+        direction LR
+        A1["<b>1 · Intro</b><br/>hollow synth notes,<br/>muted clicks<br/>●○○○○"]
+        A2["<b>2 · Rhythmic Build</b><br/>woody + metallic hits,<br/>rolling toms<br/>●●○○○"]
+        A3["<b>3 · Groove Development</b><br/>shuffled hats, rimshots,<br/>hand drums<br/>●●●○○"]
+        A4["<b>4 · Low-End Arrival</b><br/>4/4 kick + elastic sub-bass<br/>lock in<br/>●●●●●"]
+        A5["<b>5 · Main Instrumental Groove</b><br/>filter-modulated motif,<br/>tribal fills<br/>●●●●●"]
+        A6["<b>6 · Percussive Variation</b><br/>tom fills, dropouts,<br/>pulse keeps going<br/>●●●●○"]
+        A7["<b>7 · Main Groove Return</b><br/>full kick, bass,<br/>percussion<br/>●●●●●"]
+        A8["<b>8 · Outro</b><br/>layers subtract,<br/>motif + bass fade<br/>●●○○○"]
+        A1 --> A2 --> A3 == "STEP UP · snippet ~24 s bass jump" ==> A4 --> A5 --> A6 --> A7 --> A8
+    end
+
+    LEGEND["● = density / energy (1–5)<br/>dark = full kick + bass"]
+    MOTIF ~~~ LEGEND
+
+    classDef build fill:#f4f4f4,stroke:#888
+    classDef full fill:#2b2b2b,stroke:#000,color:#fff
+    classDef dip fill:#6b6b6b,stroke:#000,color:#fff
+    classDef note fill:#fff,stroke:#bbb,stroke-dasharray:4 3
+    class A1,A2,A3,A8 build
+    class A4,A5,A7 full
+    class A6 dip
+    class LEGEND note

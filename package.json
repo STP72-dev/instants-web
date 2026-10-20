@@ -14,10 +14,12 @@
     "typecheck": "astro check",
     "test": "vitest run",
     "ci": "npm run lint && npm run typecheck && npm test && npm run build",
-    "scan:diff": "node scripts/scan-diff.ts"
+    "scan:diff": "node scripts/scan-diff.ts",
+    "ingest": "node scripts/ingest.ts"
   },
   "dependencies": {
-    "astro": "7.4.1"
+    "astro": "7.4.1",
+    "yaml": "2.9.1"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.11",

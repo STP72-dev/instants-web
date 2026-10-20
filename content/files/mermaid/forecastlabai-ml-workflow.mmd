@@ -1,0 +1,28 @@
+%% title: ForecastLabAI — end-to-end ML workflow
+%% tags: forecastlabai, interview, ml-pipeline, mlops
+%% source: ForecastLabAI @79e8dce, brief in md/forecastlabai-ml-workflow.md
+%%{init: {"flowchart": {"wrappingWidth": 220}}}%%
+flowchart LR
+    subgraph LIFE["Lifecycle — separate API workflows, not one request"]
+        direction TB
+        S1["<b>1 · Ingest</b><br/>sales, price, promo, inventory<br/><i>ingest</i>"]
+        S2["<b>2 · Features</b><br/>lags, shifted rolling, calendar<br/><i>featuresets</i>"]
+        S3["<b>3 · Train</b><br/>baselines, regression, trees<br/><i>forecasting</i>"]
+        S4["<b>4 · Backtest</b><br/>chronological folds + metrics<br/><i>backtesting</i>"]
+        S5["<b>5 · Select & register</b><br/>rank, store artifact, set alias<br/><i>model_selection + registry</i>"]
+        S6["<b>6 · Forecast</b><br/>future demand, what-if<br/><i>forecasting + scenarios</i>"]
+        S7["<b>7 · AI decision support</b><br/>RAG assistant, experiment agent<br/><i>rag + agents</i>"]
+        S1 --> S2 --> S3 --> S4 --> S5
+        S5 -- "load champion via alias" --> S6
+        S6 --> S7
+    end
+
+    subgraph DEMO["Demo wiring — make demo → scripts/run_demo.py"]
+        direction TB
+        X1["seed"] --> X2["features"] --> X3["train ×3"] --> X4["backtest"] --> X5["register"] --> X6["alias"] --> X7["agent"]
+    end
+
+    LIFE ~~~ DEMO
+
+    classDef ai fill:#eef4ff,stroke:#3b5bdb,stroke-width:2px
+    class S7,X7 ai

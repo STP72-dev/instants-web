@@ -1,0 +1,37 @@
+%% title: NONCONFORMIST — hell YEAH, sound layer stack and snippet timeline
+%% tags: nonconformist, music, techno, track-dna, sound-design
+%% source: brief in md/nonconformist-hell-yeah-sound-dna.md (37.9 s snippet, track DNA analysis 2026-10-20)
+%%{init: {"flowchart": {"wrappingWidth": 200}}}%%
+flowchart LR
+    HEAD["<b>~126 BPM · 4/4 · instrumental</b><br/>estimates from the 37.9 s snippet"]
+
+    subgraph STACK["Layer stack — high ↑ / low ↓"]
+        direction TB
+        L5["<b>Atmosphere</b><br/>dark, slightly futuristic,<br/>playful, hypnotic"]
+        L4["<b>Percussion</b><br/>layered toms, woody clicks,<br/>metallic hits, rolling fills"]
+        L3["<b>Synth motif</b><br/>rounded, hollow, short repeating<br/>notes — rubbery, resonant"]
+        L2["<b>Bassline</b><br/>deep, elastic,<br/>repetitive electronic bass"]
+        L1["<b>Kick</b><br/>tight, steady four-on-the-floor,<br/>increasingly prominent"]
+        L5 ~~~ L4 ~~~ L3 ~~~ L2 ~~~ L1
+    end
+
+    subgraph TIME["Snippet timeline 0 → 37.9 s"]
+        direction LR
+        T1["<b>0 – ~24 s</b><br/>synth motif + interlocking<br/>percussion lead, light low end<br/>●●○○○"]
+        T2["<b>~24 – 37.9 s</b><br/>heavier, fuller groove:<br/>kick + bass carry it<br/>●●●●●"]
+        T1 == "~24 s · LOW-END ARRIVAL" ==> T2
+    end
+
+    HEAD ~~~ STACK ~~~ TIME
+
+    NOTE["Groove: syncopated, densely interlocking but danceable<br/>Build order: synth + percussion first, low end later<br/>dark = low end (kick + bass)<br/>● = energy 1–5"]
+    TIME ~~~ NOTE
+
+    classDef head fill:#fff,stroke:#000,stroke-width:2px
+    classDef top fill:#f4f4f4,stroke:#888
+    classDef low fill:#2b2b2b,stroke:#000,color:#fff
+    classDef note fill:#fff,stroke:#bbb,stroke-dasharray:4 3
+    class HEAD head
+    class L5,L4,L3,T1 top
+    class L2,L1,T2 low
+    class NOTE note

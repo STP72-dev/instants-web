@@ -1,0 +1,2136 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "commit": "9c30daaa5eeeeade5eb45b9fb2b88e954590439d",
+    "committedAt": "2026-10-20T14:27:48+02:00",
+    "dirty": false
+  },
+  "counts": {
+    "entries": 38,
+    "topics": 6,
+    "files": {
+      "md": 30,
+      "mermaid": 13,
+      "excalidraw": 21
+    },
+    "exports": {
+      "png": 34,
+      "pdf": 58
+    }
+  },
+  "topics": [
+    {
+      "slug": "ai",
+      "title": "AI",
+      "kind": "technical",
+      "entries": [
+        "ai-start-cheatsheet",
+        "ai-start-guide",
+        "ai-model-routing",
+        "ai-doc-update-loop",
+        "ai-secrets-flow"
+      ],
+      "tracks": [],
+      "tags": [
+        "ai",
+        "cheatsheet",
+        "determinism",
+        "documentation",
+        "effort",
+        "model-routing",
+        "onboarding",
+        "secrets",
+        "security",
+        "workflow"
+      ]
+    },
+    {
+      "slug": "claude-code",
+      "title": "Claude Code",
+      "kind": "technical",
+      "entries": [
+        "claude-code-command-shell-exit-code"
+      ],
+      "tracks": [],
+      "tags": [
+        "claude-code",
+        "exit-code",
+        "shell",
+        "slash-commands"
+      ]
+    },
+    {
+      "slug": "forecastlabai",
+      "title": "ForecastLabAI",
+      "kind": "technical",
+      "entries": [
+        "forecastlabai-interview-pitch",
+        "forecastlabai-overview-stack",
+        "forecastlabai-architecture",
+        "forecastlabai-forecasting-models",
+        "forecastlabai-ml-workflow",
+        "forecastlabai-rag-pipeline",
+        "forecastlabai-backtesting-metrics",
+        "forecastlabai-interview-qa",
+        "forecastlabai-agents-pydanticai",
+        "forecastlabai-devops-production",
+        "forecastlabai-feature-leakage"
+      ],
+      "tracks": [],
+      "tags": [
+        "agents",
+        "ai-engineering",
+        "architecture",
+        "backtesting",
+        "checklist",
+        "ci",
+        "data-leakage",
+        "devops",
+        "embeddings",
+        "fastapi",
+        "feature-engineering",
+        "forecasting",
+        "forecastlabai",
+        "genai",
+        "human-in-the-loop",
+        "interview",
+        "metrics",
+        "ml",
+        "ml-pipeline",
+        "mlops",
+        "model-selection",
+        "pandas",
+        "pgvector",
+        "pitch",
+        "pydantic-ai",
+        "qa",
+        "rag",
+        "scaling",
+        "scikit-learn",
+        "tech-stack"
+      ]
+    },
+    {
+      "slug": "git",
+      "title": "Git",
+      "kind": "technical",
+      "entries": [
+        "git-new-repo-first-commits"
+      ],
+      "tracks": [],
+      "tags": [
+        "commits",
+        "git",
+        "repo-setup",
+        "secrets"
+      ]
+    },
+    {
+      "slug": "instants",
+      "title": "Instants",
+      "kind": "technical",
+      "entries": [
+        "instants-add-and-export-pipeline",
+        "instants-prime-flow",
+        "instants-sdlc-loop",
+        "instants-gates-and-tiers"
+      ],
+      "tracks": [],
+      "tags": []
+    },
+    {
+      "slug": "nonconformist",
+      "title": "NONCONFORMIST",
+      "kind": "music",
+      "entries": [
+        "nonconformist-hell-yeah-overview",
+        "nonconformist-hell-yeah-sound-dna",
+        "nonconformist-hell-yeah-suno-version-a",
+        "nonconformist-hell-yeah-suno-version-b",
+        "nonconformist-sage-solo-overview",
+        "nonconformist-sage-solo-sound-dna",
+        "nonconformist-sage-solo-suno-3a-faithful",
+        "nonconformist-sage-solo-suno-3b-warehouse",
+        "nonconformist-sage-solo-suno-extend-workflow",
+        "nonconformist-techtoon-ep01-overview",
+        "nonconformist-techtoon-ep01-sound-dna",
+        "nonconformist-techtoon-ep01-suno-a",
+        "nonconformist-techtoon-ep01-suno-b",
+        "nonconformist-techtoon-ep01-suno-c",
+        "nonconformist-techtoon-ep01-suno-workflow",
+        "nonconformist-suno-audio-reference-workflow"
+      ],
+      "tracks": [
+        {
+          "slug": "hell-yeah",
+          "title": "hell YEAH",
+          "entries": [
+            "nonconformist-hell-yeah-overview",
+            "nonconformist-hell-yeah-sound-dna",
+            "nonconformist-hell-yeah-suno-version-a",
+            "nonconformist-hell-yeah-suno-version-b"
+          ]
+        },
+        {
+          "slug": "sage-solo",
+          "title": "sage solo",
+          "entries": [
+            "nonconformist-sage-solo-overview",
+            "nonconformist-sage-solo-sound-dna",
+            "nonconformist-sage-solo-suno-3a-faithful",
+            "nonconformist-sage-solo-suno-3b-warehouse",
+            "nonconformist-sage-solo-suno-extend-workflow"
+          ]
+        },
+        {
+          "slug": "techtoon-ep01",
+          "title": "Techtoon ep.01/24",
+          "entries": [
+            "nonconformist-techtoon-ep01-overview",
+            "nonconformist-techtoon-ep01-sound-dna",
+            "nonconformist-techtoon-ep01-suno-a",
+            "nonconformist-techtoon-ep01-suno-b",
+            "nonconformist-techtoon-ep01-suno-c",
+            "nonconformist-techtoon-ep01-suno-workflow"
+          ]
+        }
+      ],
+      "tags": [
+        "arrangement",
+        "identity",
+        "music",
+        "nonconformist",
+        "prompt",
+        "sound-design",
+        "suno",
+        "techno",
+        "track-dna",
+        "workflow"
+      ]
+    }
+  ],
+  "entries": [
+    {
+      "slug": "ai-doc-update-loop",
+      "title": "Dokumentáció- és determinizmus-kör agentic workflow-ban",
+      "tags": [
+        "ai",
+        "determinism",
+        "documentation",
+        "workflow"
+      ],
+      "source": "heti mentorálós chat, 2026-10-08",
+      "created": null,
+      "summary": null,
+      "topic": "ai",
+      "track": null,
+      "role": "practice",
+      "order": 3,
+      "metadataFrom": "mermaid",
+      "formats": {
+        "mermaid": {
+          "source": {
+            "path": "files/mermaid/ai-doc-update-loop.mmd",
+            "bytes": 726,
+            "sha256": "9bec3e7799b15068db052ff38f20d95cf2fc163b35d4b8661d9873b336362aff"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/mermaid/ai-doc-update-loop.png",
+              "bytes": 111978,
+              "sha256": "4907e5fcec5068e50fec3d4f19c28a690cde4d8a7897e7e89d7b7d5281972379",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/mermaid/ai-doc-update-loop.pdf",
+              "bytes": 119901,
+              "sha256": "c2efb243ee2b704ca6aef2b6e35eac81bc1e1e101e95167826b85b6e58c65ad5",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "ai-model-routing",
+      "title": "AI modellválasztás — feladat → modell → effort",
+      "tags": [
+        "ai",
+        "effort",
+        "model-routing"
+      ],
+      "source": "heti mentorálós chat, 2026-10-08 (modellnevek as given, unverified)",
+      "created": null,
+      "summary": null,
+      "topic": "ai",
+      "track": null,
+      "role": "concept",
+      "order": 2,
+      "metadataFrom": "mermaid",
+      "formats": {
+        "mermaid": {
+          "source": {
+            "path": "files/mermaid/ai-model-routing.mmd",
+            "bytes": 893,
+            "sha256": "92167748d9278e81ffb370d1239f27fbf69c90d5bb333f64fe519d97b2f3bde0"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/mermaid/ai-model-routing.png",
+              "bytes": 92105,
+              "sha256": "e4d2eeec68a45d2dd8e71395aaafc6b2354bf83da479ba9856e52040126842d3",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/mermaid/ai-model-routing.pdf",
+              "bytes": 109810,
+              "sha256": "f80233fd1ed4c609febbcf6f1be0e73973c47d56e534a05db95842bb6f41c17c",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "ai-secrets-flow",
+      "title": "API kulcs átadás és kiszivárgás esetén teendő",
+      "tags": [
+        "ai",
+        "onboarding",
+        "secrets",
+        "security"
+      ],
+      "source": "heti mentorálós chat, 2026-10-08 (értékek eltávolítva)",
+      "created": null,
+      "summary": null,
+      "topic": "ai",
+      "track": null,
+      "role": "practice",
+      "order": 4,
+      "metadataFrom": "mermaid",
+      "formats": {
+        "mermaid": {
+          "source": {
+            "path": "files/mermaid/ai-secrets-flow.mmd",
+            "bytes": 727,
+            "sha256": "f61b85fd8ecab4e664b96261c114e0808ffde02b3e95c119cc91e1e94cb3573e"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/mermaid/ai-secrets-flow.png",
+              "bytes": 101898,
+              "sha256": "52df54c22946d4583a66a3ba6e03a824c6a57a4f64578a33b710ee0797b3d832",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/mermaid/ai-secrets-flow.pdf",
+              "bytes": 96931,
+              "sha256": "bdc1630fcd5e68db4748ed3038db95cc8556f3b2ca7df9436d89a716042b74b8",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "ai-start-cheatsheet",
+      "title": "AI-indulás — egyoldalas puska",
+      "tags": [
+        "ai",
+        "cheatsheet",
+        "model-routing",
+        "onboarding"
+      ],
+      "source": "heti mentorálós chat, 2026-10-08 (teljes útmutató: md/ai-start-guide.md)",
+      "created": null,
+      "summary": "Minden adat a beszélő állítása, nem ellenőrzött. Modellnevek: as given, unverified.",
+      "topic": "ai",
+      "track": null,
+      "role": "overview",
+      "order": 0,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/ai-start-cheatsheet.md",
+            "bytes": 1998,
+            "sha256": "a291d6403f3ce13186d1fc3308290cfa6c0f5d7fe5031299ee1aac117e54dae2"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/ai-start-cheatsheet.pdf",
+              "bytes": 61823,
+              "sha256": "94d6acf605a7cb205b6ca9e55c6b7712d9dc4d8cad055aed7ac070943c01894c",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "ai-start-guide",
+      "title": "AI-indulási útmutató — modellválasztás, effort, dokumentáció, secrets",
+      "tags": [
+        "ai",
+        "determinism",
+        "model-routing",
+        "onboarding",
+        "workflow"
+      ],
+      "source": "heti mentorálós chat, 2026-10-08 (bulk export, feldolgozva; titkok eltávolítva)",
+      "created": null,
+      "summary": "Forrás: egyetlen chat-export. Minden állítás a beszélő állítása (tapasztalt mentor → kezdő barát), nem ellenőrzött tény. verify: = bizonytalan vagy leegyszerűsített állítás, az eredeti megfogalmazás megtartva. editor…",
+      "topic": "ai",
+      "track": null,
+      "role": "overview",
+      "order": 1,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/ai-start-guide.md",
+            "bytes": 8769,
+            "sha256": "7a7b25205779cfd905519c02d854ce126f933bd7dc0a1e6014d00215337c47e6"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/ai-start-guide.pdf",
+              "bytes": 172451,
+              "sha256": "3877e569e25f64756a591ac7006e2b770b63fa97d7b068d017800d0ef626c8d8",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "claude-code-command-shell-exit-code",
+      "title": "Claude Code slash command aborts on a failing !`cmd`",
+      "tags": [
+        "claude-code",
+        "exit-code",
+        "shell",
+        "slash-commands"
+      ],
+      "source": "INSTANTS /prime fix, 2026-10-19",
+      "created": "2026-10-19",
+      "summary": "A custom command in .claude/commands/.md fails as a whole (\"Shell command failed for pattern ...\") when one injected !cmd exits non-zero, e.g. git log in a repo with no commits yet.",
+      "topic": "claude-code",
+      "track": null,
+      "role": "detail",
+      "order": 0,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/claude-code-command-shell-exit-code.md",
+            "bytes": 949,
+            "sha256": "cd512cb7ab3a122bd964d2ff7d2301785b8aba99befcede909e6fd2391e6282e"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/claude-code-command-shell-exit-code.pdf",
+              "bytes": 43823,
+              "sha256": "94acc8b6f26c646c7599b6d8fe28637fcfd951da781c580bc00c6ef07a8adccf",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "forecastlabai-agents-pydanticai",
+      "title": "ForecastLabAI — PydanticAI agents with human approval",
+      "tags": [
+        "agents",
+        "forecastlabai",
+        "human-in-the-loop",
+        "interview",
+        "pydantic-ai"
+      ],
+      "source": "ForecastLabAI @79e8dce (app/features/agents/, app/core/config.py) + interview-prep review 2026-10-19",
+      "created": "2026-10-19",
+      "summary": "Explain the agentic layer: what the agents can do, how they are bounded, and why it is safe enough.",
+      "topic": "forecastlabai",
+      "track": null,
+      "role": "detail",
+      "order": 8,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/forecastlabai-agents-pydanticai.md",
+            "bytes": 3122,
+            "sha256": "a4253fc2b2f03433ada1d1f41fba486d0dcf27108012d74f18b342f0df124d13"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/forecastlabai-agents-pydanticai.pdf",
+              "bytes": 91087,
+              "sha256": "1873732a61322696bd16ace90741bedd804dc3fc0f2ea31687360ebf2b5d937d",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "mermaid": {
+          "source": {
+            "path": "files/mermaid/forecastlabai-agents-pydanticai.mmd",
+            "bytes": 1544,
+            "sha256": "4c32f809ee141b40588cb5109a0a4300cd23f88bbf1e01f3435b6b7a23837601"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/mermaid/forecastlabai-agents-pydanticai.png",
+              "bytes": 156448,
+              "sha256": "0b282e4b9c4ca8b2bb091b946c2fe914308be2d61634d7989d3cf5b605eee00c",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/mermaid/forecastlabai-agents-pydanticai.pdf",
+              "bytes": 147355,
+              "sha256": "5568ff8e155e3e5eb17028625c6155b62c187c45874b741876a711476b5b9f6a",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "forecastlabai-architecture",
+      "title": "ForecastLabAI — modular monolith architecture",
+      "tags": [
+        "architecture",
+        "fastapi",
+        "forecastlabai",
+        "interview"
+      ],
+      "source": "ForecastLabAI @79e8dce (app/features/, docs/ARCHITECTURE.md) + interview-prep review 2026-10-19",
+      "created": "2026-10-19",
+      "summary": "Describe what sits behind the model and defend the \"one FastAPI app\" choice.",
+      "topic": "forecastlabai",
+      "track": null,
+      "role": "concept",
+      "order": 2,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/forecastlabai-architecture.md",
+            "bytes": 3177,
+            "sha256": "513e12ed0fb426de90b3ff76c05fb708605f360c0c9f3afc7800106dfd18048a"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/forecastlabai-architecture.pdf",
+              "bytes": 76290,
+              "sha256": "1f4c7d2dcb65a22b3d1701892c74e078db71997045463cd2ca9b01fba1e84eb8",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "mermaid": {
+          "source": {
+            "path": "files/mermaid/forecastlabai-architecture.mmd",
+            "bytes": 1476,
+            "sha256": "36e749c25f81bdb5fee471c20fee8864674753e16cc5152bf5ef49b28bd150da"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/mermaid/forecastlabai-architecture.png",
+              "bytes": 115509,
+              "sha256": "270eca66790602ec25818765cde55bd8ec48801a0cde776e47f9618fbe74e882",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/mermaid/forecastlabai-architecture.pdf",
+              "bytes": 190209,
+              "sha256": "c9c09b4c3557eab154943065ea98067d0b54e67eeedade36bd4d218dacc972fd",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/forecastlabai-architecture.excalidraw",
+            "bytes": 50295,
+            "sha256": "cc87740e78a34997464f6060909d4276b83086d10ab6b4c370a6ca9c0208f5b5"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/forecastlabai-architecture.png",
+              "bytes": 559123,
+              "sha256": "6c82cbfdd1b623afaedfa0c61f294c367df4a386347001ee798c23ce7e86b5e1",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/forecastlabai-architecture.pdf",
+              "bytes": 95518,
+              "sha256": "e8bf2f3bad71416c2f9247d10062b829fd732f23f49f6958c1ed2bcc0de45071",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "forecastlabai-backtesting-metrics",
+      "title": "ForecastLabAI — time-series backtesting and metrics",
+      "tags": [
+        "backtesting",
+        "forecastlabai",
+        "interview",
+        "metrics",
+        "model-selection"
+      ],
+      "source": "ForecastLabAI @79e8dce (app/features/backtesting/, app/features/model_selection/ranking.py) + interview-prep review 2026-10-19",
+      "created": "2026-10-19",
+      "summary": "Random K-fold with shuffling mixes past and future. Explain how models are evaluated and chosen instead.",
+      "topic": "forecastlabai",
+      "track": null,
+      "role": "reference",
+      "order": 6,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/forecastlabai-backtesting-metrics.md",
+            "bytes": 2257,
+            "sha256": "5411e52760778675814666a1cb4115ef2fdc949d241139f38ea168a14dad8cef"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/forecastlabai-backtesting-metrics.pdf",
+              "bytes": 65648,
+              "sha256": "05260f02147fe6bdac5802f81806578dd9f38719a91641ac4b7f90873bc5f8d1",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "forecastlabai-devops-production",
+      "title": "ForecastLabAI — runtime, CI and production gaps",
+      "tags": [
+        "ci",
+        "devops",
+        "forecastlabai",
+        "interview",
+        "scaling"
+      ],
+      "source": "ForecastLabAI @79e8dce (docker-compose.yml, .github/workflows/, app/core/config.py) + interview-prep review 2026-10-19",
+      "created": "2026-10-19",
+      "summary": "Describe how the app is built, run and tested — and what you must NOT claim about production.",
+      "topic": "forecastlabai",
+      "track": null,
+      "role": "detail",
+      "order": 9,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/forecastlabai-devops-production.md",
+            "bytes": 2512,
+            "sha256": "2b074ed938e4ab50f4c46dea0e5b9835ccb7756ee81e50323a280ab59c49b278"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/forecastlabai-devops-production.pdf",
+              "bytes": 81189,
+              "sha256": "2cc6015f05396db6e2115ad6cfce99e4fe4738698ab821c86cf0335d8599dea7",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "forecastlabai-feature-leakage",
+      "title": "ForecastLabAI — time-safe features against data leakage",
+      "tags": [
+        "data-leakage",
+        "feature-engineering",
+        "forecastlabai",
+        "interview",
+        "pandas"
+      ],
+      "source": "ForecastLabAI @79e8dce (app/features/featuresets/service.py) + interview-prep review 2026-10-19",
+      "created": "2026-10-19",
+      "summary": "A forecasting model looks great in validation because a feature secretly used the value it is predicting (or the future). Explain how ForecastLabAI prevents that.",
+      "topic": "forecastlabai",
+      "track": null,
+      "role": "detail",
+      "order": 10,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/forecastlabai-feature-leakage.md",
+            "bytes": 2319,
+            "sha256": "83af631cf00aeb85ac5845716c6b0cbe26fc24052d78d4ee8c48c416c04e8b9b"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/forecastlabai-feature-leakage.pdf",
+              "bytes": 59726,
+              "sha256": "37a688110df5df1cc7d108c694bdf60698936249d937841d0b2be09664ad533f",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "forecastlabai-forecasting-models",
+      "title": "ForecastLabAI — forecasting model families",
+      "tags": [
+        "forecasting",
+        "forecastlabai",
+        "interview",
+        "scikit-learn"
+      ],
+      "source": "ForecastLabAI @79e8dce (app/features/forecasting/models.py, app/core/config.py) + interview-prep review 2026-10-19",
+      "created": "2026-10-19",
+      "summary": "Name the implemented models, the shared interface, and which ones are optional — correctly.",
+      "topic": "forecastlabai",
+      "track": null,
+      "role": "concept",
+      "order": 3,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/forecastlabai-forecasting-models.md",
+            "bytes": 2751,
+            "sha256": "e0f48c615d999625af7aac6d4e83142d0d78d69b157600d920c20492f8f87bc7"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/forecastlabai-forecasting-models.pdf",
+              "bytes": 80228,
+              "sha256": "43e1fb48497a66157bc5aabe2432fec024cd4accaa54a6a0fcfbbc2df476a9ed",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/forecastlabai-forecasting-models.excalidraw",
+            "bytes": 68893,
+            "sha256": "79a5286ec9afb91ae4c5c9055b39f8c311de478c16ddc0a6c3062220d59fd2d4"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/forecastlabai-forecasting-models.png",
+              "bytes": 677458,
+              "sha256": "47f2290020ee352d10ffb37487cbb58ad411ff525c47e3afbf59642ed2260057",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/forecastlabai-forecasting-models.pdf",
+              "bytes": 47076,
+              "sha256": "b6f3972dff261cab029214c9df822ddeb674988ac5a2a112a147df3933483d7f",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "forecastlabai-interview-pitch",
+      "title": "ForecastLabAI — 2-minute interview pitch and prep checklist",
+      "tags": [
+        "checklist",
+        "forecastlabai",
+        "interview",
+        "pitch"
+      ],
+      "source": "interview-prep review 2026-10-19, facts checked against ForecastLabAI @79e8dce",
+      "created": "2026-10-19",
+      "summary": "Have a ready spoken answer for \"tell me about a project\" and know what to study first.",
+      "topic": "forecastlabai",
+      "track": null,
+      "role": "overview",
+      "order": 0,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/forecastlabai-interview-pitch.md",
+            "bytes": 2776,
+            "sha256": "74058cd050794789a1cf402e7446af161ac81d7dd12d9c6232e6b831a308c223"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/forecastlabai-interview-pitch.pdf",
+              "bytes": 46324,
+              "sha256": "8dedaae60e0a396136407e9e081a312c588aec8f5620b80cf2cc3ba8da6397cb",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "forecastlabai-interview-qa",
+      "title": "ForecastLabAI — 12 interview questions with short answers",
+      "tags": [
+        "forecastlabai",
+        "genai",
+        "interview",
+        "ml",
+        "qa"
+      ],
+      "source": "interview-prep review 2026-10-19, answers checked against ForecastLabAI @79e8dce",
+      "created": "2026-10-19",
+      "summary": "Rehearse the questions most likely to come up about this project, with answers that match the real code.",
+      "topic": "forecastlabai",
+      "track": null,
+      "role": "reference",
+      "order": 7,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/forecastlabai-interview-qa.md",
+            "bytes": 2698,
+            "sha256": "eb9aaacf8451073fb65859dd41b50291b8a7af4fd95d0a9c22af5691d1f41264"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/forecastlabai-interview-qa.pdf",
+              "bytes": 50109,
+              "sha256": "709785f0e91c96ba13d9262f744ba3671bf595da1f5ff1988730eb91efd94ad5",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "forecastlabai-ml-workflow",
+      "title": "ForecastLabAI — end-to-end ML workflow",
+      "tags": [
+        "forecastlabai",
+        "interview",
+        "ml-pipeline",
+        "mlops"
+      ],
+      "source": "ForecastLabAI @79e8dce (Makefile, scripts/run_demo.py, app/features/demo/pipeline.py) + interview-prep review 2026-10-19",
+      "created": "2026-10-19",
+      "summary": "Answer \"what happens technically when a user requests a demand forecast?\" as a chain of responsibility.",
+      "topic": "forecastlabai",
+      "track": null,
+      "role": "practice",
+      "order": 4,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/forecastlabai-ml-workflow.md",
+            "bytes": 2513,
+            "sha256": "f86b4d1d0afeb820ebf326e818d35193a72cb1fa4900e4bd4235bda5f20fc395"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/forecastlabai-ml-workflow.pdf",
+              "bytes": 56175,
+              "sha256": "18dfabc13df09997a8a9bdac7283c8e250a1d83b5701246696be097dcdba0574",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "mermaid": {
+          "source": {
+            "path": "files/mermaid/forecastlabai-ml-workflow.mmd",
+            "bytes": 1462,
+            "sha256": "00652e99d93190bf5eb5c79b40ee5f7979fc99b566597a5f614eb1dfc577bd7e"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/mermaid/forecastlabai-ml-workflow.png",
+              "bytes": 140658,
+              "sha256": "44f4012f00c6bac67a89555f8f1afedb61dacf1fd59377abc7c66bcf5e93031c",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/mermaid/forecastlabai-ml-workflow.pdf",
+              "bytes": 204528,
+              "sha256": "fbf95191bbbaabc2fdbfe0f228f42034d5a635f09f1ac5b041fcddf8c7c285c7",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "forecastlabai-overview-stack",
+      "title": "ForecastLabAI — overview and tech stack",
+      "tags": [
+        "ai-engineering",
+        "forecastlabai",
+        "interview",
+        "tech-stack"
+      ],
+      "source": "ForecastLabAI @79e8dce (github.com/w7-mgfcode/ForecastLabAI) + interview-prep review 2026-10-19",
+      "created": "2026-10-19",
+      "summary": "Explain in one breath what ForecastLabAI is and what it is built with, without overclaiming.",
+      "topic": "forecastlabai",
+      "track": null,
+      "role": "overview",
+      "order": 1,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/forecastlabai-overview-stack.md",
+            "bytes": 2988,
+            "sha256": "a0b64e3d69f4bbef7f3fa6d1fcd77df34749e8aa0fedab1cf59d624bfea79c7d"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/forecastlabai-overview-stack.pdf",
+              "bytes": 76242,
+              "sha256": "4475cf7c2aad07d3d278f79d0b12a63a266a1c13e2798bb5bafe138219a09389",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "forecastlabai-rag-pipeline",
+      "title": "ForecastLabAI — RAG pipeline with pgvector",
+      "tags": [
+        "embeddings",
+        "forecastlabai",
+        "interview",
+        "pgvector",
+        "rag"
+      ],
+      "source": "ForecastLabAI @79e8dce (app/features/rag/, app/core/config.py) + interview-prep review 2026-10-19",
+      "created": "2026-10-19",
+      "summary": "Show that the project has a real RAG subsystem (not just an LLM call) and defend its choices.",
+      "topic": "forecastlabai",
+      "track": null,
+      "role": "practice",
+      "order": 5,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/forecastlabai-rag-pipeline.md",
+            "bytes": 2514,
+            "sha256": "7ea283dc7c0fafe75a15e829139a44a6d3ef8fc7901c182a2d729a41648d33fe"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/forecastlabai-rag-pipeline.pdf",
+              "bytes": 69464,
+              "sha256": "abcb5f8538b7b96b6abc2b0934ede49d22df3b0679d88a8c15e624ac3da74603",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "mermaid": {
+          "source": {
+            "path": "files/mermaid/forecastlabai-rag-pipeline.mmd",
+            "bytes": 1559,
+            "sha256": "d10a0bc628ecfa71d2aeaf5e8ce3661d0c0b4f2e95951c07449ce764436290ee"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/mermaid/forecastlabai-rag-pipeline.png",
+              "bytes": 100665,
+              "sha256": "b1a6b4675a09438816244ce7da0e4b10ed8091ec6dd736dd20ee5310812d1ae2",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/mermaid/forecastlabai-rag-pipeline.pdf",
+              "bytes": 173793,
+              "sha256": "3a77b1b34d38a4383e1bcd6c71494b3ef3b934b0ee6ae9dd7c0aceac1377605c",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "git-new-repo-first-commits",
+      "title": "Git new repo — safe path to the first commits",
+      "tags": [
+        "commits",
+        "git",
+        "repo-setup",
+        "secrets"
+      ],
+      "source": "INSTANTS first commits, 2026-10-19",
+      "created": null,
+      "summary": null,
+      "topic": "git",
+      "track": null,
+      "role": "practice",
+      "order": 0,
+      "metadataFrom": "mermaid",
+      "formats": {
+        "mermaid": {
+          "source": {
+            "path": "files/mermaid/git-new-repo-first-commits.mmd",
+            "bytes": 811,
+            "sha256": "5f769e05974d9b7e639640bed9f5c991a47fdf3bd4d9b69f319f478ab9bc3cc4"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/mermaid/git-new-repo-first-commits.png",
+              "bytes": 127466,
+              "sha256": "a5f40e4ba3c193234d79aea1c0ced5fa5f47928f28ffcd8a8e6b62fbd75e4b6c",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/mermaid/git-new-repo-first-commits.pdf",
+              "bytes": 96100,
+              "sha256": "be31a17d6d69be7afa56aa0775bfad880e4d520b8c1c29eafa7f567b6be11b6c",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "instants-add-and-export-pipeline",
+      "title": "Add an instant → export it",
+      "tags": [],
+      "source": null,
+      "created": null,
+      "summary": null,
+      "topic": "instants",
+      "track": null,
+      "role": "practice",
+      "order": 0,
+      "metadataFrom": "derived",
+      "formats": {
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/instants-add-and-export-pipeline.excalidraw",
+            "bytes": 32234,
+            "sha256": "21fc7184e09443fe0edd0937415928257500c2835631955628eafda4c7b1ceb7"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/instants-add-and-export-pipeline.png",
+              "bytes": 419140,
+              "sha256": "be71e4c8b69661f19db4b6e8c2ee37394ebee08a9e2ea01304b6ead59a023bdc",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/instants-add-and-export-pipeline.pdf",
+              "bytes": 44721,
+              "sha256": "a52538c7ee52e0a1c9bdc36d1b1b540ccaad5c6d4ef962c8cc21c632ee6c6f82",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "instants-gates-and-tiers",
+      "title": "Gates & autonomy tiers — systems, not memory",
+      "tags": [],
+      "source": null,
+      "created": null,
+      "summary": null,
+      "topic": "instants",
+      "track": null,
+      "role": "detail",
+      "order": 3,
+      "metadataFrom": "derived",
+      "formats": {
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/instants-gates-and-tiers.excalidraw",
+            "bytes": 29023,
+            "sha256": "a39557a263820da09b3927ec014385613a579519a4240b14cafd2c9ef44d08fb"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/instants-gates-and-tiers.png",
+              "bytes": 440328,
+              "sha256": "bf11cdddb4b10b1bee5fc0d5ab189ab477a95e440934b04235c58e01975b3986",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/instants-gates-and-tiers.pdf",
+              "bytes": 28881,
+              "sha256": "bfe1b125f7420a872f3c64fac540ed51605f820e79f99b01fe61adb590a5a997",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "instants-prime-flow",
+      "title": "/prime — session-start flow",
+      "tags": [],
+      "source": null,
+      "created": null,
+      "summary": null,
+      "topic": "instants",
+      "track": null,
+      "role": "practice",
+      "order": 1,
+      "metadataFrom": "derived",
+      "formats": {
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/instants-prime-flow.excalidraw",
+            "bytes": 26964,
+            "sha256": "ef26ba2cf6602ad04efa4bc9bd22ad411b82c6c73c97c7908ad2e226d46fc0ba"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/instants-prime-flow.png",
+              "bytes": 451164,
+              "sha256": "0f8af7d94aa94b5cc730d82eee72f720a552180429066e610a7ba7d51e6335ce",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/instants-prime-flow.pdf",
+              "bytes": 84726,
+              "sha256": "45ee1cebedcc7314d03ec8c2ad83951e3daa2648434ff09427ee8761adb57d11",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "instants-sdlc-loop",
+      "title": "AI-native SDLC loop — scaled to INSTANTS",
+      "tags": [],
+      "source": null,
+      "created": null,
+      "summary": null,
+      "topic": "instants",
+      "track": null,
+      "role": "practice",
+      "order": 2,
+      "metadataFrom": "derived",
+      "formats": {
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/instants-sdlc-loop.excalidraw",
+            "bytes": 19802,
+            "sha256": "bbea4a4db095f06c41dbecd489be4dfcc1138da95880faf19f775fddef0a4514"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/instants-sdlc-loop.png",
+              "bytes": 304693,
+              "sha256": "5a6b08025739f589b73f1b589bd4c03328edbbc818904eaa6065d90468f01aad",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/instants-sdlc-loop.pdf",
+              "bytes": 81531,
+              "sha256": "06763040a81dde99a2bcc0c3096be7d114f8be1ddf07e9f892f9a11ef75f9354",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "nonconformist-hell-yeah-overview",
+      "title": "NONCONFORMIST — hell YEAH, release facts and musical identity",
+      "tags": [
+        "identity",
+        "music",
+        "nonconformist",
+        "techno",
+        "track-dna"
+      ],
+      "source": "Audius track 323253 (Gabe Sage, 2021-03-30) + track DNA analysis 2026-10-20",
+      "created": "2026-10-20",
+      "summary": "Say in one breath what the track is and which traits must survive any remake.",
+      "topic": "nonconformist",
+      "track": "hell-yeah",
+      "role": "overview",
+      "order": 0,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/nonconformist-hell-yeah-overview.md",
+            "bytes": 2546,
+            "sha256": "4fd1ee0dc549cfcab0f06ac4e1931a2a13d50f7e32a298867149151dee05adf5"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/nonconformist-hell-yeah-overview.pdf",
+              "bytes": 60845,
+              "sha256": "737bc91acdf3464ac0516a7abc3b170109f09c436ce1176502c1721327b7768f",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "mermaid": {
+          "source": {
+            "path": "files/mermaid/nonconformist-hell-yeah-overview.mmd",
+            "bytes": 1506,
+            "sha256": "bce2add2c931c41a7c363130f55c51c6c183b3e95b2ad167f2768dfcd40f2ffc"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/mermaid/nonconformist-hell-yeah-overview.png",
+              "bytes": 113360,
+              "sha256": "e8faf60e5a8bbdf1d587549770918ef2a9923f651fb99d464e6afc3a75bd70f6",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/mermaid/nonconformist-hell-yeah-overview.pdf",
+              "bytes": 143260,
+              "sha256": "a68024f99930889bc4cc2455341246a0f00ee76191ec06c187a68a8833fd3ff7",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/nonconformist-hell-yeah-overview.excalidraw",
+            "bytes": 33249,
+            "sha256": "e6c5595384a96aefaf79ccdcb715e96f713ce0ba759ce17be9931edb08ca097d"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/nonconformist-hell-yeah-overview.png",
+              "bytes": 420972,
+              "sha256": "bc95d2fcd307f38ab0c5c15703bbed3903cd7e2d2b4d74c20689728c70e53671",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/nonconformist-hell-yeah-overview.pdf",
+              "bytes": 53187,
+              "sha256": "58b835f5e73b587a12d3cef2696f76e1320a1e8b77323558b0cc3f0333c8c938",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "nonconformist-hell-yeah-sound-dna",
+      "title": "NONCONFORMIST — hell YEAH, technical sound breakdown",
+      "tags": [
+        "music",
+        "nonconformist",
+        "sound-design",
+        "techno",
+        "track-dna"
+      ],
+      "source": "37.9 s snippet of Audius track 323253 (Gabe Sage) + track DNA analysis 2026-10-20",
+      "created": "2026-10-20",
+      "summary": "Know the tempo, meter and the character of each sound layer before prompting or re-producing the track.",
+      "topic": "nonconformist",
+      "track": "hell-yeah",
+      "role": "sound-dna",
+      "order": 1,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/nonconformist-hell-yeah-sound-dna.md",
+            "bytes": 2058,
+            "sha256": "83c0c209daec31b584d894eaf49bccac7fb87ac9f7a44b649712dd5b04e120f8"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/nonconformist-hell-yeah-sound-dna.pdf",
+              "bytes": 53507,
+              "sha256": "afb29162b37d5bfe47f939f613c587737fd81e6d07618d3dfc8a4c8e348afc7e",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "mermaid": {
+          "source": {
+            "path": "files/mermaid/nonconformist-hell-yeah-sound-dna.mmd",
+            "bytes": 1869,
+            "sha256": "e69ca20cb36c938491c7f583e310071453d3b8b48ce90b40178aad9302e3ac6f"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/mermaid/nonconformist-hell-yeah-sound-dna.png",
+              "bytes": 82664,
+              "sha256": "cb27162fb6f4319318e31594c2ec7d7a46b9dafa007a95d636615b79f3aeb2dc",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/mermaid/nonconformist-hell-yeah-sound-dna.pdf",
+              "bytes": 157575,
+              "sha256": "e6b76501082fca584ac34a37531c7f9ca80d1a9f3887c555c0cbc0852057be5d",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/nonconformist-hell-yeah-sound-dna.excalidraw",
+            "bytes": 36497,
+            "sha256": "6fb32936f8bffb95524f25d34454b3fe9062ccff940bd326d6955c1a65a79e50"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/nonconformist-hell-yeah-sound-dna.png",
+              "bytes": 355006,
+              "sha256": "1bd749b5a5488afcacffa1da8a5b4332712846e51bac509288c406ca469feef1",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/nonconformist-hell-yeah-sound-dna.pdf",
+              "bytes": 54629,
+              "sha256": "c37dbeaa6f3f13eb8e2b5cd42d8937d3937bb8669e04cb0a451dc2dc1d0c9f0f",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "nonconformist-hell-yeah-suno-version-a",
+      "title": "NONCONFORMIST — hell YEAH, Suno v6 Version A (faithful)",
+      "tags": [
+        "arrangement",
+        "music",
+        "nonconformist",
+        "prompt",
+        "suno",
+        "techno"
+      ],
+      "source": "Track DNA analysis 2026-10-20 of Audius track 323253 (Gabe Sage)",
+      "created": "2026-10-20",
+      "summary": "Reproduce the musical identity of the original in Suno v6 without drifting into another genre. Recommended starting version.",
+      "topic": "nonconformist",
+      "track": "hell-yeah",
+      "role": "variant",
+      "order": 2,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/nonconformist-hell-yeah-suno-version-a.md",
+            "bytes": 3742,
+            "sha256": "a0c7280649932ec0168448d724e694b06e21f703ccb98b9228e50ea6c57e3e43"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/nonconformist-hell-yeah-suno-version-a.pdf",
+              "bytes": 53891,
+              "sha256": "059ab0d4ad4dd9c552253f5b62f6d43ea8dcd5e18bf60c84f865b48f20b5cd0d",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "mermaid": {
+          "source": {
+            "path": "files/mermaid/nonconformist-hell-yeah-suno-version-a.mmd",
+            "bytes": 1735,
+            "sha256": "5d8c9055911342bfed197d666f84c478d4e1867b82703e1c64cff83b9f5fc4f9"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/mermaid/nonconformist-hell-yeah-suno-version-a.png",
+              "bytes": 38228,
+              "sha256": "f53d0622b9829ea7c50aee277efd0e8e00cfbe6a74b7942ae0fa955c80380f55",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/mermaid/nonconformist-hell-yeah-suno-version-a.pdf",
+              "bytes": 135553,
+              "sha256": "b571e04ebb38297bb99d74bb5a2658645bf55b389cbb3b4350624e6020b8dfd5",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/nonconformist-hell-yeah-suno-version-a.excalidraw",
+            "bytes": 40888,
+            "sha256": "f1fc97635e13343057be89e71042a01aaa152f157a58df6034bddc669b21d503"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/nonconformist-hell-yeah-suno-version-a.png",
+              "bytes": 405007,
+              "sha256": "1a425fb9e996e658005adb076e91807c8c964cc963606e7a0a2e3309e1ae8aa3",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/nonconformist-hell-yeah-suno-version-a.pdf",
+              "bytes": 69101,
+              "sha256": "94f2bda1c920804cf71111fc1588db97b0464b337a985398ce7d087801ecb560",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "nonconformist-hell-yeah-suno-version-b",
+      "title": "NONCONFORMIST — hell YEAH, Suno v6 Version B (modern club)",
+      "tags": [
+        "arrangement",
+        "music",
+        "nonconformist",
+        "prompt",
+        "suno",
+        "techno"
+      ],
+      "source": "Track DNA analysis 2026-10-20 of Audius track 323253 (Gabe Sage)",
+      "created": "2026-10-20",
+      "summary": "Keep the percussive identity but push the track towards contemporary, DJ-friendly club production.",
+      "topic": "nonconformist",
+      "track": "hell-yeah",
+      "role": "variant",
+      "order": 3,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/nonconformist-hell-yeah-suno-version-b.md",
+            "bytes": 3461,
+            "sha256": "60ce43821de0406114690298a213af3cdae5bfce9eb7585d097d1355852bf3b2"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/nonconformist-hell-yeah-suno-version-b.pdf",
+              "bytes": 62313,
+              "sha256": "a37f4b4357389acde51c9f25b80c36fe3a5f4a8dab448df30583570cc3cb0a22",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "mermaid": {
+          "source": {
+            "path": "files/mermaid/nonconformist-hell-yeah-suno-version-b.mmd",
+            "bytes": 2449,
+            "sha256": "5af8b80377bee80301a8e8eb2f5d1d3e6f5df45660d27d383532c72629e6230e"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/mermaid/nonconformist-hell-yeah-suno-version-b.png",
+              "bytes": 80204,
+              "sha256": "9fafa28645ebde79ddf5478690a010cce5df77ec50bd20d8e6c6e23b4db42287",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/mermaid/nonconformist-hell-yeah-suno-version-b.pdf",
+              "bytes": 161670,
+              "sha256": "dee3a5d4f016c0d88479d6492be881fb081260cc68bcbfa8f62cfdf0f4684bed",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/nonconformist-hell-yeah-suno-version-b.excalidraw",
+            "bytes": 52017,
+            "sha256": "9728c221c055f88c3a8a005e13434e7df4969d2d086b92c0315c838375adc8cb"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/nonconformist-hell-yeah-suno-version-b.png",
+              "bytes": 523194,
+              "sha256": "789eab96c63eeeb06b04fd260626f7dac77d14c31f92717c6f453aa23f8939c1",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/nonconformist-hell-yeah-suno-version-b.pdf",
+              "bytes": 89984,
+              "sha256": "c9545622173d0b8da4910e1017e6572b7eb9e92ce8195f8811582ac17131881e",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "nonconformist-sage-solo-overview",
+      "title": "NONCONFORMIST — sage solo, release facts and musical identity",
+      "tags": [
+        "identity",
+        "music",
+        "nonconformist",
+        "techno",
+        "track-dna"
+      ],
+      "source": "Audius track yGAOP (Gabe Sage, 2022-08-02, checked via Audius API 2026-10-20) + production analysis 2026-10-20",
+      "created": "2026-10-20",
+      "summary": "Say in one breath what the track is and which traits must survive when Suno continues it.",
+      "topic": "nonconformist",
+      "track": "sage-solo",
+      "role": "overview",
+      "order": 4,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/nonconformist-sage-solo-overview.md",
+            "bytes": 2386,
+            "sha256": "5f8033d6848a00d6098e43ff49473bbdaf0760e65e2ba243ddd7ffe8e7c8fe16"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/nonconformist-sage-solo-overview.pdf",
+              "bytes": 65497,
+              "sha256": "dc48a1b72bf1c13593868fc8578c73b0f2cc645a7d75972f7583bf98c2c0d60f",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/nonconformist-sage-solo-overview.excalidraw",
+            "bytes": 30744,
+            "sha256": "20af42cbf04ad56afe1ff7ae6b6c7f1bb9bbf3d896227415e6823db3360c8c56"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/nonconformist-sage-solo-overview.png",
+              "bytes": 376634,
+              "sha256": "af0307cb297cbfc4938e8cd21684d4e5c646a98f2ad3a3c3390e60201848819c",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/nonconformist-sage-solo-overview.pdf",
+              "bytes": 68616,
+              "sha256": "1ccf66268819d1da93b334d37201afbb699a1124e067c92e2fd8819145de7844",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "nonconformist-sage-solo-sound-dna",
+      "title": "NONCONFORMIST — sage solo, technical sound breakdown",
+      "tags": [
+        "music",
+        "nonconformist",
+        "sound-design",
+        "techno",
+        "track-dna"
+      ],
+      "source": "61.02 s snippet of Audius track yGAOP (Gabe Sage) + production analysis 2026-10-20",
+      "created": "2026-10-20",
+      "summary": "Know the tempo, the sound layers and where the snippet ends before choosing an Extend point.",
+      "topic": "nonconformist",
+      "track": "sage-solo",
+      "role": "sound-dna",
+      "order": 5,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/nonconformist-sage-solo-sound-dna.md",
+            "bytes": 2406,
+            "sha256": "77cba3f4323194aa57c5fa2e2936302cc5ab2cce3d82a6906071e8c28fcc99e2"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/nonconformist-sage-solo-sound-dna.pdf",
+              "bytes": 65303,
+              "sha256": "0f182dd485f3e8aff757e4e3cdceff9604e318439067f9f32f96d73f0325776f",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/nonconformist-sage-solo-sound-dna.excalidraw",
+            "bytes": 35654,
+            "sha256": "127a309709a1d40e340e1cbe76edbd3ed5b1c97d3c560061d3fd3bdc149fbc4d"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/nonconformist-sage-solo-sound-dna.png",
+              "bytes": 300014,
+              "sha256": "9dcb3830bb4925c6aa718c2addd1152d16e1bd9bb5c404d0e8893396405724c5",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/nonconformist-sage-solo-sound-dna.pdf",
+              "bytes": 71292,
+              "sha256": "9f5200baf56939beeec6f520ef63bebfb66ae20dd1afe3f376b59d82be805aa7",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "nonconformist-sage-solo-suno-3a-faithful",
+      "title": "NONCONFORMIST — sage solo, Suno Extend SAGE-3A (faithful)",
+      "tags": [
+        "music",
+        "nonconformist",
+        "prompt",
+        "suno",
+        "techno"
+      ],
+      "source": "Production analysis 2026-10-20 of Audius track yGAOP (Gabe Sage)",
+      "created": "2026-10-20",
+      "summary": "Extend the uploaded live-session snippet into a full DJ-mix-length track without losing its identity. Recommended first generation; target 6 min if supported.",
+      "topic": "nonconformist",
+      "track": "sage-solo",
+      "role": "variant",
+      "order": 6,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/nonconformist-sage-solo-suno-3a-faithful.md",
+            "bytes": 3307,
+            "sha256": "e3bafc9f129440603ff832923e2a9e4ba31be106635a2810b3888010d9e81d9c"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/nonconformist-sage-solo-suno-3a-faithful.pdf",
+              "bytes": 57546,
+              "sha256": "e42e7f42232a9d08705c2f0cd2ced8f1dff496d5716bcfe97b1fb37ef3ec9318",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/nonconformist-sage-solo-suno-3a-faithful.excalidraw",
+            "bytes": 55224,
+            "sha256": "594b4f21c4db48a488d50dd3d7f4e260af236373a168492cbef0c4394f879201"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/nonconformist-sage-solo-suno-3a-faithful.png",
+              "bytes": 352774,
+              "sha256": "ffed58ff07ae7e4e2a49f2c180746e9accdb6c6497fba46a8fa04fd6035f41d4",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/nonconformist-sage-solo-suno-3a-faithful.pdf",
+              "bytes": 97136,
+              "sha256": "14b028c89eae6f128d33aa41bff40a98cb75c216c9e637c0faa2131284fb41bf",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "nonconformist-sage-solo-suno-3b-warehouse",
+      "title": "NONCONFORMIST — sage solo, Suno Extend SAGE-3B (dark warehouse)",
+      "tags": [
+        "music",
+        "nonconformist",
+        "prompt",
+        "suno",
+        "techno"
+      ],
+      "source": "Production analysis 2026-10-20 of Audius track yGAOP (Gabe Sage)",
+      "created": "2026-10-20",
+      "summary": "Evolve the same groove into a deeper late-night warehouse track while keeping the source rhythm and drum breaks. Second experiment, after 3A works; target 6–7 min if supported.",
+      "topic": "nonconformist",
+      "track": "sage-solo",
+      "role": "variant",
+      "order": 7,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/nonconformist-sage-solo-suno-3b-warehouse.md",
+            "bytes": 3505,
+            "sha256": "1d22688741553e850926671aed8d0a74f1e9d3ffe44b2f7f03e9ec79fd2d9444"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/nonconformist-sage-solo-suno-3b-warehouse.pdf",
+              "bytes": 62648,
+              "sha256": "7e7d7345881d871e55dbb8d927c8a05e75b6fc2b8e726e6b0be318d6621df8c6",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/nonconformist-sage-solo-suno-3b-warehouse.excalidraw",
+            "bytes": 80181,
+            "sha256": "68ad70ff207f5438bd30a0908d4b49ac5cf6bf7de79edd2ca74c8889b9fb1a44"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/nonconformist-sage-solo-suno-3b-warehouse.png",
+              "bytes": 415721,
+              "sha256": "3560d7c60304f2e8b372dc788c94319bff9ba75e90e517f1b99b227506cc1d5f",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/nonconformist-sage-solo-suno-3b-warehouse.pdf",
+              "bytes": 159952,
+              "sha256": "daf2d88295573830d1125f6588a3c043fe86516cabb09504032e0c3a8a22dc2c",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "nonconformist-sage-solo-suno-extend-workflow",
+      "title": "NONCONFORMIST — continue a live-session recording with Suno Extend",
+      "tags": [
+        "music",
+        "nonconformist",
+        "suno",
+        "techno",
+        "workflow"
+      ],
+      "source": "Production analysis 2026-10-20 + help.suno.com articles 6141569, 2409601, 13924929, 9601601 (checked 2026-10-20)",
+      "created": "2026-10-20",
+      "summary": "Turn the sage solo snippet into a full track by continuing the real audio, and compare takes instead of guessing.",
+      "topic": "nonconformist",
+      "track": "sage-solo",
+      "role": "workflow",
+      "order": 8,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/nonconformist-sage-solo-suno-extend-workflow.md",
+            "bytes": 3225,
+            "sha256": "621693805a91bc49129c1f2cdf784105264b746f372977b28065813c9917bd31"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/nonconformist-sage-solo-suno-extend-workflow.pdf",
+              "bytes": 75663,
+              "sha256": "22e2609516a62fb5b8bd7b7e0fc701e1e2ca3fd7e25955083ab688be2a68d47c",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/nonconformist-sage-solo-suno-extend-workflow.excalidraw",
+            "bytes": 54963,
+            "sha256": "cf185a159204b689ad9c0bf09316ebb274c9ecbaba9540140c55507738ce954d"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/nonconformist-sage-solo-suno-extend-workflow.png",
+              "bytes": 426178,
+              "sha256": "c8c26bd00da4f1f638cba44c9e67e405e118b66614312801b0aeb10122412f7a",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/nonconformist-sage-solo-suno-extend-workflow.pdf",
+              "bytes": 36567,
+              "sha256": "d1b87b2b7f38b26930b47c239f7509fc6f92ec5ae9020f2eb378199349c42f16",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "nonconformist-suno-audio-reference-workflow",
+      "title": "NONCONFORMIST — recreate your own track in Suno v6 from an audio snippet",
+      "tags": [
+        "music",
+        "nonconformist",
+        "suno",
+        "techno",
+        "workflow"
+      ],
+      "source": "Track DNA analysis 2026-10-20 + help.suno.com (Max Mode) + Suno v6 create guides",
+      "created": "2026-10-20",
+      "summary": "Get Suno to sound like an existing NONCONFORMIST recording. Text-only prompting drifts; start from the real audio.",
+      "topic": "nonconformist",
+      "track": null,
+      "role": "workflow",
+      "order": 15,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/nonconformist-suno-audio-reference-workflow.md",
+            "bytes": 2609,
+            "sha256": "430f4925d72e8587bd2c2d229b88152b8a30436eccc6c9f1da18dca64fa3c0b4"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/nonconformist-suno-audio-reference-workflow.pdf",
+              "bytes": 62288,
+              "sha256": "9f15d4d2ad9a8ac7561e2e5deb92a12e2b305f3a9b08efe8e2dd656bd9cdcb3a",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "mermaid": {
+          "source": {
+            "path": "files/mermaid/nonconformist-suno-audio-reference-workflow.mmd",
+            "bytes": 1701,
+            "sha256": "e1c3b8b8509bd4589a92f7fae4e9c891b511d4211784b54cb1f3c6cbdc0e2740"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/mermaid/nonconformist-suno-audio-reference-workflow.png",
+              "bytes": 74706,
+              "sha256": "f6a84f6ad99d5110b59d2d39399c107dcee6c9a358d399e227dcbb5402fb2503",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/mermaid/nonconformist-suno-audio-reference-workflow.pdf",
+              "bytes": 158014,
+              "sha256": "f9e7f6e87e9f5b2e453087e5f11fe3392a1af8daff4312c53a5317e893ebb6d9",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "nonconformist-techtoon-ep01-overview",
+      "title": "NONCONFORMIST — Techtoon ep.01/24, release facts and musical identity",
+      "tags": [
+        "identity",
+        "music",
+        "nonconformist",
+        "techno",
+        "track-dna"
+      ],
+      "source": "Audius track Zb4jbbJ (Gabe Sage, 2024-01-16, checked via Audius API 2026-10-20) + track analysis 2026-10-20",
+      "created": "2026-10-20",
+      "summary": "Say in one breath what the snippet is and which traits must survive any continuation.",
+      "topic": "nonconformist",
+      "track": "techtoon-ep01",
+      "role": "overview",
+      "order": 9,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/nonconformist-techtoon-ep01-overview.md",
+            "bytes": 2564,
+            "sha256": "5b265a5d0936bd6819139cdb751228c0a5a0085b09f6358d93ec3d2fa1fe68aa"
+          },
+          "exports": {}
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/nonconformist-techtoon-ep01-overview.excalidraw",
+            "bytes": 43504,
+            "sha256": "dd939acd734fb655041a8bea9b9b1a95a55b2e141a20ba4d68914d29909bf732"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/nonconformist-techtoon-ep01-overview.png",
+              "bytes": 486572,
+              "sha256": "d599ed9cbf560ef41debbb45d9ff3ea93204a8761b7bb3c61811067cdb8c78be",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/nonconformist-techtoon-ep01-overview.pdf",
+              "bytes": 70286,
+              "sha256": "0d1fe36d147f1d739abd471b96b9b2f5aaf64e0e0537576230193d3a62fd92af",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "nonconformist-techtoon-ep01-sound-dna",
+      "title": "NONCONFORMIST — Techtoon ep.01/24, technical sound breakdown",
+      "tags": [
+        "music",
+        "nonconformist",
+        "sound-design",
+        "techno",
+        "track-dna"
+      ],
+      "source": "81.4 s snippet of Audius track Zb4jbbJ (Gabe Sage) + track analysis 2026-10-20",
+      "created": "2026-10-20",
+      "summary": "Know the tempo, the sound layers and which 59 s to upload before prompting.",
+      "topic": "nonconformist",
+      "track": "techtoon-ep01",
+      "role": "sound-dna",
+      "order": 10,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/nonconformist-techtoon-ep01-sound-dna.md",
+            "bytes": 2430,
+            "sha256": "fd8e6bedf57b3f2ebc9caba302d3e8be3e1fa5d05c1af2e9d934d8111a0a6b90"
+          },
+          "exports": {}
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/nonconformist-techtoon-ep01-sound-dna.excalidraw",
+            "bytes": 59523,
+            "sha256": "87d9e8493b06d9c5279709606e854348558b2b22932006c45b64e45bf6f1dc82"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/nonconformist-techtoon-ep01-sound-dna.png",
+              "bytes": 386156,
+              "sha256": "dd37398f6172b9506e5624dca459cae827b9402faecabd31f525425d80e6f675",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/nonconformist-techtoon-ep01-sound-dna.pdf",
+              "bytes": 75418,
+              "sha256": "07edb1c642c3e4ff1f5f0eb6bc2a73b8a956995628278b7065d29fbc16de9a0f",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "nonconformist-techtoon-ep01-suno-a",
+      "title": "NONCONFORMIST — Techtoon ep.01/24, Suno Extend 5A (Techno)",
+      "tags": [
+        "music",
+        "nonconformist",
+        "prompt",
+        "suno",
+        "track-dna"
+      ],
+      "source": "Track analysis 2026-10-20 of Audius track Zb4jbbJ (Gabe Sage)",
+      "created": "2026-10-20",
+      "summary": "Make the existing groove more powerful and club-ready without losing its rhythmic personality. The reliable club continuation and the reference for source fidelity; the analysis ranks it second, after 5B.",
+      "topic": "nonconformist",
+      "track": "techtoon-ep01",
+      "role": "variant",
+      "order": 11,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/nonconformist-techtoon-ep01-suno-a.md",
+            "bytes": 3461,
+            "sha256": "0223079bd9075706ee578b822bf6201041a9b5e267baaf9860cf61f28ba65b82"
+          },
+          "exports": {}
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/nonconformist-techtoon-ep01-suno-a.excalidraw",
+            "bytes": 63046,
+            "sha256": "5ac48d92d5810f67705197bd3d3e0b2dbcece564f2445c7e76d63d55b75f13a4"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/nonconformist-techtoon-ep01-suno-a.png",
+              "bytes": 415759,
+              "sha256": "37643ba4afd2489e15747d6810af079ffc54db3169376b6ea6b9798ca0f29487",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/nonconformist-techtoon-ep01-suno-a.pdf",
+              "bytes": 121348,
+              "sha256": "e465f5c78df8455fdd140b602a7726bbac7ae2cefa61fcb964c039585a5a2afe",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "nonconformist-techtoon-ep01-suno-b",
+      "title": "NONCONFORMIST — Techtoon ep.01/24, Suno Extend 5B (Minimal)",
+      "tags": [
+        "music",
+        "nonconformist",
+        "prompt",
+        "suno",
+        "track-dna"
+      ],
+      "source": "Track analysis 2026-10-20 of Audius track Zb4jbbJ (Gabe Sage)",
+      "created": "2026-10-20",
+      "summary": "Instead of adding sounds, put the intricate groove, tiny variations, timing and negative space in front: playful, sophisticated, hypnotic. The analysis's first-choice experiment.",
+      "topic": "nonconformist",
+      "track": "techtoon-ep01",
+      "role": "variant",
+      "order": 12,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/nonconformist-techtoon-ep01-suno-b.md",
+            "bytes": 3727,
+            "sha256": "bb407eb0a61c128b30d291d175435c3139d88c1c025b8264ddaeef6f36efbc77"
+          },
+          "exports": {}
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/nonconformist-techtoon-ep01-suno-b.excalidraw",
+            "bytes": 89520,
+            "sha256": "7592b44d2fe4ca3ca20317615ed4e68b5f3f7e2d6f1b5e727f6b7e2e719a76c8"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/nonconformist-techtoon-ep01-suno-b.png",
+              "bytes": 512413,
+              "sha256": "c2ebdb36fbe7438f161fc28920e208396ace55a2dc0dc13d197b47da24bc7f8e",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/nonconformist-techtoon-ep01-suno-b.pdf",
+              "bytes": 166198,
+              "sha256": "083f041f8314c39d9393c08d416458b1bf234973b5b2838eabcd6e467da7b4ad",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "nonconformist-techtoon-ep01-suno-c",
+      "title": "NONCONFORMIST — Techtoon ep.01/24, Suno Extend 5C (Dark Industrial)",
+      "tags": [
+        "music",
+        "nonconformist",
+        "prompt",
+        "suno",
+        "track-dna"
+      ],
+      "source": "Track analysis 2026-10-20 of Audius track Zb4jbbJ (Gabe Sage)",
+      "created": "2026-10-20",
+      "summary": "Turn the percussive intensity into a darker, mechanical warehouse track while keeping the original bassline and tempo. The boldest sound-design experiment; the analysis ranks it third.",
+      "topic": "nonconformist",
+      "track": "techtoon-ep01",
+      "role": "variant",
+      "order": 13,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/nonconformist-techtoon-ep01-suno-c.md",
+            "bytes": 3802,
+            "sha256": "a0382c94ca5bbb864a2a7ce6ee64fcaf264b651e505f027fb7e0d4aeebb45e8d"
+          },
+          "exports": {}
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/nonconformist-techtoon-ep01-suno-c.excalidraw",
+            "bytes": 93623,
+            "sha256": "f4763a7291218b32fb4383707647ff0af1e410dad25f6e5975867ce5c17e38ab"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/nonconformist-techtoon-ep01-suno-c.png",
+              "bytes": 535581,
+              "sha256": "98a60af3a6ad12f2cdb98697a45028281884684c0077dcfeda9b58884fc66072",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/nonconformist-techtoon-ep01-suno-c.pdf",
+              "bytes": 191638,
+              "sha256": "696a1e8359e06adbed01d787d259c50a9949a4c012cee62c02b380a4775c2b45",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "nonconformist-techtoon-ep01-suno-workflow",
+      "title": "NONCONFORMIST — Techtoon ep.01/24, continue with Suno Extend (3 directions)",
+      "tags": [
+        "music",
+        "nonconformist",
+        "suno",
+        "track-dna",
+        "workflow"
+      ],
+      "source": "Track analysis 2026-10-20 (incl. its flowchart) + help.suno.com articles 6141569, 2409601, 9601601, 2425729, 2871105 (checked 2026-10-20) + scoring method from nonconformist-sage-solo-suno-extend-workflow",
+      "created": "2026-10-20",
+      "summary": "Turn the snippet into full tracks by continuing the real audio in three directions from one upload, and compare takes instead of guessing.",
+      "topic": "nonconformist",
+      "track": "techtoon-ep01",
+      "role": "workflow",
+      "order": 14,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/nonconformist-techtoon-ep01-suno-workflow.md",
+            "bytes": 4093,
+            "sha256": "09e26239e17e2b9df1f4848ad73cc70100ece6c849165463f0118efab9bf6143"
+          },
+          "exports": {}
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/nonconformist-techtoon-ep01-suno-workflow.excalidraw",
+            "bytes": 82389,
+            "sha256": "b0deb1e43a8475a05cee3a2b6942a0bbd7a1aaf2f24b440970f1da20e946a6af"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/nonconformist-techtoon-ep01-suno-workflow.png",
+              "bytes": 539430,
+              "sha256": "36d63794b5ad72d85aeb164bd89dcad99517be2ecf366f29486e44ad8719e656",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/nonconformist-techtoon-ep01-suno-workflow.pdf",
+              "bytes": 60995,
+              "sha256": "67c83336f77d3c4fd2dd6199d8b7edf65e2e89572b90bf1eb85da3f5ae312e39",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "missingExports": [
+    {
+      "slug": "nonconformist-techtoon-ep01-overview",
+      "format": "md",
+      "kind": "pdf"
+    },
+    {
+      "slug": "nonconformist-techtoon-ep01-sound-dna",
+      "format": "md",
+      "kind": "pdf"
+    },
+    {
+      "slug": "nonconformist-techtoon-ep01-suno-a",
+      "format": "md",
+      "kind": "pdf"
+    },
+    {
+      "slug": "nonconformist-techtoon-ep01-suno-b",
+      "format": "md",
+      "kind": "pdf"
+    },
+    {
+      "slug": "nonconformist-techtoon-ep01-suno-c",
+      "format": "md",
+      "kind": "pdf"
+    },
+    {
+      "slug": "nonconformist-techtoon-ep01-suno-workflow",
+      "format": "md",
+      "kind": "pdf"
+    }
+  ],
+  "secretScan": {
+    "scannedFiles": 64,
+    "excluded": []
+  }
+}

@@ -1,0 +1,36 @@
+%% title: ForecastLabAI — RAG pipeline with pgvector
+%% tags: forecastlabai, interview, rag, pgvector, embeddings
+%% source: ForecastLabAI @79e8dce, brief in md/forecastlabai-rag-pipeline.md
+%%{init: {"flowchart": {"wrappingWidth": 260}}}%%
+flowchart TB
+    subgraph IDX["Indexing"]
+        direction LR
+        I1["<b>Docs</b><br/>Markdown · OpenAPI"]
+        I2{"SHA-256 hash<br/>changed?"}
+        I3["<b>Chunker</b><br/>Markdown: split on headings<br/>OpenAPI: one chunk per endpoint<br/>512 tokens · overlap 50"]
+        I4["<b>Embedding provider</b><br/>OpenAI text-embedding-3-small (default)<br/>Ollama nomic-embed-text"]
+        SKIP["skip (idempotent re-index)"]
+        I1 --> I2
+        I2 -- "yes" --> I3 --> I4
+        I2 -- "no" --> SKIP
+    end
+
+    DB[("<b>PostgreSQL + pgvector</b><br/>chunks · vectors · content hash<br/>HNSW index · cosine")]
+
+    subgraph RET["Retrieval"]
+        direction LR
+        Q1["<b>User question</b>"]
+        Q2["<b>Query embedding</b><br/>same provider"]
+        Q3["<b>Cosine search</b><br/>top-k 5 · similarity ≥ 0.7"]
+        Q4["<b>RAG Assistant</b><br/>PydanticAI agent<br/>retrieve · check evidence · cite"]
+        Q5["<b>RAGAnswer</b><br/>answer · confidence · sources · no_evidence"]
+        Q1 --> Q2 --> Q3 --> Q4 --> Q5
+    end
+
+    IDX -- "store chunks + vectors" --> DB
+    DB -- "nearest chunks → cosine search" --> RET
+
+    classDef store fill:#eef4ff,stroke:#3b5bdb,stroke-width:2px
+    classDef muted stroke-dasharray: 5 5,color:#666
+    class DB store
+    class SKIP muted

@@ -1,0 +1,17 @@
+%% title: Git new repo — safe path to the first commits
+%% tags: git, repo-setup, secrets, commits
+%% source: INSTANTS first commits, 2026-10-19
+flowchart TD
+    A["git init"] --> B{"git config user.email set?"}
+    B -- "no" --> C["git config user.name / user.email (repo-local)"]
+    B -- "yes" --> D
+    C --> D[".gitignore: deps, build output, .env*, *.log, local settings"]
+    D --> E["Run checks / CI locally"]
+    E --> F["Secret scan on files to be tracked"]
+    F -- "hit" --> G["Remove secret, revoke + reissue the key"]
+    G --> F
+    F -- "clean" --> H["Commits by topic: scaffold, tooling, workflow, content"]
+    H --> I["git status clean, git log looks right"]
+    I --> J{"Remote requested?"}
+    J -- "no" --> K["Stop: no push"]
+    J -- "yes" --> L["git remote add + push (CI activates)"]

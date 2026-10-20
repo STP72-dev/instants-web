@@ -1,0 +1,29 @@
+%% title: ForecastLabAI — PydanticAI agents with human approval
+%% tags: forecastlabai, interview, agents, pydantic-ai, human-in-the-loop
+%% source: ForecastLabAI @79e8dce (agents/experiment.py, agents/service.py, agents/routes.py), brief in md/forecastlabai-agents-pydanticai.md
+%%{init: {"flowchart": {"wrappingWidth": 280}}}%%
+flowchart TB
+    U["<b>User request</b><br/>Agent Chat (frontend)"]
+    A["<b>PydanticAI agent</b><br/>experiment orchestrator · RAG assistant<br/>system prompt · provider:model · output schema"]
+    T["<b>Tool call</b><br/>typed tool wired to an existing service<br/>AgentDeps: DB session · session / request ID · call counter"]
+    D{"needs<br/>approval?"}
+    E["<b>Execute tool</b><br/>via service layer"]
+    P["<b>Pending action</b><br/>tool returns approval_required<br/>session → awaiting_approval<br/>POST /sessions/{id}/approve"]
+    H{"human<br/>decision"}
+    X["<b>Executed</b><br/>service layer runs the action"]
+    R["Rejected / expired<br/>no state change"]
+    O["<b>Validated output</b><br/>ExperimentReport · RAGAnswer"]
+    W["WebSocket /agents/stream → frontend"]
+
+    U --> A --> T --> D
+    D -- "no" --> E
+    E -- "tool result" --> A
+    D -- "yes: create_alias · archive_run · save_scenario<br/>(agent_require_approval)" --> P --> H
+    H -- "approve" --> X
+    H -- "reject" --> R
+    A -- "final answer" --> O --> W
+
+    classDef human fill:#fff4e6,stroke:#e8590c,stroke-width:2px
+    classDef muted stroke-dasharray: 5 5,color:#666
+    class P,H human
+    class R muted

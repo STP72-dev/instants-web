@@ -1,0 +1,37 @@
+%% title: NONCONFORMIST — hell YEAH, identity mind map
+%% tags: nonconformist, music, techno, track-dna, identity
+%% source: brief in md/nonconformist-hell-yeah-overview.md (Audius track 323253 + track DNA analysis 2026-10-20)
+%%{init: {"flowchart": {"wrappingWidth": 190}}}%%
+flowchart LR
+    G["<b>Groove</b><br/>driving, repetitive, syncopated<br/>— not melodic"]
+    A["<b>Arrangement</b><br/>layer accumulation,<br/>no verse / chorus"]
+    M["<b>Mood</b><br/>underground, playful,<br/>hypnotic, physical"]
+
+    C(("<b>hell YEAH</b><br/>Gabe Sage<br/>2021 · 7:38"))
+
+    subgraph CORE["IDENTITY — the core that must survive any remake"]
+        direction TB
+        S["<b>Synths</b><br/>short, rubbery,<br/>resonant repeating phrases"]
+        P["<b>Percussion</b><br/>busy, interlocking<br/>organic + electronic"]
+        B["<b>Bass</b><br/>rounded; heavier<br/>foundation arrives later"]
+    end
+
+    G --- C
+    A --- C
+    M --- C
+    C === S
+    C === P
+    C === B
+
+    GENRE["Genre direction (interpretation, not official):<br/>hypnotic minimal techno<br/>+ tribal percussion + microhouse / tech-house"]
+    C ~~~ GENRE
+
+    classDef center fill:#2b2b2b,stroke:#000,color:#fff
+    classDef trait fill:#f4f4f4,stroke:#888
+    classDef core fill:#ffe9a8,stroke:#b8860b,stroke-width:2px
+    classDef note fill:#fff,stroke:#bbb,stroke-dasharray:4 3
+    class C center
+    class G,A,M trait
+    class S,P,B core
+    class GENRE note
+    style CORE fill:#fff8e1,stroke:#b8860b,stroke-width:2px
