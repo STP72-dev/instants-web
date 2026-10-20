@@ -15,10 +15,15 @@
     "test": "vitest run",
     "ci": "npm run lint && npm run typecheck && npm test && npm run build",
     "scan:diff": "node scripts/scan-diff.ts",
-    "ingest": "node scripts/ingest.ts"
+    "ingest": "node scripts/ingest.ts",
+    "screenshots": "node scripts/screenshots.ts"
   },
   "dependencies": {
+    "@fontsource-variable/fraunces": "5.3.0",
+    "@fontsource-variable/geist": "5.3.0",
+    "@fontsource-variable/geist-mono": "5.3.0",
     "astro": "7.4.1",
+    "sharp": "0.35.5",
     "yaml": "2.9.1"
   },
   "devDependencies": {
@@ -26,6 +31,7 @@
     "@types/node": "24.19.2",
     "eslint": "10.13.0",
     "eslint-plugin-astro": "3.2.1",
+    "playwright": "1.64.1",
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.0",
     "vitest": "5.0.5"

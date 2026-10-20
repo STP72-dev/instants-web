@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import ButtonLink from '../components/ButtonLink.astro';
+---
+
+<Base title="Not found" noindex>
+  <section class="container lost">
+    <p class="eyebrow">404 · nothing here</p>
+    <h1>This instant has not been bottled yet.</h1>
+    <p>The page may have moved when the library was refreshed.</p>
+    <div class="actions">
+      <ButtonLink href="/" variant="primary">Back to the library</ButtonLink>
+      <ButtonLink href="/search/">Search entries</ButtonLink>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lost {
+    padding-block: var(--space-9);
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+  }
+
+  h1 {
+    font-size: var(--step-4);
+    line-height: var(--leading-tight);
+    max-width: 18ch;
+  }
+
+  p:not(.eyebrow) {
+    color: var(--text-muted);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+  }
+</style>

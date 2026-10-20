@@ -1,0 +1,216 @@
+---
+/** Living reference of the design system (tokens, type, primitives). Not linked from navigation. */
+import Base from '../layouts/Base.astro';
+import ButtonLink from '../components/ButtonLink.astro';
+import EntryCard from '../components/EntryCard.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import TagChip from '../components/TagChip.astro';
+import TopicMotif from '../components/TopicMotif.astro';
+import { accentVar, getEntry, manifest, topicAccent } from '../lib/content.ts';
+
+const surfaces = ['bg', 'bg-raised', 'surface', 'surface-hover'];
+const texts = ['text', 'text-muted', 'text-faint'];
+const accents = ['amber', 'cyan', 'violet', 'mint', 'rose', 'lime'];
+const samples = manifest.topics.map((t) => getEntry(t.entries[0]));
+---
+
+<Base title="Styleguide" noindex>
+  <div class="container sg">
+    <header class="intro">
+      <p class="eyebrow">Design system · D5</p>
+      <h1>Dark, quiet, precise.</h1>
+      <p class="lede">
+        Near-black surfaces, warm paper-white text, one accent per topic. Fraunces for voice, Geist for interface, Geist Mono for
+        metadata.
+      </p>
+    </header>
+
+    <section aria-labelledby="sg-colour">
+      <SectionHeader kicker="01" title="Colour" id="sg-colour" />
+      <div class="swatches">
+        {
+          [...surfaces, ...texts].map((name) => (
+            <div class="swatch">
+              <span class="chip-colour" style={`background: var(--${name})`} />
+              <code>--{name}</code>
+            </div>
+          ))
+        }
+        {
+          accents.map((name) => (
+            <div class="swatch">
+              <span class="chip-colour" style={`background: var(--accent-${name})`} />
+              <code>--accent-{name}</code>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section aria-labelledby="sg-type">
+      <SectionHeader kicker="02" title="Type" id="sg-type" />
+      <div class="type">
+        <p class="t5">Instant solutions</p>
+        <p class="t4">Open, copy, done.</p>
+        <p class="t3">Track DNA — hell YEAH</p>
+        <p class="t2">Guided path from overview to detail</p>
+        <p class="t1">Interface text in Geist, set for long reading at a comfortable measure. Árvíztűrő tükörfúrógép.</p>
+        <p class="eyebrow">Metadata label · Geist Mono · 12 entries</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="sg-controls">
+      <SectionHeader kicker="03" title="Controls" id="sg-controls" />
+      <div class="row">
+        <ButtonLink href="#" variant="primary">Primary action</ButtonLink>
+        <ButtonLink href="#">Secondary</ButtonLink>
+        <TagChip tag="track-dna" />
+        <TagChip tag="model-routing" />
+        <TagChip tag="static" static />
+      </div>
+    </section>
+
+    <section aria-labelledby="sg-motifs">
+      <SectionHeader kicker="04" title="Topic motifs" id="sg-motifs" />
+      <div class="motifs">
+        {
+          manifest.topics.map((t) => (
+            <figure style={accentVar(topicAccent(t.slug))}>
+              <div class="motif-box">
+                <TopicMotif slug={t.slug} kind={t.kind} />
+              </div>
+              <figcaption class="eyebrow">
+                {t.title} · {t.kind}
+              </figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </section>
+
+    <section aria-labelledby="sg-cards">
+      <SectionHeader kicker="05" title="Entry cards" id="sg-cards" />
+      <div class="cards">
+        {
+          samples.map((entry, i) => (
+            <div style={accentVar(topicAccent(entry.topic))}>
+              <EntryCard entry={entry} step={i + 1} />
+            </div>
+          ))
+        }
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .sg {
+    display: grid;
+    gap: var(--space-8);
+    padding-block: var(--space-8);
+  }
+
+  .intro h1 {
+    font-size: var(--step-5);
+    line-height: var(--leading-tight);
+    font-weight: 300;
+  }
+
+  .lede {
+    max-width: 52ch;
+    color: var(--text-muted);
+    font-size: var(--step-1);
+    margin-top: var(--space-4);
+  }
+
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    gap: var(--space-3);
+  }
+
+  .swatch {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .chip-colour {
+    height: 3.5rem;
+    border-radius: var(--radius-1);
+    border: 1px solid var(--line-strong);
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .type {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .t5,
+  .t4,
+  .t3,
+  .t2 {
+    font-family: var(--font-display);
+    letter-spacing: var(--tracking-display);
+    line-height: var(--leading-tight);
+  }
+
+  .t5 {
+    font-size: var(--step-5);
+    font-weight: 300;
+  }
+
+  .t4 {
+    font-size: var(--step-4);
+    font-weight: 350;
+    font-style: italic;
+  }
+
+  .t3 {
+    font-size: var(--step-3);
+  }
+
+  .t2 {
+    font-size: var(--step-2);
+  }
+
+  .t1 {
+    max-width: var(--measure);
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    align-items: center;
+  }
+
+  .motifs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: var(--space-4);
+  }
+
+  .motif-box {
+    height: 6rem;
+    padding: var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    background: var(--surface);
+  }
+
+  figcaption {
+    margin-top: var(--space-2);
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-4);
+  }
+</style>

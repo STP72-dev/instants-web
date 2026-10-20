@@ -1,0 +1,86 @@
+/*
+ * Design tokens (DECISIONS.md D5). The only place raw colour values live.
+ * Contrast on --bg (#0b0c0e): --text 16.2:1, --text-muted 8.5:1, --text-faint 5.9:1, accents 9.7–14.6:1 (tests/contrast.test.ts).
+ */
+:root {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --bg: #0b0c0e;
+  --bg-raised: #111317;
+  --surface: #15171c;
+  --surface-hover: #1b1e24;
+  --line: rgb(255 255 255 / 0.08);
+  --line-strong: rgb(255 255 255 / 0.16);
+
+  /* Text */
+  --text: #ede9e1;
+  --text-muted: #a9abb1;
+  --text-faint: #8a8d95;
+  --text-on-accent: #0b0c0e;
+
+  /* Topic accents (assigned in src/lib/content.ts; never the only signal) */
+  --accent-amber: #f2a65a;
+  --accent-cyan: #7dd3fc;
+  --accent-violet: #c4b5fd;
+  --accent-mint: #8ee6c4;
+  --accent-rose: #fda4af;
+  --accent-lime: #d4e88a;
+  --accent: var(--accent-cyan);
+
+  /* Focus ring stays high-contrast regardless of topic accent */
+  --focus: #fdfcf9;
+
+  /* Type */
+  --font-display: 'Fraunces Variable', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  --step--1: clamp(0.8rem, 0.78rem + 0.1vw, 0.86rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+  --step-1: clamp(1.2rem, 1.1rem + 0.45vw, 1.4rem);
+  --step-2: clamp(1.45rem, 1.25rem + 0.9vw, 1.95rem);
+  --step-3: clamp(1.9rem, 1.5rem + 1.8vw, 2.9rem);
+  --step-4: clamp(2.5rem, 1.7rem + 3.6vw, 4.6rem);
+  --step-5: clamp(3rem, 1.8rem + 5.6vw, 6.6rem);
+
+  --leading-tight: 1.04;
+  --leading-snug: 1.25;
+  --leading-body: 1.65;
+  --tracking-display: -0.025em;
+  --tracking-label: 0.08em;
+
+  /* Space (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --space-9: 7rem;
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 2.5rem);
+  --measure: 70ch;
+  --page-max: 78rem;
+
+  /* Shape */
+  --radius-1: 6px;
+  --radius-2: 12px;
+  --radius-3: 20px;
+  --radius-pill: 999px;
+
+  /* Motion: opacity/transform only, short, disabled under reduced motion */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-1: 120ms;
+  --dur-2: 180ms;
+  --dur-3: 420ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 0ms;
+    --dur-2: 0ms;
+    --dur-3: 0ms;
+  }
+}
