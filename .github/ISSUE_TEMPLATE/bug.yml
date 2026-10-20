@@ -1,0 +1,15 @@
+name: Bug
+description: Something is broken
+labels: ["type:fix"]
+body:
+  - type: textarea
+    id: what
+    attributes: { label: What happened, description: Observed vs expected. }
+    validations: { required: true }
+  - type: textarea
+    id: repro
+    attributes: { label: Steps to reproduce, render: bash }
+    validations: { required: true }
+  - type: textarea
+    id: acceptance
+    attributes: { label: Acceptance criteria, value: "- [ ] " }

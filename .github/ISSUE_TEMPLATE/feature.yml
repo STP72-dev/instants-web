@@ -1,0 +1,19 @@
+name: Feature
+description: A new capability for INSTANTS Web
+labels: ["type:feat"]
+body:
+  - type: textarea
+    id: goal
+    attributes: { label: Goal, description: One outcome. }
+    validations: { required: true }
+  - type: textarea
+    id: acceptance
+    attributes: { label: Acceptance criteria, value: "- [ ] " }
+    validations: { required: true }
+  - type: textarea
+    id: verification
+    attributes: { label: Verification commands, render: bash }
+    validations: { required: true }
+  - type: input
+    id: deps
+    attributes: { label: Dependencies, placeholder: "Depends on #" }
