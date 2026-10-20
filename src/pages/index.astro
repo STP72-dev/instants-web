@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import ButtonLink from '../components/ButtonLink.astro';
 import SectionHeader from '../components/SectionHeader.astro';
 import TopicTile from '../components/TopicTile.astro';
-import { entryUrl, manifest, orderedTopics, previewSource, thumbnail, totalFiles } from '../lib/content.ts';
+import { manifest, orderedTopics, previewSource, thumbnail, totalFiles } from '../lib/content.ts';
 
 const topics = orderedTopics();
 const { counts } = manifest;
@@ -50,9 +50,9 @@ const steps = [
     <div class="collage" aria-hidden="true">
       {
         collage.map((entry, i) => (
-          <a class="plate" href={entryUrl(entry.slug)} tabindex="-1" style={`--n: ${i}`}>
+          <div class="plate" style={`--n: ${i}`}>
             <img src={thumbnail(entry)!.src} alt="" width="720" height="405" loading={i === 0 ? 'eager' : 'lazy'} />
-          </a>
+          </div>
         ))
       }
     </div>
@@ -90,9 +90,18 @@ const steps = [
     <SectionHeader kicker="The library" title="Topics" id="topics-title">
       <p>Music topics read as stories — overview, sound DNA, variants, workflow. Technical topics read as a guided path from overview to detail.</p>
     </SectionHeader>
-    <div class="topics">
-      {topics.map((t, i) => <TopicTile topic={t} featured={i === 0 && t.kind === 'music'} />)}
-    </div>
+    {
+      topics.length === 0 ? (
+        <p class="no-topics">The snapshot is empty — run <code>npm run ingest</code> to bottle the first entries.</p>
+      ) : (
+        <div class:list={['topics', { solo: topics.length === 1 }]}>
+          {topics.map((t, i) => (
+            // The 2×2 feature only works with enough siblings to fill the rows beside and below it.
+            <TopicTile topic={t} featured={i === 0 && t.kind === 'music' && topics.length >= 4} />
+          ))}
+        </div>
+      )
+    }
   </section>
 </Base>
 
@@ -239,6 +248,22 @@ const steps = [
   .topics > :global(.featured) {
     grid-column: span 2;
     grid-row: span 2;
+  }
+
+  .topics.solo > :global(*) {
+    grid-column: 1 / -1;
+  }
+
+  .no-topics {
+    padding: var(--space-6);
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-2);
+    color: var(--text-muted);
+  }
+
+  .no-topics code {
+    font-family: var(--font-mono);
+    color: var(--text);
   }
 
   @media (max-width: 60rem) {

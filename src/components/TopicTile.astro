@@ -114,9 +114,15 @@ const highlights =
 
   /* Scales with the tile so long names (e.g. NONCONFORMIST) never clip. */
   .featured h3 {
-    font-size: clamp(2.2rem, 9cqi, var(--step-5));
+    font-size: clamp(2.2rem, 4.6vw, var(--step-5));
     font-weight: 300;
     overflow-wrap: anywhere;
+  }
+
+  @supports (width: 1cqi) {
+    .featured h3 {
+      font-size: clamp(2.2rem, 9cqi, var(--step-5));
+    }
   }
 
   .story {
@@ -156,13 +162,16 @@ const highlights =
     border-radius: inherit;
   }
 
-  h3 a:focus-visible {
-    outline: none;
-  }
+  /* Whole-tile ring where :has() exists; otherwise the link keeps its own focus ring. */
+  @supports selector(:has(*)) {
+    h3 a:focus-visible {
+      outline: none;
+    }
 
-  .tile:has(h3 a:focus-visible) {
-    outline: 2px solid var(--focus);
-    outline-offset: 3px;
+    .tile:has(h3 a:focus-visible) {
+      outline: 2px solid var(--focus);
+      outline-offset: 3px;
+    }
   }
 
   .highlights {
