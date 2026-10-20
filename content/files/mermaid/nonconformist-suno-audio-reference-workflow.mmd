@@ -1,0 +1,37 @@
+%% title: NONCONFORMIST — Suno v6 audio-reference workflow
+%% tags: nonconformist, music, suno, workflow
+%% source: brief in md/nonconformist-suno-audio-reference-workflow.md (track DNA analysis 2026-10-20)
+%%{init: {"flowchart": {"wrappingWidth": 180}}}%%
+flowchart LR
+    U["<b>1 · Upload Audio</b><br/>snippet<br/>hell YEAH, 37.9 s"]
+    S["<b>2 · Prompt</b><br/>Styles: Version A<br/>Exclude: vocals, trance leads,<br/>EDM risers, supersaws …"]
+    P["<b>3 · Settings</b><br/>v6 · Instrumental on<br/>Variety 0 · Max Mode on"]
+    G["<b>4 · Generate</b><br/>2–4 takes"]
+    Q{"Core identity there?<br/>synth figure × tribal<br/>percussion × heavier bass"}
+    subgraph TUNE["Tune, then generate again"]
+        direction TB
+        T["<b>Too far off</b><br/>raise Audio Influence<br/>or trim Styles"]
+        C["<b>Too close / static</b><br/>lower Audio Influence"]
+        L["<b>Want structure?</b> (optional)<br/>separate run with the<br/>bracketed Lyrics arrangement"]
+    end
+    D{"Faithful or<br/>2026 reinterpretation?"}
+    F["<b>Faithful</b><br/>chosen 2026-10-20<br/>extend with the<br/>Version A arrangement"]
+    R["<b>Reinterpret — later</b><br/>switch to Version B"]
+
+    U --> S --> P --> G --> Q
+    Q -- "no: drifts" --> T
+    Q -- "no: copy" --> C
+    Q -.-> L
+    TUNE -- "retry" --> G
+    Q == "yes" ==> D
+    D == "faithful" ==> F
+    D -. "after A is right" .-> R
+
+    classDef step fill:#f4f4f4,stroke:#888
+    classDef fix fill:#fff,stroke:#888,stroke-dasharray:4 3
+    classDef chosen fill:#2b2b2b,stroke:#000,color:#fff
+    classDef later fill:#6b6b6b,stroke:#000,color:#fff
+    class U,S,P,G step
+    class T,C,L fix
+    class F chosen
+    class R later

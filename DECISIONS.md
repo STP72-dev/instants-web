@@ -90,3 +90,32 @@ Codex sessions: HERDR workspace `IWEB`, tab `IWEB__DECIDE__CODEX__ARCH__01` (cod
 - **Choice:** A. Near-black base, warm high-contrast text, one accent per topic family (music amber, technical cyan, AI violet, INSTANTS/forecast mint),
   accent never the only signal; self-hosted open-licensed variable fonts; motion = opacity/transform only, 120–180 ms, disabled under
   `prefers-reduced-motion`. Concrete font pairing is finalised in the design-system issue (#3) after screenshots.
+
+## D6 — Content snapshot layout and manifest schema (2026-10-20)
+
+| Option | Fit 25 | UX 20 | Simplicity 20 | Docker+Vercel 15 | Risk 10 | Effort 10 | Total |
+|---|---|---|---|---|---|---|---|
+| **A One canonical `manifest.json` + `files/` + `exports/`** | 5 matches a small static library | 4 no visible UX downside | 5 one contract, one validation boundary | 5 one directory everywhere | 5 easy rollback/inspection | 5 smallest surface | **96** |
+| B Index + per-topic + per-entry manifests | 4 over-normalised | 4 | 3 cross-file consistency | 5 | 3 stale-reference failure modes | 3 | 75 |
+| C Astro content collections with generated Zod records | 3 multi-format entries fit badly | 4 | 3 Astro-coupled layer | 4 | 3 framework coupling | 2 proxy-content modelling | 65 |
+
+- **Choice:** A. Layout: `content/manifest.json`, `content/files/<md|mermaid|excalidraw>/<slug>.<ext>`, `content/exports/<format>/<slug>.<png|pdf>`.
+  Schema: `src/lib/manifest.ts` (`schemaVersion: 1`). Public URL of a snapshot file = `/<path>`.
+- **Derivation (no hand lists):** topic = longest name prefix that is also one of the entry's tags → else longest prefix learned from tagged entries →
+  else first segment. Topic kind = `music` when any entry is tagged `music`/`track-dna`. Music tracks = tails ending in `-overview`/`-sound-dna`;
+  roles overview → sound-dna → variant (`suno-*`) → workflow (`*-workflow`); tracks then topic-level entries. Technical guided path by name tokens:
+  overview → concept → practice → reference → detail.
+- **Determinism:** no wall-clock values; source identity = INSTANTS git commit + commit time + dirty flag; locale-independent sort; atomic temp-dir swap.
+  Export freshness = export mtime ≥ source mtime. This makes the snapshot a pure function of source bytes *and* mtimes — accepted
+  (Codex review #21, finding 4): ingest runs only on the owner's machine and the committed snapshot is what Docker/CI/Vercel consume, so
+  checkouts never re-derive it; the stale label is worth more than byte-stability across machines.
+- **Read-only guarantee:** git queries use `--no-optional-locks` (+ `GIT_OPTIONAL_LOCKS=0`) so `git status` cannot refresh INSTANTS/.git/index;
+  output/staging/backup paths are checked against the source on physical (realpath) paths; symlinked sources/exports are rejected;
+  export bytes are secret-scanned too.
+- **Deviation from Codex sketch:** format keys mirror INSTANTS directory names (`md`, `mermaid`, `excalidraw`); no per-file git SHAs (exports in
+  `out/` are git-ignored, so mtime comparison is the only signal); topic-level `tags` added for hub styling.
+
+## URL contract (part of D6)
+`/` · `/topics/<topic>/` · `/entries/<slug>/` · `/search/` + `/search-index.json` · `/files/<format>/<slug>.<ext>` · `/exports/<format>/<slug>.<png|pdf>` ·
+`/downloads/<topic>.zip` · `/_astro/*`. Content types: `.md` text/markdown, `.mmd` text/plain, `.excalidraw` application/vnd.excalidraw+json,
+`.png` image/png, `.pdf` application/pdf, `.zip` application/zip (all text types `charset=utf-8`).

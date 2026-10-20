@@ -1,0 +1,39 @@
+%% title: ForecastLabAI — modular monolith architecture
+%% tags: forecastlabai, interview, architecture, fastapi
+%% source: ForecastLabAI @79e8dce, brief in md/forecastlabai-architecture.md
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TB
+    UI["<b>React dashboard</b><br/>Explorer · Forecasts · Demand Planner · What-If · Agent Chat"]
+
+    subgraph API["FastAPI backend — one process, modular monolith"]
+        direction LR
+        subgraph DATA["Data"]
+            direction TB
+            D1["data_platform"] ~~~ D2["ingest"] ~~~ D3["featuresets"]
+        end
+        subgraph ML["ML"]
+            direction TB
+            M1["forecasting"] ~~~ M2["backtesting"] ~~~ M3["model_selection"] ~~~ M4["registry"] ~~~ M5["jobs / batch"]
+        end
+        subgraph GENAI["GenAI"]
+            direction TB
+            G1["rag"] ~~~ G2["agents"]
+        end
+        subgraph DEC["Decision"]
+            direction TB
+            S1["scenarios"] ~~~ S2["explainability"] ~~~ S3["analytics"]
+        end
+        DATA ~~~ ML ~~~ GENAI ~~~ DEC
+    end
+
+    DB[("<b>PostgreSQL 16 + pgvector</b><br/>sales · runs · jobs · embeddings · sessions")]
+    LLM["<b>LLM providers</b><br/>OpenAI · Anthropic"]
+    OLL["Ollama<br/>(optional, local)"]
+
+    UI -- "REST / WebSocket" --> API
+    API -- "SQLAlchemy / asyncpg" --> DB
+    API -- "LLM + embeddings (rag, agents)" --> LLM
+    API -.-> OLL
+
+    classDef optional stroke-dasharray: 5 5
+    class OLL optional

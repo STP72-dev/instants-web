@@ -1,0 +1,12 @@
+%% title: AI modellválasztás — feladat → modell → effort
+%% tags: ai, model-routing, effort
+%% source: heti mentorálós chat, 2026-10-08 (modellnevek as given, unverified)
+flowchart TD
+    A["Feladat"] --> B{"Milyen munka?"}
+    B -- "egyszerű, már összerakott futás, research, előkészítés" --> C["gemini-3.1-flash-lite<br/>default · effort: mid vagy high"]
+    B -- "előre preparált dolgok, artifactok, plan + decompose" --> D["gemini-3.8-flash<br/>effort: mid vagy high"]
+    D --> E["Tervezés / architect:<br/>effort mindig high"]
+    B -- "nagyon komplex, long-run, refaktor-terv, sok blokkoló" --> F["gemini-3.1-pro-preview<br/>effort mindig high"]
+    F --> G["Nagyon token-heavy:<br/>1-1 futás után modellcsere"]
+    B -- "vadonatúj projekt: minimál repo → rules → workflow" --> H["latest-model<br/>effort: max (UNCLEAR: ugyanaz mint a pro?)"]
+    H --> G

@@ -1,0 +1,15 @@
+%% title: Dokumentáció- és determinizmus-kör agentic workflow-ban
+%% tags: ai, documentation, determinism, workflow
+%% source: heti mentorálós chat, 2026-10-08
+flowchart TD
+    A["Workflow futás"] --> B["Keletkezik: plan.md / state.md / JSON / log"]
+    B --> C["GLOBAL-RULE vagy CI: dokumentumok frissítése"]
+    C --> D{"Az információ valid és hiteles?"}
+    D -- "nem" --> E["Javítás / törlés: a kitalált info minden következő futást megmérgez"]
+    E --> C
+    D -- "igen" --> F{"Doksi hosszabb 300-450 sornál?"}
+    F -- "igen" --> G["Szétosztás + index, körbehivatkozás"]
+    F -- "nem" --> H["Marad egyben"]
+    G --> I["Következő agentic session ezekből dolgozik"]
+    H --> I
+    I --> A

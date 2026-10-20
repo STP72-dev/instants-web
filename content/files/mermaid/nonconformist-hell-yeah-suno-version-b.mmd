@@ -1,0 +1,42 @@
+%% title: NONCONFORMIST — hell YEAH, Version B vs A arrangement timeline
+%% tags: nonconformist, music, techno, suno, arrangement
+%% source: brief in md/nonconformist-hell-yeah-suno-version-b.md (track DNA analysis 2026-10-20)
+%%{init: {"flowchart": {"wrappingWidth": 170}}}%%
+flowchart TB
+    subgraph A["A · faithful — low end arrives late"]
+        direction LR
+        A1["Intro<br/>●○○○○"] --> A2["Rhythmic Build<br/>●●○○○"] --> A3["Groove Development<br/>●●●○○"]
+        A3 == "late low-end arrival" ==> A4["Low-End Arrival<br/>●●●●●"]
+        A4 --> A5["Main Instrumental Groove<br/>●●●●●"] --> A6["Percussive Variation<br/>●●●●○"] --> A7["Main Groove Return<br/>●●●●●"] --> A8["Outro<br/>●●○○○"]
+    end
+
+    subgraph B["B · modern club — kick early, real breakdown, DJ-friendly edges"]
+        direction LR
+        B1["<b>1 · DJ-Friendly Intro</b><br/>filtered pulses,<br/>hollow plucks, sparse clicks<br/>●○○○○"]
+        B2["<b>2 · Groove Introduction</b><br/>minimal kick, muted bass,<br/>shuffled percussion<br/>●●○○○"]
+        B3["<b>3 · Tribal Rhythm Development</b><br/>toms, wooden clicks,<br/>rapid fills over the synth<br/>●●●○○"]
+        B4["<b>4 · Main Groove</b><br/>punchy kick, elastic bass,<br/>filter-shifting motif<br/>●●●●○"]
+        B5["<b>5 · Rhythmic Breakdown</b><br/>bass reduces, kick recedes,<br/>percussion + synth stay<br/>●●○○○"]
+        B6["<b>6 · Full Groove Return</b><br/>fullest tribal density,<br/>strong hypnotic momentum<br/>●●●●●"]
+        B7["<b>7 · Extended DJ Outro</b><br/>percussion drops out,<br/>kick + bass stay for mixing<br/>●●●○○"]
+        B1 --> B2 --> B3 --> B4
+        B4 == "breakdown dip" ==> B5
+        B5 == "peak" ==> B6
+        B6 --> B7
+    end
+
+    A ~~~ B
+
+    LEGEND["● = density / energy (1–5)<br/>dark = full kick + bass · grey = partial<br/>dashed = breakdown"]
+    B ~~~ LEGEND
+
+    classDef build fill:#f4f4f4,stroke:#888
+    classDef partial fill:#6b6b6b,stroke:#000,color:#fff
+    classDef full fill:#2b2b2b,stroke:#000,color:#fff
+    classDef dip fill:#f4f4f4,stroke:#000,stroke-width:2px,stroke-dasharray:6 4
+    classDef note fill:#fff,stroke:#bbb,stroke-dasharray:4 3
+    class A1,A2,A3,A8,B1 build
+    class A6,B2,B3 partial
+    class A4,A5,A7,B4,B6,B7 full
+    class B5 dip
+    class LEGEND note
