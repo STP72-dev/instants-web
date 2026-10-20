@@ -1,0 +1,418 @@
+---
+/**
+ * Search + tag/topic filtering (D3). Every entry is rendered here as a card, so the page works without JS;
+ * the client script filters and ranks those cards with a MiniSearch index loaded from /search-index.json.
+ */
+import Base from '../layouts/Base.astro';
+import EntryCard from '../components/EntryCard.astro';
+import { accentVar, manifest, orderedTopics, topicAccent, topicEntries } from '../lib/content.ts';
+
+const topics = orderedTopics();
+const entries = topics.flatMap((t) => topicEntries(t));
+const tagCounts = new Map<string, number>();
+for (const e of entries) for (const t of e.tags) tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1);
+const tags = [...tagCounts.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1));
+---
+
+<Base title="Search" section="search" description="Search every INSTANTS entry by text, tag and topic.">
+  <section class="container head">
+    <p class="eyebrow">Search · {manifest.counts.entries} entries</p>
+    <h1>Find the instant you need.</h1>
+    <form class="controls" role="search" action="/search/" method="get" id="search-form">
+      <label class="field">
+        <span class="visually-hidden">Search entries</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
+        <input
+          id="search-input"
+          name="q"
+          type="search"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Search titles, tags and text…"
+          aria-describedby="search-hint"
+        />
+        <kbd aria-hidden="true">/</kbd>
+      </label>
+      <p id="search-hint" class="visually-hidden">Results update as you type. Press slash to focus this field from anywhere.</p>
+
+      <div class="filters">
+        <fieldset class="topics">
+          <legend class="eyebrow">Topic</legend>
+          <label class="pill"><input type="radio" name="topic" value="" checked /><span>All</span></label>
+          {
+            topics.map((t) => (
+              <label class="pill" style={accentVar(topicAccent(t.slug))}>
+                <input type="radio" name="topic" value={t.slug} />
+                <span>
+                  <i class="dot" aria-hidden="true" />
+                  {t.title}
+                </span>
+              </label>
+            ))
+          }
+        </fieldset>
+        <label class="tag-select">
+          <span class="eyebrow">Tag</span>
+          <select name="tag" id="tag-select">
+            <option value="">All tags</option>
+            {
+              tags.map(([t, n]) => (
+                <option value={t}>
+                  #{t} ({n})
+                </option>
+              ))
+            }
+          </select>
+        </label>
+        <noscript><button type="submit" class="apply">Apply</button></noscript>
+      </div>
+    </form>
+  </section>
+
+  <section class="container results" aria-labelledby="results-title">
+    <div class="results-head">
+      <h2 id="results-title" class="visually-hidden">Results</h2>
+      <p id="result-count" class="eyebrow" role="status" aria-live="polite">{entries.length} entries</p>
+      <button type="button" id="clear" class="clear" hidden>Clear filters</button>
+    </div>
+    <ol class="cards" id="results">
+      {
+        entries.map((e) => (
+          <li data-slug={e.slug} data-topic={e.topic} data-tags={e.tags.join(' ')} style={accentVar(topicAccent(e.topic))}>
+            <EntryCard entry={e} level={3} />
+          </li>
+        ))
+      }
+    </ol>
+    <div class="empty" id="empty" hidden>
+      <p class="big">Nothing bottled under that yet.</p>
+      <p>Try fewer words, another topic, or clear the filters.</p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import MiniSearch from 'minisearch';
+  import { INDEX_OPTIONS, type SearchDoc } from '../lib/search.ts';
+
+  const form = document.querySelector<HTMLFormElement>('#search-form')!;
+  const input = document.querySelector<HTMLInputElement>('#search-input')!;
+  const select = document.querySelector<HTMLSelectElement>('#tag-select')!;
+  const list = document.querySelector<HTMLOListElement>('#results')!;
+  const count = document.querySelector<HTMLParagraphElement>('#result-count')!;
+  const empty = document.querySelector<HTMLDivElement>('#empty')!;
+  const clear = document.querySelector<HTMLButtonElement>('#clear')!;
+  const items = [...list.querySelectorAll<HTMLLIElement>('li[data-slug]')];
+  const defaultOrder = items.slice();
+
+  let index: MiniSearch<SearchDoc> | null = null;
+  let loading: Promise<void> | null = null;
+
+  function loadIndex(): Promise<void> {
+    loading ??= fetch('/search-index.json')
+      .then((r) => r.text())
+      .then((json) => {
+        index = MiniSearch.loadJSON<SearchDoc>(json, INDEX_OPTIONS);
+      })
+      .catch(() => {
+        count.textContent = 'Search index failed to load — filters still work.';
+      });
+    return loading;
+  }
+
+  function state() {
+    const topic = (form.querySelector<HTMLInputElement>('input[name="topic"]:checked')?.value ?? '').trim();
+    return { q: input.value.trim(), tag: select.value, topic };
+  }
+
+  function writeUrl(s: ReturnType<typeof state>) {
+    const params = new URLSearchParams();
+    if (s.q) params.set('q', s.q);
+    if (s.tag) params.set('tag', s.tag);
+    if (s.topic) params.set('topic', s.topic);
+    const qs = params.toString();
+    history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+  }
+
+  function render() {
+    const s = state();
+    writeUrl(s);
+    let ranked = defaultOrder;
+    if (s.q && index) {
+      const scores = new Map(index.search(s.q).map((r) => [r.id as string, r.score]));
+      ranked = defaultOrder.filter((li) => scores.has(li.dataset.slug!)).sort((a, b) => scores.get(b.dataset.slug!)! - scores.get(a.dataset.slug!)!);
+    }
+    const visible = ranked.filter(
+      (li) => (!s.tag || li.dataset.tags!.split(' ').includes(s.tag)) && (!s.topic || li.dataset.topic === s.topic),
+    );
+    const shown = new Set(visible);
+    for (const li of items) li.hidden = !shown.has(li);
+    // Reorder the DOM so reading and tab order follow the ranking.
+    for (const li of visible) list.appendChild(li);
+    const n = visible.length;
+    count.textContent = s.q && !index ? 'Loading search…' : `${n} ${n === 1 ? 'entry' : 'entries'}${s.q ? ` for “${s.q}”` : ''}`;
+    empty.hidden = n > 0;
+    clear.hidden = !s.q && !s.tag && !s.topic;
+  }
+
+  // Restore state from the URL (?q=&tag=&topic=).
+  const params = new URLSearchParams(location.search);
+  input.value = params.get('q') ?? '';
+  const tag = params.get('tag') ?? '';
+  if ([...select.options].some((o) => o.value === tag)) select.value = tag;
+  const topic = params.get('topic') ?? '';
+  const radio = form.querySelector<HTMLInputElement>(`input[name="topic"][value="${CSS.escape(topic)}"]`);
+  if (radio) radio.checked = true;
+
+  let timer: number | undefined;
+  input.addEventListener('input', () => {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => {
+      if (input.value.trim() && !index) loadIndex().then(render);
+      render();
+    }, 120);
+  });
+  input.addEventListener('focus', () => void loadIndex(), { once: true });
+  form.addEventListener('change', render);
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    render();
+  });
+  clear.addEventListener('click', () => {
+    input.value = '';
+    select.value = '';
+    form.querySelector<HTMLInputElement>('input[name="topic"][value=""]')!.checked = true;
+    render();
+    input.focus();
+  });
+
+  if (input.value) loadIndex().then(render);
+  render();
+</script>
+
+<style>
+  .head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    padding-block: var(--space-8) var(--space-6);
+  }
+
+  h1 {
+    font-size: var(--step-4);
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    margin-top: var(--space-3);
+  }
+
+  .field {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 3.75rem;
+    padding: 0 var(--space-5);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    transition: border-color var(--dur-1) var(--ease-out);
+  }
+
+  .field:focus-within {
+    border-color: var(--accent);
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .field svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: none;
+    fill: none;
+    stroke: var(--text-muted);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .field input {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    font-size: var(--step-1);
+    outline: none;
+  }
+
+  .field input::placeholder {
+    color: var(--text-faint);
+  }
+
+  kbd {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 0.1rem 0.45rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    color: var(--text-faint);
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  fieldset {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    border: 0;
+    padding: 0;
+    min-width: 0;
+  }
+
+  legend {
+    width: 100%;
+    margin-bottom: var(--space-2);
+  }
+
+  .pill {
+    position: relative;
+  }
+
+  .pill input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .pill span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.25rem;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    transition:
+      color var(--dur-1) var(--ease-out),
+      background-color var(--dur-1) var(--ease-out),
+      border-color var(--dur-1) var(--ease-out);
+  }
+
+  .pill:hover span {
+    color: var(--text);
+  }
+
+  .pill input:checked + span {
+    color: var(--text);
+    border-color: color-mix(in oklab, var(--accent) 70%, transparent);
+    background: color-mix(in oklab, var(--accent) 14%, transparent);
+  }
+
+  .pill input:focus-visible + span {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .tag-select {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  select {
+    min-height: 2.5rem;
+    min-width: 14rem;
+    max-width: 100%;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-1);
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+
+  .apply {
+    min-height: 2.5rem;
+    padding: 0 var(--space-5);
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+  }
+
+  .results-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    padding-block: var(--space-4);
+    border-top: 1px solid var(--line);
+    margin-bottom: var(--space-4);
+  }
+
+  .clear {
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    gap: var(--space-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .cards li[hidden] {
+    display: none;
+  }
+
+  .empty {
+    padding-block: var(--space-8);
+    text-align: center;
+    color: var(--text-muted);
+  }
+
+  .big {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    color: var(--text);
+  }
+
+  @media (max-width: 40rem) {
+    select {
+      min-width: 0;
+      width: 100%;
+    }
+
+    .tag-select {
+      width: 100%;
+    }
+  }
+</style>
