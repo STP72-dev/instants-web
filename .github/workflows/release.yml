@@ -106,7 +106,10 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
-            echo "Vercel deploy skipped: VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID must all be set (see issue #17)."
+            msg="Vercel deploy skipped: VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID must all be set (see issue #17)."
+            echo "$msg"
+            echo "::warning title=Vercel deploy skipped::$msg"
+            echo "$msg" >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           npx --yes "vercel@$VERCEL_CLI_VERSION" deploy --prebuilt --prod --token "$VERCEL_TOKEN"

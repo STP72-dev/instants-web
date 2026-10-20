@@ -34,7 +34,8 @@ If any of them is empty the step logs
 Vercel deploy skipped: VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID must all be set (see issue #17).
 ```
 
-and succeeds, so the image is still published. The secrets are only exposed to that step's environment, never passed to third-party actions.
+and succeeds, so the image is still published. The skip is made visible as a warning annotation (`::warning title=Vercel deploy skipped::`)
+and in the job summary. A skipped run publishes the image only; Vercel stays on its previous deployment. The secrets are only exposed to that step's environment, never passed to third-party actions.
 To change the CLI version, edit `VERCEL_CLI_VERSION` in `release.yml`.
 
 ## Vercel config vs nginx

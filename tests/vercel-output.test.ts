@@ -1,8 +1,8 @@
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { extname, join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { buildConfig, writeVercelOutput, type Route } from '../scripts/vercel-output.ts';
+import { buildConfig, writeVercelOutput, type OutputConfig, type Route } from '../scripts/vercel-output.ts';
 
 function listFiles(dir: string, base = dir): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
@@ -117,5 +117,158 @@ describe('writeVercelOutput', () => {
     const dist = makeDist();
     expect(() => writeVercelOutput(dist, dist)).toThrow(/nested/);
     expect(() => writeVercelOutput(dist, join(dist, 'out'))).toThrow(/nested/);
+  });
+
+  it('resolves symlinks before comparing dist and out', () => {
+    const dist = makeDist();
+    const alias = join(root, 'alias');
+    symlinkSync(dist, alias);
+    // out below an alias of dist (the directory does not exist yet)
+    expect(() => writeVercelOutput(dist, join(alias, 'out'))).toThrow(/nested/);
+    // dist reached through the alias, out given by its real path
+    expect(() => writeVercelOutput(alias, join(dist, 'out'))).toThrow(/nested/);
+    // out itself is a symlink pointing into dist
+    const sneaky = join(root, 'sneaky');
+    symlinkSync(join(dist, '_astro'), sneaky);
+    expect(() => writeVercelOutput(dist, sneaky)).toThrow(/nested/);
+    // a dangling symlink as out is refused rather than followed
+    const dangling = join(root, 'dangling');
+    symlinkSync(join(root, 'missing-target'), dangling);
+    expect(() => writeVercelOutput(dist, dangling)).toThrow(/dangling/);
+    // nothing was deleted or written inside dist
+    expect(existsSync(join(dist, '_astro', 'app.abc.css'))).toBe(true);
+    expect(existsSync(join(dist, 'out'))).toBe(false);
+  });
+});
+
+/**
+ * A small model of the subset of Vercel Build Output API v3 routing that config.json uses:
+ * ordered routes, `continue` header accumulation, `handle: filesystem`, redirects and a final
+ * dest+status fallback. It follows Vercel's documented semantics; it is NOT Vercel itself, so the
+ * first real deploy stays the final check (issue #17).
+ */
+interface Res {
+  status: number;
+  headers: Record<string, string>;
+  body?: string;
+}
+
+const TYPES: Record<string, string> = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.json': 'application/json',
+  '.zip': 'application/zip',
+  '.png': 'image/png',
+};
+
+function simulate(config: OutputConfig, staticDir: string, requestPath: string): Res {
+  const headers: Record<string, string> = {};
+  const lookup = (p: string): string | undefined => {
+    const rel = p.endsWith('/') ? `${p}index.html` : p;
+    const file = join(staticDir, rel);
+    return existsSync(file) && statSync(file).isFile() ? file : undefined;
+  };
+  const serve = (file: string, status: number): Res => ({
+    status,
+    headers: { 'content-type': TYPES[extname(file)] ?? 'application/octet-stream', ...headers },
+    body: readFileSync(file, 'utf8'),
+  });
+
+  let path = requestPath;
+  for (const route of config.routes) {
+    if (route.handle === 'filesystem') {
+      const file = lookup(path);
+      if (file) return serve(file, 200);
+      continue;
+    }
+    // Vercel anchors `src` to the whole path.
+    const m = new RegExp(`^(?:${route.src})$`).exec(path);
+    if (!m) continue;
+    const sub = (v: string) => v.replace(/\$(\d)/g, (_, n: string) => m[Number(n)] ?? '');
+    for (const [k, v] of Object.entries(route.headers ?? {})) headers[k.toLowerCase()] = sub(v);
+    if (route.continue) continue;
+    if (route.dest) {
+      path = sub(route.dest);
+      const file = lookup(path);
+      return file ? serve(file, route.status ?? 200) : { status: route.status ?? 404, headers };
+    }
+    return { status: route.status ?? 200, headers };
+  }
+  return { status: 404, headers };
+}
+
+describe('routing model against the generated output', () => {
+  let root: string;
+  let staticDir: string;
+  let config: OutputConfig;
+
+  beforeEach(() => {
+    root = mkdtempSync(join(tmpdir(), 'vercel-routes-'));
+    const dist = join(root, 'dist');
+    for (const [file, body] of Object.entries({
+      'index.html': '<h1>home</h1>',
+      '404.html': '<h1>not found</h1>',
+      'topics/x/index.html': '<h1>x</h1>',
+      'files/md/a.md': '# a',
+      'downloads/t.zip': 'PK',
+      '_astro/a.js': 'export {}',
+    })) {
+      mkdirSync(join(dist, file, '..'), { recursive: true });
+      writeFileSync(join(dist, file), body);
+    }
+    const out = join(root, 'out');
+    writeVercelOutput(dist, out);
+    staticDir = join(out, 'static');
+    config = JSON.parse(readFileSync(join(out, 'config.json'), 'utf8')) as OutputConfig;
+  });
+  afterEach(() => rmSync(root, { recursive: true, force: true }));
+
+  const get = (p: string) => simulate(config, staticDir, p);
+  const SECURITY = {
+    'x-content-type-options': 'nosniff',
+    'referrer-policy': 'strict-origin-when-cross-origin',
+    'x-frame-options': 'SAMEORIGIN',
+  };
+
+  it('serves / as no-cache html with security headers', () => {
+    const res = get('/');
+    expect(res.status).toBe(200);
+    expect(res.headers).toMatchObject({ 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-cache', ...SECURITY });
+  });
+
+  it('redirects /topics/x to /topics/x/ and serves the hub there', () => {
+    const redirect = get('/topics/x');
+    expect(redirect.status).toBe(301);
+    expect(redirect.headers.location).toBe('/topics/x/');
+    expect(get('/topics/x/')).toMatchObject({ status: 200, body: '<h1>x</h1>' });
+  });
+
+  it('serves markdown with the overridden content type and stays inline', () => {
+    const res = get('/files/md/a.md');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toBe('text/markdown; charset=utf-8');
+    expect(res.headers['content-disposition']).toBeUndefined();
+  });
+
+  it('forces download for topic zips', () => {
+    const res = get('/downloads/t.zip');
+    expect(res).toMatchObject({ status: 200 });
+    expect(res.headers['content-disposition']).toBe('attachment');
+    expect(res.headers['content-type']).toBe('application/zip');
+  });
+
+  it('makes /_astro assets immutable (later route overrides no-cache)', () => {
+    const res = get('/_astro/a.js');
+    expect(res.status).toBe(200);
+    expect(res.headers['cache-control']).toBe('public, max-age=31536000, immutable');
+  });
+
+  it('answers unknown paths with the 404 page (after the trailing-slash redirect)', () => {
+    expect(get('/nope')).toMatchObject({ status: 301 });
+    const res = get('/nope/');
+    expect(res).toMatchObject({ status: 404, body: '<h1>not found</h1>' });
+    expect(res.headers).toMatchObject(SECURITY);
+    expect(get('/missing.png')).toMatchObject({ status: 404, body: '<h1>not found</h1>' });
   });
 });

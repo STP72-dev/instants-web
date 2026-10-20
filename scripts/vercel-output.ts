@@ -6,8 +6,8 @@
  * The release workflow runs it on the html dir extracted from the published image,
  * then `vercel deploy --prebuilt` uploads <out-dir> (= .vercel/output).
  */
-import { cpSync, existsSync, mkdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
-import { join, relative, resolve, sep } from 'node:path';
+import { cpSync, existsSync, lstatSync, mkdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export interface Route {
@@ -60,19 +60,41 @@ function isInside(parent: string, child: string): boolean {
   return rel !== '' && !rel.startsWith('..') && !rel.startsWith(sep);
 }
 
+/** Physical path: realpath of the nearest existing ancestor plus the not-yet-existing tail. */
+function physicalPath(p: string): string {
+  let current = resolve(p);
+  let tail = '';
+  for (;;) {
+    try {
+      return join(realpathSync(current), tail);
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
+      // realpath fails for a dangling symlink too; its target is unknowable, so refuse it.
+      if (lstatSync(current, { throwIfNoEntry: false })) {
+        throw new Error(`dangling symlink: ${current}`);
+      }
+      const parent = dirname(current);
+      if (parent === current) throw err;
+      tail = join(basename(current), tail);
+      current = parent;
+    }
+  }
+}
+
 export function writeVercelOutput(distDir: string, outDir: string): void {
   const dist = resolve(distDir);
-  const out = resolve(outDir);
   if (!existsSync(dist) || !statSync(dist).isDirectory()) throw new Error(`dist dir not found: ${distDir}`);
   if (!existsSync(join(dist, 'index.html'))) throw new Error(`no index.html in ${distDir}; refusing to package an empty site`);
-  const realDist = realpathSync(dist);
+  // Compare and act on physical paths so a symlink cannot alias out into dist (or the reverse).
+  const realDist = physicalPath(dist);
+  const out = physicalPath(outDir);
   if (realDist === out || isInside(realDist, out) || isInside(out, realDist)) {
     throw new Error('out dir and dist dir must not be the same or nested');
   }
 
   rmSync(out, { recursive: true, force: true });
   mkdirSync(out, { recursive: true });
-  cpSync(dist, join(out, 'static'), { recursive: true });
+  cpSync(realDist, join(out, 'static'), { recursive: true });
   writeFileSync(join(out, 'config.json'), JSON.stringify(buildConfig(), null, 2) + '\n');
 }
 
