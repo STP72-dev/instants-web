@@ -1,0 +1,24 @@
+---
+/**
+ * A live Mermaid diagram (DECISIONS.md D2). The markup matches what src/lib/markdown.ts emits for ```mermaid fences,
+ * so MermaidScript.astro hydrates both. The source stays in the page as text and is the no-JS / error fallback.
+ */
+interface Props {
+  id: string;
+  source: string;
+  /** Accessible name for the rendered diagram. */
+  label: string;
+}
+
+const { id, source, label } = Astro.props;
+---
+
+<figure class="mermaid-figure" data-mermaid aria-label={label}>
+  <div class="mermaid-canvas" id={id} data-mermaid-canvas role="img" aria-label={label}>
+    <p class="mermaid-status" data-mermaid-status>Diagram renders when it scrolls into view.</p>
+  </div>
+  <details class="mermaid-source" data-mermaid-source>
+    <summary>Source</summary>
+    <pre tabindex="0"><code data-mermaid-code>{source.replace(/\n$/, '')}</code></pre>
+  </details>
+</figure>

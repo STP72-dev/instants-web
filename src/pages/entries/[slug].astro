@@ -1,0 +1,407 @@
+---
+/** One page per manifest entry (URL contract, DECISIONS.md D6): Markdown, live Mermaid and Excalidraw per D2. */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import TagChip from '../../components/TagChip.astro';
+import CodeCopy from '../../components/entry/CodeCopy.astro';
+import DownloadsPanel from '../../components/entry/DownloadsPanel.astro';
+import OnThisPage from '../../components/entry/OnThisPage.astro';
+import EntryPager from '../../components/entry/EntryPager.astro';
+import ExcalidrawFigure from '../../components/entry/ExcalidrawFigure.astro';
+import MermaidFigure from '../../components/entry/MermaidFigure.astro';
+import MermaidScript from '../../components/entry/MermaidScript.astro';
+import PdfPreview from '../../components/entry/PdfPreview.astro';
+import { FORMAT_LABEL, FORMAT_SHORT, getEntry, getTopic, manifest, ROLE_LABEL, topicAccent, topicUrl } from '../../lib/content.ts';
+import type { Format } from '../../lib/manifest.ts';
+import { renderMarkdown } from '../../lib/markdown.ts';
+import '../../styles/prose.css';
+
+export const getStaticPaths = (() => manifest.entries.map((e) => ({ params: { slug: e.slug } }))) satisfies GetStaticPaths;
+
+const entry = getEntry(Astro.params.slug);
+const topic = getTopic(entry.topic);
+const track = entry.track ? topic.tracks.find((t) => t.slug === entry.track) : undefined;
+const { md, mermaid, excalidraw } = entry.formats;
+const read = (path: string) => readFileSync(join(process.cwd(), 'content', path), 'utf8');
+
+const notes = md ? await renderMarkdown(read(md.source.path)) : null;
+const mermaidSource = mermaid ? read(mermaid.source.path) : null;
+const needsMermaid = Boolean(mermaid || notes?.hasMermaid);
+// Hungarian entries exist alongside English ones; ő/ű occur only in Hungarian, so they mark the article language.
+const lang = /[őűŐŰ]/.test([entry.title, md && read(md.source.path), mermaidSource].join(' ')) ? 'hu' : undefined;
+const missing = manifest.missingExports.filter((m) => m.slug === entry.slug);
+
+const SECTION: Record<Format, { id: string; label: string }> = {
+  md: { id: 'notes', label: 'Notes' },
+  mermaid: { id: 'diagram', label: 'Diagram' },
+  excalidraw: { id: 'sketch', label: 'Sketch' },
+};
+const formats = (['md', 'mermaid', 'excalidraw'] as const).filter((f) => entry.formats[f]);
+
+const created = entry.created
+  ? new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${entry.created}T00:00:00Z`))
+  : null;
+const description = entry.summary ?? `${entry.title} — ${formats.map((f) => FORMAT_LABEL[f]).join(', ')} in ${topic.title}.`;
+---
+
+<Base title={entry.title} description={description} accent={topicAccent(topic.slug)} section="topics">
+  <article class="container entry" lang={lang}>
+    <header class="hero rise">
+      <nav class="crumbs eyebrow" aria-label="Breadcrumb">
+        <ol>
+          <li><a href={topicUrl(topic.slug)}>{topic.title}</a></li>
+          {track && <li>{track.title}</li>}
+          <li aria-current="page">{ROLE_LABEL[entry.role]}</li>
+        </ol>
+      </nav>
+      <h1>{entry.title}</h1>
+      {!md && entry.summary && <p class="lede">{entry.summary}</p>}
+
+      <dl class="facts">
+        <div>
+          <dt>Topic</dt>
+          <dd><a href={topicUrl(topic.slug)}>{topic.title}</a></dd>
+        </div>
+        {
+          track && (
+            <div>
+              <dt>Track</dt>
+              <dd>{track.title}</dd>
+            </div>
+          )
+        }
+        <div>
+          <dt>Role</dt>
+          <dd>{ROLE_LABEL[entry.role]}</dd>
+        </div>
+        {
+          created && (
+            <div>
+              <dt>Created</dt>
+              <dd>
+                <time datetime={entry.created}>{created}</time>
+              </dd>
+            </div>
+          )
+        }
+        {
+          entry.source && (
+            <div class="wide">
+              <dt>Source</dt>
+              <dd>{entry.source}</dd>
+            </div>
+          )
+        }
+      </dl>
+
+      {
+        entry.tags.length > 0 && (
+          <ul class="tags" aria-label="Tags">
+            {entry.tags.map((tag) => (
+              <li>
+                <TagChip tag={tag} />
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      {
+        formats.length > 1 && (
+          <nav class="jump" aria-label="In this entry">
+            <ul>
+              {formats.map((f) => (
+                <li>
+                  <a href={`#${SECTION[f].id}`}>
+                    <span class="fmt">{FORMAT_SHORT[f]}</span>
+                    {SECTION[f].label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )
+      }
+    </header>
+
+    <div class="layout">
+      <div class="main">
+        {
+          md && notes && (
+            <section id="notes" class="block" aria-label="Notes">
+              <div class="prose" set:html={notes.html} />
+              {md.exports.pdf && <PdfPreview pdf={md.exports.pdf} from="Markdown" title={entry.title} />}
+            </section>
+          )
+        }
+
+        {
+          mermaid && mermaidSource && (
+            <section id="diagram" class="block" aria-labelledby="diagram-title">
+              <div class="block-head">
+                <p class="eyebrow">Mermaid · rendered live</p>
+                <h2 id="diagram-title">Diagram</h2>
+              </div>
+              <MermaidFigure id="entry-mermaid" source={mermaidSource} label={`${entry.title} — diagram`} />
+              {mermaid.exports.pdf && <PdfPreview pdf={mermaid.exports.pdf} from="Mermaid" title={entry.title} />}
+            </section>
+          )
+        }
+
+        {
+          excalidraw && (
+            <section id="sketch" class="block" aria-labelledby="sketch-title">
+              <div class="block-head">
+                <p class="eyebrow">Excalidraw</p>
+                <h2 id="sketch-title">Sketch</h2>
+              </div>
+              <ExcalidrawFigure asset={excalidraw} title={entry.title} id="entry-excalidraw" />
+              {excalidraw.exports.pdf && <PdfPreview pdf={excalidraw.exports.pdf} from="Excalidraw" title={entry.title} />}
+            </section>
+          )
+        }
+      </div>
+
+      <aside class="side" aria-label="Files and contents">
+        <DownloadsPanel entry={entry} missing={missing} />
+        {notes && <OnThisPage headings={notes.headings} />}
+      </aside>
+    </div>
+
+    <EntryPager entry={entry} topic={topic} />
+  </article>
+
+  {notes?.html.includes('astro-code') && <CodeCopy />}
+  {needsMermaid && <MermaidScript />}
+</Base>
+
+<style>
+  /* Single-track grids use minmax(0, 1fr) so wide code, tables and diagrams scroll instead of widening the page. */
+  .entry {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-8);
+    padding-block: var(--space-7) var(--space-6);
+  }
+
+  /* ---------- Header ---------- */
+
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    max-width: 62rem;
+  }
+
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding: 0;
+    list-style: none;
+  }
+
+  .crumbs li + li::before {
+    content: '/';
+    margin-right: var(--space-2);
+    color: var(--line-strong);
+  }
+
+  .crumbs a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .crumbs a:hover {
+    text-decoration: underline;
+  }
+
+  .crumbs [aria-current] {
+    color: var(--text-muted);
+  }
+
+  h1 {
+    font-size: var(--step-4);
+    line-height: 1.06;
+    font-weight: 360;
+    max-width: 22ch;
+    overflow-wrap: break-word;
+  }
+
+  /* Long all-caps words ("NONCONFORMIST") must fit a 360px screen. */
+  @media (max-width: 30rem) {
+    h1 {
+      font-size: var(--step-3);
+    }
+  }
+
+  .lede {
+    max-width: 60ch;
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-6);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--line);
+  }
+
+  .facts div {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .facts .wide {
+    flex: 1 1 22rem;
+  }
+
+  dt {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  dd {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .wide dd {
+    color: var(--text-muted);
+    max-width: 60ch;
+  }
+
+  dd a {
+    color: var(--accent);
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding: 0;
+    list-style: none;
+  }
+
+  .jump ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding: 0;
+    list-style: none;
+  }
+
+  .jump a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.5rem;
+    padding: 0 var(--space-4) 0 var(--space-2);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition:
+      border-color var(--dur-1) var(--ease-out),
+      background-color var(--dur-1) var(--ease-out);
+  }
+
+  .jump a:hover {
+    border-color: color-mix(in oklab, var(--accent) 60%, transparent);
+    background: color-mix(in oklab, var(--accent) 8%, transparent);
+  }
+
+  .fmt {
+    padding: 0.1rem 0.45rem;
+    border-radius: var(--radius-pill);
+    background: color-mix(in oklab, var(--accent) 16%, transparent);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+  }
+
+  /* ---------- Body ---------- */
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+  }
+
+  @media (min-width: 64rem) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr) 19rem;
+      gap: var(--space-8);
+      align-items: start;
+    }
+
+    /* The aside spans the column height so the table of contents can stay in view while Downloads scrolls away. */
+    .side {
+      align-self: stretch;
+      align-content: start;
+    }
+
+    .side > :global(.toc) {
+      position: sticky;
+      top: 5rem;
+    }
+  }
+
+  .side {
+    display: grid;
+    gap: var(--space-5);
+    min-width: 0;
+  }
+
+  .main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-8);
+    min-width: 0;
+  }
+
+  .block {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    min-width: 0;
+    scroll-margin-top: 5rem;
+  }
+
+  /* Prose shares the column edge with figures (the column is already about one measure wide). */
+  .block > :global(.prose) {
+    max-width: none;
+  }
+
+  .block-head {
+    display: grid;
+    gap: var(--space-1);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--line);
+  }
+
+  .block-head .eyebrow {
+    color: var(--accent);
+  }
+
+  .block-head h2 {
+    font-size: var(--step-2);
+    line-height: 1.15;
+  }
+
+  .main > .block:first-child .block-head {
+    padding-top: 0;
+    border-top: 0;
+  }
+</style>

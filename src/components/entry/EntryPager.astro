@@ -1,0 +1,85 @@
+---
+/** Previous / next entry in the topic's reading order. */
+import { entryUrl, getEntry, ROLE_LABEL } from '../../lib/content.ts';
+import type { Entry, Topic } from '../../lib/manifest.ts';
+
+interface Props {
+  entry: Entry;
+  topic: Topic;
+}
+
+const { entry, topic } = Astro.props;
+const index = topic.entries.indexOf(entry.slug);
+const prev = index > 0 ? getEntry(topic.entries[index - 1]) : null;
+const next = index < topic.entries.length - 1 ? getEntry(topic.entries[index + 1]) : null;
+---
+
+{
+  (prev || next) && (
+    <nav class="pager" aria-label={`Reading order in ${topic.title}`}>
+      {prev ? (
+        <a class="prev" href={entryUrl(prev.slug)} rel="prev">
+          <span class="eyebrow">← Previous · {ROLE_LABEL[prev.role]}</span>
+          <span class="title">{prev.title}</span>
+        </a>
+      ) : (
+        <span />
+      )}
+      {next && (
+        <a class="next" href={entryUrl(next.slug)} rel="next">
+          <span class="eyebrow">Next · {ROLE_LABEL[next.role]} →</span>
+          <span class="title">{next.title}</span>
+        </a>
+      )}
+    </nav>
+  )
+}
+
+<style>
+  .pager {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-4);
+  }
+
+  a {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    padding: var(--space-5);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    background: var(--surface);
+    text-decoration: none;
+    transition:
+      border-color var(--dur-2) var(--ease-out),
+      background-color var(--dur-2) var(--ease-out),
+      transform var(--dur-2) var(--ease-out);
+  }
+
+  a:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
+    background: var(--surface-hover);
+  }
+
+  .next {
+    text-align: right;
+  }
+
+  .next:only-child {
+    grid-column: -2 / -1;
+  }
+
+  .title {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    line-height: 1.25;
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+  }
+
+  a:hover .eyebrow {
+    color: var(--accent);
+  }
+</style>

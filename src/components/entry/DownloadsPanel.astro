@@ -1,0 +1,206 @@
+---
+/** Every file the manifest lists for one entry (sources + exports), plus the exports INSTANTS has not produced yet. */
+import { EXPORT_LABEL, FORMAT_LABEL, fileUrl, formatsOf } from '../../lib/content.ts';
+import type { Entry, ExportKind, MissingExport } from '../../lib/manifest.ts';
+
+interface Props {
+  entry: Entry;
+  missing: MissingExport[];
+}
+
+const { entry, missing } = Astro.props;
+
+const SOURCE_KIND: Record<string, string> = { md: 'Markdown source', mermaid: 'Mermaid source', excalidraw: 'Excalidraw scene' };
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+const basename = (path: string) => path.slice(path.lastIndexOf('/') + 1);
+
+const groups = formatsOf(entry).map((format) => {
+  const asset = entry.formats[format]!;
+  const files = [
+    { label: SOURCE_KIND[format], path: asset.source.path, bytes: asset.source.bytes, stale: false },
+    ...(Object.entries(asset.exports) as [ExportKind, NonNullable<(typeof asset.exports)[ExportKind]>][]).map(([kind, ref]) => ({
+      label: `${EXPORT_LABEL[kind]} export`,
+      path: ref.path,
+      bytes: ref.bytes,
+      stale: ref.freshness === 'stale',
+    })),
+  ];
+  return { format, files };
+});
+const fileCount = groups.reduce((n, g) => n + g.files.length, 0);
+---
+
+<section class="downloads" aria-labelledby="downloads-title">
+  <header>
+    <h2 id="downloads-title">Downloads</h2>
+    <p class="eyebrow">{fileCount} {fileCount === 1 ? 'file' : 'files'}</p>
+  </header>
+
+  {
+    groups.map(({ format, files }) => (
+      <div class="group">
+        <h3 class="eyebrow">{FORMAT_LABEL[format]}</h3>
+        <ul role="list">
+          {files.map((file) => (
+            <li>
+              <a href={fileUrl(file.path)} download={basename(file.path)} data-download-path={file.path}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" />
+                </svg>
+                <span class="name">
+                  <span class="label">{file.label}</span>
+                  <span class="file">{file.path.slice(file.path.lastIndexOf('.'))}</span>
+                </span>
+                <span class="size">{formatBytes(file.bytes)}</span>
+              </a>
+              {file.stale && <p class="stale">Older than its source</p>}
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))
+  }
+
+  {
+    missing.length > 0 && (
+      <div class="group missing">
+        <h3 class="eyebrow">Not exported yet</h3>
+        <ul role="list">
+          {missing.map((m) => (
+            <li>
+              {FORMAT_LABEL[m.format]} → {EXPORT_LABEL[m.kind]}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  {/* SLOT(#7): topic zip download — link topicZipUrl(entry.topic) here once /downloads/<topic>.zip is built. */}
+  <slot name="topic-zip" />
+</section>
+
+<style>
+  .downloads {
+    display: grid;
+    gap: var(--space-5);
+    padding: var(--space-5);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+  }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  h2 {
+    font-size: var(--step-1);
+  }
+
+  .group {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  h3.eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+  }
+
+  ul {
+    display: grid;
+    gap: var(--space-1);
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    margin-inline: calc(-1 * var(--space-3));
+    border-radius: var(--radius-1);
+    text-decoration: none;
+    transition: background-color var(--dur-1) var(--ease-out);
+  }
+
+  a:hover {
+    background: var(--surface-hover);
+  }
+
+  a:hover svg {
+    stroke: var(--accent);
+  }
+
+  svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    fill: none;
+    stroke: var(--text-faint);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke var(--dur-1) var(--ease-out);
+  }
+
+  .name {
+    display: grid;
+    min-width: 0;
+  }
+
+  .label {
+    font-size: 0.92rem;
+    line-height: 1.35;
+  }
+
+  .file {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-faint);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .size {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .stale {
+    margin: 0 0 var(--space-1) calc(1.1rem + var(--space-3));
+    font-size: 0.78rem;
+    color: var(--accent-amber);
+  }
+
+  .missing li {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    padding-left: var(--space-4);
+    position: relative;
+  }
+
+  .missing li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.7em;
+    width: 0.5rem;
+    border-top: 1px dashed var(--text-faint);
+  }
+</style>

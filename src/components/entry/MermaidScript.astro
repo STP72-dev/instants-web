@@ -1,0 +1,254 @@
+---
+/**
+ * Loader + styles for every `[data-mermaid]` figure on the page. Rendered only when the entry has Mermaid,
+ * so pages without diagrams never ship this script. mermaid itself is imported when a figure nears the viewport.
+ */
+---
+
+<script>
+  type Mermaid = (typeof import('mermaid'))['default'];
+
+  let mermaid: Promise<Mermaid> | undefined;
+  let sequence = 0;
+
+  /** Theme from the design tokens (tokens.css is the only place raw colours live). */
+  function themeVariables() {
+    const css = getComputedStyle(document.documentElement);
+    const token = (name: string) => css.getPropertyValue(name).trim();
+    const accent = token('--accent');
+    return {
+      darkMode: true,
+      background: token('--bg-raised'),
+      fontFamily: token('--font-sans'),
+      fontSize: '15px',
+      primaryColor: token('--surface-hover'),
+      primaryTextColor: token('--text'),
+      primaryBorderColor: accent,
+      secondaryColor: token('--surface'),
+      secondaryTextColor: token('--text'),
+      secondaryBorderColor: token('--text-faint'),
+      tertiaryColor: token('--bg'),
+      tertiaryTextColor: token('--text'),
+      tertiaryBorderColor: token('--text-faint'),
+      lineColor: token('--text-muted'),
+      textColor: token('--text'),
+      mainBkg: token('--surface-hover'),
+      nodeBorder: accent,
+      clusterBkg: token('--surface'),
+      clusterBorder: token('--text-faint'),
+      titleColor: token('--text'),
+      edgeLabelBackground: token('--surface'),
+      noteBkgColor: token('--surface'),
+      noteTextColor: token('--text'),
+      noteBorderColor: token('--text-faint'),
+      actorBkg: token('--surface-hover'),
+      actorBorder: accent,
+      actorTextColor: token('--text'),
+      signalColor: token('--text-muted'),
+      signalTextColor: token('--text'),
+    };
+  }
+
+  /**
+   * Diagrams are authored for a light page (classDef/style colours like fill:#fff8e1). On the dark theme, flip the
+   * lightness of every hex colour in those directives, keeping hue and saturation, so author emphasis survives and
+   * text stays readable. Only the rendered copy changes; the Source panel shows the file as written.
+   */
+  function darkenDirectives(source: string): string {
+    return source.replace(/^(\s*(?:classDef|style|linkStyle)\b.*)$/gm, (line) =>
+      line.replace(/#([0-9a-f]{3}|[0-9a-f]{6})\b/gi, (_, hex: string) => {
+        const full = hex.length === 3 ? [...hex].map((c) => c + c).join('') : hex;
+        const [r, g, b] = [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16) / 255);
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const l = (max + min) / 2;
+        const d = max - min;
+        const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+        const hue = d === 0 ? 0 : max === r ? (g - b) / d : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+        const h = (hue + 6) % 6;
+        const l2 = 0.08 + (1 - l) * 0.86;
+        const c = (1 - Math.abs(2 * l2 - 1)) * s;
+        const x = c * (1 - Math.abs((h % 2) - 1));
+        const m = l2 - c / 2;
+        const sector = Math.floor(h);
+        const [r2, g2, b2] = [[c, x, 0], [x, c, 0], [0, c, x], [0, x, c], [x, 0, c], [c, 0, x]][sector];
+        return `#${[r2, g2, b2].map((v) => Math.round((v + m) * 255).toString(16).padStart(2, '0')).join('')}`;
+      }),
+    );
+  }
+
+  function loadMermaid() {
+    mermaid ??= import('mermaid').then(({ default: m }) => {
+      m.initialize({ startOnLoad: false, securityLevel: 'strict', theme: 'base', themeVariables: themeVariables() });
+      return m;
+    });
+    return mermaid;
+  }
+
+  async function render(figure: HTMLElement) {
+    const canvas = figure.querySelector<HTMLElement>('[data-mermaid-canvas]');
+    const code = figure.querySelector<HTMLElement>('[data-mermaid-code]');
+    const status = figure.querySelector<HTMLElement>('[data-mermaid-status]');
+    if (!canvas || !code) return;
+    figure.dataset.state = 'loading';
+    if (status) status.textContent = 'Rendering diagram…';
+    try {
+      const m = await loadMermaid();
+      const { svg } = await m.render(`mermaid-svg-${++sequence}`, darkenDirectives(code.textContent ?? ''));
+      canvas.innerHTML = svg;
+      // Narrow screens keep the diagram near its natural size (scrolling inside the frame) instead of shrinking the text.
+      const width = canvas.querySelector('svg')?.viewBox.baseVal?.width;
+      if (width) canvas.style.setProperty('--natural-width', `${Math.round(width)}px`);
+      figure.dataset.state = 'ready';
+      if (canvas.scrollWidth > canvas.clientWidth + 4) {
+        canvas.tabIndex = 0;
+        const hint = document.createElement('p');
+        hint.className = 'mermaid-hint';
+        hint.textContent = 'Scroll sideways to see the whole diagram →';
+        canvas.after(hint);
+      }
+    } catch (error) {
+      figure.dataset.state = 'error';
+      const note = document.createElement('p');
+      note.className = 'mermaid-error';
+      note.textContent = `This diagram could not be rendered (${error instanceof Error ? error.message.split('\n')[0] : 'unknown error'}). The source is shown below.`;
+      canvas.replaceChildren(note);
+      canvas.removeAttribute('role');
+      figure.querySelector<HTMLDetailsElement>('[data-mermaid-source]')?.setAttribute('open', '');
+    }
+  }
+
+  const figures = [...document.querySelectorAll<HTMLElement>('[data-mermaid]')];
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer.unobserve(entry.target);
+          void render(entry.target as HTMLElement);
+        }
+      },
+      { rootMargin: '300px 0px' },
+    );
+    figures.forEach((figure) => observer.observe(figure));
+  } else {
+    figures.forEach((figure) => void render(figure));
+  }
+</script>
+
+<style is:global>
+  .mermaid-figure {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+    margin: 0;
+  }
+
+  .mermaid-canvas {
+    display: grid;
+    place-items: center;
+    min-height: 12rem;
+    padding: var(--space-5);
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
+  .mermaid-canvas svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Wide diagrams keep a readable size on phones and scroll inside their own frame. */
+  @media (max-width: 40rem) {
+    .mermaid-canvas {
+      place-items: start;
+      padding: var(--space-4);
+    }
+
+    .mermaid-canvas svg {
+      max-width: none;
+      min-width: min(var(--natural-width, 100%), 40rem);
+    }
+  }
+
+  .mermaid-figure[data-state='ready'] .mermaid-canvas svg {
+    animation: rise var(--dur-3) var(--ease-out) both;
+  }
+
+  .mermaid-hint {
+    margin-top: calc(-1 * var(--space-2));
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-faint);
+  }
+
+  .mermaid-status,
+  .mermaid-error {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--text-faint);
+    text-align: center;
+  }
+
+  .mermaid-error {
+    color: var(--accent-rose);
+    max-width: 52ch;
+  }
+
+  .mermaid-source summary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2rem;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .mermaid-source summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mermaid-source summary::before {
+    content: '';
+    width: 0.4rem;
+    height: 0.4rem;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform var(--dur-1) var(--ease-out);
+  }
+
+  .mermaid-source[open] summary::before {
+    transform: rotate(45deg);
+  }
+
+  .mermaid-source summary:hover {
+    color: var(--text);
+    border-color: var(--text-muted);
+  }
+
+  .mermaid-source pre {
+    margin-top: var(--space-3);
+    padding: var(--space-4);
+    max-height: 28rem;
+    overflow: auto;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-1);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+</style>

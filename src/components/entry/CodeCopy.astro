@@ -1,0 +1,41 @@
+---
+/** Adds a "Copy" button to every code block in the rendered Markdown (entries are meant to be copied). */
+---
+
+<script>
+  for (const pre of document.querySelectorAll<HTMLPreElement>('.prose pre.astro-code')) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'code-block';
+    pre.replaceWith(wrapper);
+    wrapper.append(pre);
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'code-copy';
+    button.textContent = 'Copy';
+    button.setAttribute('aria-label', 'Copy code to clipboard');
+    const status = document.createElement('span');
+    status.className = 'visually-hidden';
+    status.setAttribute('role', 'status');
+    wrapper.append(button, status);
+
+    let timer: number | undefined;
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(pre.innerText.replace(/\n$/, ''));
+        button.textContent = 'Copied';
+        button.dataset.copied = '';
+        status.textContent = 'Copied to clipboard';
+      } catch {
+        button.textContent = 'Select & copy';
+        status.textContent = 'Copy failed; select the text and copy it manually';
+      }
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        button.textContent = 'Copy';
+        delete button.dataset.copied;
+        status.textContent = '';
+      }, 1800);
+    });
+  }
+</script>
