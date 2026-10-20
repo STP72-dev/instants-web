@@ -7,6 +7,11 @@ describe('scanText', () => {
     expect(hits).toEqual([{ rule: 'github-token', line: 2 }]);
   });
 
+  it('flags a stateless GitHub installation token', () => {
+    const token = 'ghs_' + '12345_' + 'eyJ' + 'hbGciOiJSUzI1NiJ9.eyJpc3MiOjF9.sig';
+    expect(scanText(token).map((h) => h.rule)).toContain('github-installation-token');
+  });
+
   it('flags credential assignments', () => {
     expect(scanText('OPENROUTER_API_KEY' + '=' + 'abcd1234efgh5678ijkl').map((h) => h.rule)).toContain('credential-assignment');
   });

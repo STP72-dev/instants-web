@@ -8,6 +8,7 @@ export const SECRET_RULES: readonly SecretRule[] = [
   { id: 'private-key', pattern: /-----BEGIN [A-Z ]*PRIVATE KEY-----/ },
   { id: 'aws-access-key', pattern: /\b(?:AKIA|ASIA)[0-9A-Z]{16}\b/ },
   { id: 'github-token', pattern: /\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{36,}\b|\bgithub_pat_[A-Za-z0-9_]{50,}\b/ },
+  { id: 'github-installation-token', pattern: /\bghs_\d+_eyJ[A-Za-z0-9_-]{10,}/ },
   { id: 'openai-key', pattern: /\bsk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{32,}\b/ },
   { id: 'anthropic-key', pattern: /\bsk-ant-[A-Za-z0-9_-]{20,}\b/ },
   { id: 'google-api-key', pattern: /\bAIza[0-9A-Za-z_-]{35}\b/ },
