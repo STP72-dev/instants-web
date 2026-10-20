@@ -48,8 +48,9 @@ jobs:
 
       # Only commits that reached main (through CI-gated PRs) may be released.
       - name: Tag must be on main
+        # fetch-depth: 0 already fetched every branch; credentials are not persisted, so no extra fetch here.
         run: |
-          git fetch --no-tags origin main
+          git rev-parse --verify --quiet refs/remotes/origin/main >/dev/null || { echo "::error::origin/main not available in the checkout; refusing to release."; exit 1; }
           git merge-base --is-ancestor HEAD origin/main || { echo "::error::$(git rev-parse --short HEAD) is not on main; refusing to release."; exit 1; }
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
