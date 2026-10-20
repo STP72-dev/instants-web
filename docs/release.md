@@ -13,6 +13,13 @@
 
 ## What the workflow does
 
+Before anything is built it refuses tags whose commit is not on `main`, scans the full history for secrets (before installing
+dependencies), and runs lint, typecheck and the unit tests — including the committed-snapshot audit that sha256-checks and secret-scans every
+file in `content/` (PNG/PDF exports incl. inflated PDF streams and PNG text chunks).
+
+Release tags are immutable: if `ghcr.io/w7-mgfcode/instants-web:<version>` already exists (a re-run), the workflow reuses that image digest
+instead of rebuilding and re-tagging, and only repeats the extraction and the Vercel step.
+
 The site is built **once**, inside the Docker image build (`npm run build` in the Dockerfile build stage).
 
 1. Build the image and push it to `ghcr.io/w7-mgfcode/instants-web` using `GITHUB_TOKEN`
@@ -21,7 +28,8 @@ The site is built **once**, inside the Docker image build (`npm run build` in th
    `node scripts/vercel-output.ts <html-dir> .vercel/output`. That writes a [Build Output API v3](https://vercel.com/docs/build-output-api)
    directory: `config.json` (version 3 + routes) and `static/` (byte-identical copy of the html dir).
    The base image's own `50x.html` rides along; it is harmless.
-3. Deploy that directory with a version-pinned `npx --yes vercel@<VERCEL_CLI_VERSION> deploy --prebuilt --prod`.
+3. Deploy that directory with `vercel deploy --prebuilt --prod`, using the CLI pinned in `tools/vercel/package-lock.json`
+   (installed with `npm ci --ignore-scripts`, so integrity hashes are checked and no install scripts run).
 
 Docker and Vercel therefore serve the same files.
 
@@ -36,7 +44,7 @@ Vercel deploy skipped: VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID must al
 
 and succeeds, so the image is still published. The skip is made visible as a warning annotation (`::warning title=Vercel deploy skipped::`)
 and in the job summary. A skipped run publishes the image only; Vercel stays on its previous deployment. The secrets are only exposed to that step's environment, never passed to third-party actions.
-To change the CLI version, edit `VERCEL_CLI_VERSION` in `release.yml`.
+To change the CLI version: `cd tools/vercel && npm install --save-exact --package-lock-only --ignore-scripts vercel@<version>` and open a PR.
 
 ## Vercel config vs nginx
 

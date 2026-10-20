@@ -29,6 +29,8 @@ export interface SecretHit {
   line: number;
 }
 
+import { inflateSync } from 'node:zlib';
+
 /** Returns every rule hit in `text` (1-based line numbers). Never returns the matched value. */
 export function scanText(text: string): SecretHit[] {
   const hits: SecretHit[] = [];
@@ -38,4 +40,57 @@ export function scanText(text: string): SecretHit[] {
     }
   });
   return hits;
+}
+
+function tryInflate(bytes: Buffer): string | null {
+  try {
+    return inflateSync(bytes).toString('latin1');
+  } catch {
+    return null;
+  }
+}
+
+/** Text a binary export can carry: raw bytes, inflated PDF streams, and PNG tEXt / zTXt / iTXt chunks. */
+export function binaryTexts(buf: Buffer): string[] {
+  const texts = [buf.toString('latin1')];
+  // PDF: inflate every stream body (FlateDecode); non-deflate streams simply fail to inflate.
+  if (buf.subarray(0, 5).toString('latin1') === '%PDF-') {
+    const raw = texts[0];
+    const re = /stream\r?\n/g;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(raw)) !== null) {
+      const start = m.index + m[0].length;
+      const end = raw.indexOf('endstream', start);
+      if (end < 0) break;
+      const inflated = tryInflate(buf.subarray(start, end));
+      if (inflated) texts.push(inflated);
+      re.lastIndex = end;
+    }
+  }
+  // PNG: walk chunks; zTXt is always compressed, iTXt when its compression flag is set.
+  if (buf.length > 8 && buf.readUInt32BE(0) === 0x89504e47) {
+    for (let off = 8; off + 12 <= buf.length; ) {
+      const len = buf.readUInt32BE(off);
+      const type = buf.subarray(off + 4, off + 8).toString('latin1');
+      const data = buf.subarray(off + 8, off + 8 + len);
+      const nul = data.indexOf(0);
+      if (type === 'zTXt' && nul >= 0) {
+        const t = tryInflate(data.subarray(nul + 2));
+        if (t) texts.push(t);
+      } else if (type === 'iTXt' && nul >= 0 && data[nul + 1] === 1) {
+        // keyword\0 flag method language\0 translated\0 text
+        const lang = data.indexOf(0, nul + 3);
+        const translated = lang >= 0 ? data.indexOf(0, lang + 1) : -1;
+        const t = translated >= 0 ? tryInflate(data.subarray(translated + 1)) : null;
+        if (t) texts.push(t);
+      }
+      off += 12 + len;
+    }
+  }
+  return texts;
+}
+
+/** Secret scan for binary files (exports): raw bytes plus every compressed text payload. */
+export function scanBinary(buf: Buffer): SecretHit[] {
+  return binaryTexts(buf).flatMap((t) => scanText(t));
 }

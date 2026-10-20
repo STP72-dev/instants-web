@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { buildTopic, deriveTopics } from '../src/lib/ingest/topics.ts';
 import { SCHEMA_VERSION, type FileRef, type Manifest } from '../src/lib/manifest.ts';
-import { scanText } from '../src/lib/secrets.ts';
+import { scanBinary, scanText } from '../src/lib/secrets.ts';
 
 // Integrity of the committed content snapshot (what Docker and Vercel build from).
 const CONTENT = join(import.meta.dirname, '..', 'content');
@@ -42,8 +42,9 @@ describe('committed content snapshot', () => {
 
   it('has no secret-scan hits in any file, including binaries and the manifest itself', () => {
     for (const path of [...refs.map((r) => r.path), 'manifest.json']) {
-      const text = readFileSync(join(CONTENT, path)).toString(/\.(png|pdf)$/.test(path) ? 'latin1' : 'utf8');
-      expect({ path, hits: scanText(text) }).toEqual({ path, hits: [] });
+      const buf = readFileSync(join(CONTENT, path));
+      const hits = /\.(png|pdf)$/.test(path) ? scanBinary(buf) : scanText(buf.toString('utf8'));
+      expect({ path, hits }).toEqual({ path, hits: [] });
     }
   });
 

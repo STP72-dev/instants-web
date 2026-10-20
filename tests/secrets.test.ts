@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { scanText } from '../src/lib/secrets.ts';
+import { deflateSync } from 'node:zlib';
+import { scanBinary, scanText } from '../src/lib/secrets.ts';
 
 describe('scanText', () => {
   it('flags a GitHub token and reports its line, not its value', () => {
@@ -18,5 +19,26 @@ describe('scanText', () => {
 
   it('ignores placeholders and prose about secrets', () => {
     expect(scanText('API_KEY=${API_KEY}\nAPI_KEY=<your-key>\nRotate the API key after a leak.')).toEqual([]);
+  });
+});
+
+describe('scanBinary', () => {
+  const token = () => 'ghp_' + 'B'.repeat(36);
+  it('finds a secret inside a deflated PDF stream', () => {
+    const body = deflateSync(Buffer.from(`BT (${token()}) Tj ET`));
+    const pdf = Buffer.concat([Buffer.from('%PDF-1.4\n1 0 obj <</Filter /FlateDecode>> stream\n'), body, Buffer.from('\nendstream\nendobj\n')]);
+    expect(scanText(pdf.toString('latin1'))).toEqual([]);
+    expect(scanBinary(pdf).map((h) => h.rule)).toContain('github-token');
+  });
+
+  it('finds a secret inside a PNG zTXt chunk', () => {
+    const chunk = (type: string, data: Buffer) => {
+      const len = Buffer.alloc(4);
+      len.writeUInt32BE(data.length);
+      return Buffer.concat([len, Buffer.from(type, 'latin1'), data, Buffer.alloc(4)]);
+    };
+    const ztxt = Buffer.concat([Buffer.from('Comment\0\0', 'latin1'), deflateSync(Buffer.from(token()))]);
+    const png = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), chunk('zTXt', ztxt), chunk('IEND', Buffer.alloc(0))]);
+    expect(scanBinary(png).map((h) => h.rule)).toContain('github-token');
   });
 });
