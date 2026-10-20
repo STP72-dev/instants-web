@@ -12,7 +12,9 @@ const paths = rest.length > 0 ? rest : ['/', '/styleguide/'];
 const viewports = [
   { name: 'desktop', width: 1440, height: 900 },
   { name: 'phone', width: 390, height: 844 },
+  { name: 'narrow', width: 360, height: 740 },
 ];
+const overflowing: string[] = [];
 
 mkdirSync(outDir, { recursive: true });
 const browser = await chromium.launch();
@@ -34,9 +36,14 @@ try {
       const name = (path.replace(/^\/|\/$/g, '').replace(/[/?=&]+/g, '_') || 'home') + `.${vp.name}.png`;
       await page.screenshot({ path: join(outDir, name), fullPage: true });
       console.log(`${vp.name.padEnd(7)} ${path} → ${join(outDir, name)}${overflow > 0 ? `  ⚠ horizontal overflow ${overflow}px` : ''}`);
+      if (overflow > 0) overflowing.push(`${vp.name} ${path} (${overflow}px)`);
     }
     await page.close();
   }
 } finally {
   await browser.close();
+}
+if (overflowing.length > 0) {
+  console.error(`horizontal overflow on: ${overflowing.join(', ')}`);
+  process.exit(1);
 }

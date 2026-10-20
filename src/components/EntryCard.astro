@@ -59,6 +59,7 @@ const formats = formatsOf(entry);
   .card:hover,
   .card:focus-within {
     transform: translateY(-2px);
+    border-color: var(--line-strong);
     border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
     background: var(--surface-hover);
   }
@@ -124,13 +125,16 @@ const formats = formatsOf(entry);
     border-radius: inherit;
   }
 
-  .title a:focus-visible {
-    outline: none;
-  }
+  /* Focus ring on the whole card where :has() exists; the link keeps its own ring otherwise. */
+  @supports selector(:has(*)) {
+    .title a:focus-visible {
+      outline: none;
+    }
 
-  .card:has(.title a:focus-visible) {
-    outline: 2px solid var(--focus);
-    outline-offset: 3px;
+    .card:has(.title a:focus-visible) {
+      outline: 2px solid var(--focus);
+      outline-offset: 3px;
+    }
   }
 
   .summary {

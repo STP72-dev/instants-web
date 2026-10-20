@@ -42,7 +42,9 @@ const { tag, static: isStatic = false } = Astro.props;
 
   a.chip:hover {
     color: var(--text);
+    border-color: var(--accent);
     border-color: color-mix(in oklab, var(--accent) 60%, transparent);
+    background: var(--surface);
     background: color-mix(in oklab, var(--accent) 10%, transparent);
   }
 </style>

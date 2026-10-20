@@ -9,8 +9,9 @@ export function getStaticPaths() {
 }
 
 export const GET: APIRoute = async ({ params }) => {
-  const entry = manifest.entries.find((e) => e.slug === params.slug)!;
-  const source = previewSource(entry)!;
+  const entry = manifest.entries.find((e) => e.slug === params.slug);
+  const source = entry ? previewSource(entry) : null;
+  if (!source) return new Response('Not found', { status: 404 });
   const webp = await sharp(join(process.cwd(), 'content', source.path))
     .resize({ width: 720, height: 405, fit: 'cover', position: 'top' })
     .webp({ quality: 80 })

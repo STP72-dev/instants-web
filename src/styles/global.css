@@ -48,11 +48,12 @@ body::before {
     radial-gradient(40rem 24rem at 100% 0%, color-mix(in oklab, var(--accent) 6%, transparent), transparent 70%);
 }
 
+/* Grain sits behind content (like the glow) so it never dims text or focus rings. */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: -1;
   pointer-events: none;
   opacity: 0.05;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -96,6 +97,7 @@ a:hover {
 }
 
 ::selection {
+  background: var(--surface-hover);
   background: color-mix(in oklab, var(--accent) 35%, transparent);
   color: var(--text);
 }

@@ -55,7 +55,13 @@ const fullTitle = title === 'INSTANTS' ? 'INSTANTS — instant-solution library'
     min-height: 60vh;
   }
 
+  /* Programmatic focus from the skip link stays visible for keyboard users. */
   main:focus {
     outline: none;
+  }
+
+  main:focus-visible {
+    outline: 2px dashed var(--focus);
+    outline-offset: -6px;
   }
 </style>
