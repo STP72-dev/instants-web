@@ -6,6 +6,7 @@ import { defineConfig } from 'astro/config';
 // if an upgrade changes it, the build fails instead of silently fetching fonts from a CDN.
 const ESM_SH_FALLBACK =
   /`https:\/\/esm\.sh\/\$\{\w+\.PKG_NAME\?`\$\{\w+\.PKG_NAME\}@\$\{\w+\.PKG_VERSION\}`:"@excalidraw\/excalidraw"\}\/dist\/prod\/`/g;
+/** @type {import('vite').Plugin} */
 const excalidrawNoCdn = {
   name: 'excalidraw-fonts-no-cdn',
   transform(code, id) {
