@@ -1,12 +1,16 @@
 /**
  * Writes a Vercel Build Output API v3 directory from a built static site (D4).
  * Usage: node scripts/vercel-output.ts <dist-dir> <out-dir>
+ *        node scripts/vercel-output.ts --nginx-csp <dist-dir> <conf-file>
  *   <out-dir>/config.json   version 3 + routes mirroring docker/nginx.conf
  *   <out-dir>/static/**     byte-identical copy of <dist-dir>
+ * The second form writes the nginx include with the same Content-Security-Policy (Docker build stage), so
+ * both hosts serve identical CSP values: inline scripts are allowed by hash, computed from the built HTML.
  * The release workflow runs it on the html dir extracted from the published image,
  * then `vercel deploy --prebuilt` uploads <out-dir> (= .vercel/output).
  */
-import { cpSync, existsSync, lstatSync, mkdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -24,23 +28,80 @@ export interface OutputConfig {
   routes: Route[];
 }
 
-// Same set as docker/nginx.conf (no CSP yet, see #12).
+// Same set as docker/nginx.conf.
 const SECURITY_HEADERS = {
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'X-Frame-Options': 'SAMEORIGIN',
 };
 
+// Keep in sync with docker/nginx.conf.
+export const PERMISSIONS_POLICY = 'camera=(), microphone=(), geolocation=(), payment=(), usb=()';
+
+/** Recursively list *.html files under dir. */
+function htmlFiles(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+    const path = join(dir, e.name);
+    return e.isDirectory() ? htmlFiles(path) : e.name.endsWith('.html') ? [path] : [];
+  });
+}
+
+/**
+ * CSP hash sources ('sha256-...') for every inline <script> (no src attribute) in the built HTML.
+ * Astro inlines small module scripts, and their text changes with every build, so the hashes are
+ * computed from the output rather than written down.
+ */
+export function inlineScriptHashes(dir: string): string[] {
+  const hashes = new Set<string>();
+  for (const file of htmlFiles(dir)) {
+    for (const m of readFileSync(file, 'utf8').matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
+      if (/\ssrc\s*=/i.test(m[1] ?? '') || !m[2]) continue;
+      hashes.add(`'sha256-${createHash('sha256').update(m[2], 'utf8').digest('base64')}'`);
+    }
+  }
+  return [...hashes].sort();
+}
+
+/**
+ * Content-Security-Policy value. style-src keeps 'unsafe-inline' because Mermaid and Excalidraw inject
+ * <style>/style attributes at runtime (and Astro emits scoped <style> blocks); scripts stay hash/self only.
+ */
+export function buildCsp(scriptHashes: string[] = []): string {
+  return [
+    "default-src 'self'",
+    ["script-src 'self'", ...scriptHashes].join(' '),
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self' data:",
+    "connect-src 'self'",
+    "worker-src 'self' blob:",
+    "object-src 'self'",
+    "frame-src 'self'",
+    "frame-ancestors 'self'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join('; ');
+}
+
 /**
  * Route order matters: header routes use `continue` and later ones override earlier ones,
  * so the generic no-cache comes before the immutable /_astro/ rule. The 404 fallback
  * must come after `handle: filesystem`.
  */
-export function buildConfig(): OutputConfig {
+export function buildConfig(scriptHashes: string[] = []): OutputConfig {
   return {
     version: 3,
     routes: [
-      { src: '/(.*)', headers: { ...SECURITY_HEADERS, 'Cache-Control': 'no-cache' }, continue: true },
+      {
+        src: '/(.*)',
+        headers: {
+          ...SECURITY_HEADERS,
+          'Permissions-Policy': PERMISSIONS_POLICY,
+          'Content-Security-Policy': buildCsp(scriptHashes),
+          'Cache-Control': 'no-cache',
+        },
+        continue: true,
+      },
       { src: '/_astro/(.*)', headers: { 'Cache-Control': 'public, max-age=31536000, immutable' }, continue: true },
       { src: '/.*\\.md$', headers: { 'Content-Type': 'text/markdown; charset=utf-8' }, continue: true },
       { src: '/.*\\.mmd$', headers: { 'Content-Type': 'text/plain; charset=utf-8' }, continue: true },
@@ -95,18 +156,35 @@ export function writeVercelOutput(distDir: string, outDir: string): void {
   rmSync(out, { recursive: true, force: true });
   mkdirSync(out, { recursive: true });
   cpSync(realDist, join(out, 'static'), { recursive: true });
-  writeFileSync(join(out, 'config.json'), JSON.stringify(buildConfig(), null, 2) + '\n');
+  writeFileSync(join(out, 'config.json'), JSON.stringify(buildConfig(inlineScriptHashes(realDist)), null, 2) + '\n');
+}
+
+/** nginx include (docker build stage): the same CSP value as the Vercel output, hashes from `dir`. */
+export function nginxCspInclude(dir: string): string {
+  const csp = buildCsp(inlineScriptHashes(dir));
+  return [
+    '# Generated by scripts/vercel-output.ts --nginx-csp from the built site; do not edit.',
+    `add_header Content-Security-Policy "${csp}" always;`,
+    '',
+  ].join('\n');
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
-  const [distDir, outDir] = process.argv.slice(2);
+  const args = process.argv.slice(2);
+  const nginx = args[0] === '--nginx-csp';
+  const [distDir, outDir] = nginx ? args.slice(1) : args;
   if (!distDir || !outDir) {
-    console.error('usage: node scripts/vercel-output.ts <dist-dir> <out-dir>');
+    console.error('usage: node scripts/vercel-output.ts <dist-dir> <out-dir>\n       node scripts/vercel-output.ts --nginx-csp <dist-dir> <conf-file>');
     process.exit(2);
   }
   try {
-    writeVercelOutput(distDir, outDir);
-    console.log(`vercel-output: wrote ${outDir}/config.json and ${outDir}/static/ from ${distDir}`);
+    if (nginx) {
+      writeFileSync(outDir, nginxCspInclude(distDir));
+      console.log(`vercel-output: wrote nginx CSP include ${outDir} from ${distDir}`);
+    } else {
+      writeVercelOutput(distDir, outDir);
+      console.log(`vercel-output: wrote ${outDir}/config.json and ${outDir}/static/ from ${distDir}`);
+    }
   } catch (err) {
     console.error(`vercel-output: ${err instanceof Error ? err.message : String(err)}`);
     process.exit(1);

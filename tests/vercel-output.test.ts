@@ -2,7 +2,17 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, 
 import { tmpdir } from 'node:os';
 import { extname, join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { buildConfig, writeVercelOutput, type OutputConfig, type Route } from '../scripts/vercel-output.ts';
+import { createHash } from 'node:crypto';
+import {
+  buildConfig,
+  buildCsp,
+  inlineScriptHashes,
+  nginxCspInclude,
+  PERMISSIONS_POLICY,
+  writeVercelOutput,
+  type OutputConfig,
+  type Route,
+} from '../scripts/vercel-output.ts';
 
 function listFiles(dir: string, base = dir): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
@@ -25,14 +35,21 @@ describe('buildConfig', () => {
     expect(type('excalidraw')).toBe('application/vnd.excalidraw+json');
   });
 
-  it('mirrors the nginx security headers and has no CSP yet', () => {
+  it('mirrors the nginx security headers', () => {
     const headers = routes[0]?.headers ?? {};
     expect(headers).toMatchObject({
       'X-Content-Type-Options': 'nosniff',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       'X-Frame-Options': 'SAMEORIGIN',
     });
-    expect(JSON.stringify(routes)).not.toMatch(/content-security-policy/i);
+  });
+
+  it('sends the CSP and Permissions-Policy on every response, with the hashes it is given', () => {
+    const hash = "'sha256-abc='";
+    const headers = buildConfig([hash]).routes[0]?.headers ?? {};
+    expect(headers['Content-Security-Policy']).toBe(buildCsp([hash]));
+    expect(headers['Permissions-Policy']).toBe(PERMISSIONS_POLICY);
+    expect(routes[0]?.src).toBe('/(.*)');
   });
 
   it('forces attachment only for /downloads/<topic>.zip', () => {
@@ -69,6 +86,64 @@ describe('buildConfig', () => {
   });
 });
 
+describe('Content-Security-Policy', () => {
+  const directive = (csp: string, name: string) => csp.split('; ').find((d) => d.startsWith(`${name} `));
+
+  it('is strict for scripts: self plus hashes, never inline or eval', () => {
+    const csp = buildCsp(["'sha256-aaa='", "'sha256-bbb='"]);
+    expect(directive(csp, 'script-src')).toBe("script-src 'self' 'sha256-aaa=' 'sha256-bbb='");
+    expect(csp).not.toMatch(/unsafe-eval|wasm-unsafe-eval/);
+    expect(directive(csp, 'script-src')).not.toContain('unsafe-inline');
+    expect(directive(csp, 'default-src')).toBe("default-src 'self'");
+  });
+
+  it('allows only same-origin (plus data:/blob: where the libraries need them) and no external hosts', () => {
+    const csp = buildCsp();
+    expect(csp).not.toMatch(/https?:|\*/);
+    expect(directive(csp, 'img-src')).toBe("img-src 'self' data: blob:");
+    expect(directive(csp, 'font-src')).toBe("font-src 'self' data:");
+    expect(directive(csp, 'connect-src')).toBe("connect-src 'self'");
+    expect(directive(csp, 'worker-src')).toBe("worker-src 'self' blob:");
+    expect(directive(csp, 'object-src')).toBe("object-src 'self'");
+    expect(directive(csp, 'frame-src')).toBe("frame-src 'self'");
+    expect(directive(csp, 'frame-ancestors')).toBe("frame-ancestors 'self'");
+    expect(directive(csp, 'base-uri')).toBe("base-uri 'self'");
+    expect(directive(csp, 'form-action')).toBe("form-action 'self'");
+  });
+
+  it('hashes every distinct inline script (not external ones) from the built HTML', () => {
+    const root = mkdtempSync(join(tmpdir(), 'csp-hash-'));
+    try {
+      const body = 'document.title = `x`;';
+      mkdirSync(join(root, 'a'), { recursive: true });
+      writeFileSync(join(root, 'index.html'), `<script type="module">${body}</script><script type="module" src="/_astro/a.js"></script>`);
+      writeFileSync(join(root, 'a', 'index.html'), `<script type="module">${body}</script><script>other()</script><script></script>`);
+      const sha = (t: string) => `'sha256-${createHash('sha256').update(t).digest('base64')}'`;
+      expect(inlineScriptHashes(root)).toEqual([sha(body), sha('other()')].sort());
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('gives nginx and Vercel the identical policy for the same site', () => {
+    const root = mkdtempSync(join(tmpdir(), 'csp-parity-'));
+    try {
+      writeFileSync(join(root, 'index.html'), '<script type="module">go()</script>');
+      const hashes = inlineScriptHashes(root);
+      const vercel = buildConfig(hashes).routes[0]?.headers?.['Content-Security-Policy'];
+      expect(nginxCspInclude(root)).toContain(`add_header Content-Security-Policy "${vercel}" always;`);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('is wired into docker/nginx.conf with the same Permissions-Policy and a fail-closed include', () => {
+    const nginx = readFileSync(join(import.meta.dirname, '..', 'docker', 'nginx.conf'), 'utf8');
+    expect(nginx).toContain(`add_header Permissions-Policy "${PERMISSIONS_POLICY}" always;`);
+    expect(nginx).toMatch(/^\s*include \/etc\/nginx\/csp\.conf;/m);
+  });
+});
+
 describe('writeVercelOutput', () => {
   let root: string;
   beforeEach(() => {
@@ -93,7 +168,10 @@ describe('writeVercelOutput', () => {
     const out = join(root, 'out');
     writeVercelOutput(dist, out);
 
-    expect(JSON.parse(readFileSync(join(out, 'config.json'), 'utf8'))).toEqual(buildConfig());
+    writeFileSync(join(dist, 'inline.html'), '<script type="module">hi()</script>');
+    writeVercelOutput(dist, out);
+    expect(JSON.parse(readFileSync(join(out, 'config.json'), 'utf8'))).toEqual(buildConfig(inlineScriptHashes(dist)));
+    expect(JSON.stringify(buildConfig(inlineScriptHashes(dist)))).toContain('sha256-');
     const files = listFiles(dist).sort();
     expect(listFiles(join(out, 'static')).sort()).toEqual(files);
     for (const f of files) {
