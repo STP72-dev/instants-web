@@ -1,17 +1,22 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
 
 # ---- build: static Astro site -> dist/ (D4) ----
-FROM node:24-alpine AS build
+FROM node:24-alpine@sha256:44fce696f38ba8c987c4db89954051000bbd05ffd8d8659ba15ed4a8602e937f AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 RUN npm ci
 
-COPY . .
+# Explicit build inputs only (never `COPY . .`): keeps local credentials out of the layers.
+COPY astro.config.mjs tsconfig.json ./
+COPY src ./src
+# public/ and content/ may not exist yet, and COPY cannot take an optional source.
+RUN --mount=type=bind,target=/ctx \
+    for d in public content; do if [ -d "/ctx/$d" ]; then cp -R "/ctx/$d" "./$d"; fi; done
 RUN npm run build
 
 # ---- runtime: nginx (non-root) serving dist/ on :8080 ----
-FROM nginxinc/nginx-unprivileged:1-alpine AS runtime
+FROM nginxinc/nginx-unprivileged:1-alpine@sha256:b5047b9b76845eac124358373c6852377c52e4b05834a47647e955dd91cb8f1e AS runtime
 
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html

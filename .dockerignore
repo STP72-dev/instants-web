@@ -18,3 +18,13 @@ test-results
 Dockerfile
 docker-compose.yml
 .dockerignore
+
+# credentials (also kept out of the build context)
+.npmrc
+**/.npmrc
+**/*.pem
+**/*.key
+**/id_rsa*
+**/id_ed25519*
+**/*credentials*.json
+**/service-account*.json

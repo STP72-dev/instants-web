@@ -1,8 +1,17 @@
 #!/usr/bin/env bash
 # Usage: scripts/smoke.sh [base-url] [path|content-type ...]
-# Checks that each path answers 200 and its Content-Type starts with the expected type.
+# Checks that each path answers 200 and its media type equals the expected one
+# (case-insensitive; parameters after ";" such as charset are ignored).
 # "/" (text/html) is always checked; later issues pass extra "path|type" args.
 set -euo pipefail
+
+# Lower-cased media type without parameters or surrounding whitespace.
+media_type() {
+  local t="${1%%;*}"
+  t="${t#"${t%%[![:space:]]*}"}"
+  t="${t%"${t##*[![:space:]]}"}"
+  tr '[:upper:]' '[:lower:]' <<<"$t"
+}
 
 base="${1:-http://localhost:8080}"
 shift || true
@@ -28,9 +37,9 @@ for check in "${checks[@]}"; do
   status="${out%%|*}"
   got="${out#*|}"
 
-  want_lc="$(tr '[:upper:]' '[:lower:]' <<<"$want")"
-  got_lc="$(tr '[:upper:]' '[:lower:]' <<<"$got")"
-  if [[ "$status" == "200" && "$got_lc" == "$want_lc"* ]]; then
+  want_lc="$(media_type "$want")"
+  got_lc="$(media_type "$got")"
+  if [[ "$status" == "200" && "$got_lc" == "$want_lc" ]]; then
     echo "ok    $path  $status  $got"
   else
     echo "FAIL  $path  status=$status type=\"$got\" (want 200, \"$want\")"
