@@ -1,0 +1,101 @@
+---
+/**
+ * Collapsed PDF preview. The iframe sits inside a closed <details>, so the browser does not fetch the PDF
+ * until the reader opens it; the direct link is the fallback where inline PDF viewing is unavailable.
+ */
+import { fileUrl } from '../../lib/content.ts';
+import type { ExportRef } from '../../lib/manifest.ts';
+
+interface Props {
+  pdf: ExportRef;
+  /** e.g. "Markdown" — which source this PDF was exported from. */
+  from: string;
+  title: string;
+}
+
+const { pdf, from, title } = Astro.props;
+const url = fileUrl(pdf.path);
+---
+
+<details class="pdf">
+  <summary>
+    <span>Preview the PDF export <span class="from">({from})</span></span>
+    {pdf.freshness === 'stale' && <span class="stale">may be older than the source</span>}
+  </summary>
+  <div class="viewer">
+    <iframe src={url} title={`PDF export of ${title} (${from})`} loading="lazy"></iframe>
+  </div>
+  <p class="fallback">
+    PDF not showing? <a href={url}>Open the PDF directly</a>.
+  </p>
+</details>
+
+<style>
+  .pdf {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    background: var(--surface);
+  }
+
+  summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    min-height: 3rem;
+    padding: var(--space-2) var(--space-4);
+    cursor: pointer;
+    font-size: 0.92rem;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary::before {
+    content: '';
+    width: 0.45rem;
+    height: 0.45rem;
+    border-right: 1.5px solid var(--text-faint);
+    border-bottom: 1.5px solid var(--text-faint);
+    transform: rotate(-45deg);
+    transition: transform var(--dur-1) var(--ease-out);
+  }
+
+  .pdf[open] summary::before {
+    transform: rotate(45deg);
+  }
+
+  summary:hover {
+    color: var(--accent);
+  }
+
+  .from {
+    color: var(--text-faint);
+  }
+
+  .stale {
+    font-size: 0.8rem;
+    color: var(--accent-amber);
+  }
+
+  .viewer {
+    padding: 0 var(--space-4);
+  }
+
+  iframe {
+    display: block;
+    width: 100%;
+    height: min(80vh, 56rem);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-1);
+    background: var(--bg-raised);
+  }
+
+  .fallback {
+    padding: var(--space-3) var(--space-4) var(--space-4);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+</style>
