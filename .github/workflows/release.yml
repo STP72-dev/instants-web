@@ -18,8 +18,6 @@ concurrency:
 
 env:
   IMAGE: ghcr.io/w7-mgfcode/instants-web
-  # Exact version, pinned on purpose (D4).
-  VERCEL_CLI_VERSION: 64.7.0
 
 jobs:
   release:
@@ -45,11 +43,30 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: refs/tags/${{ steps.tag.outputs.name }}
+          fetch-depth: 0
           persist-credentials: false
+
+      # Only commits that reached main (through CI-gated PRs) may be released.
+      - name: Tag must be on main
+        run: |
+          git fetch --no-tags origin main
+          git merge-base --is-ancestor HEAD origin/main || { echo "::error::$(git rev-parse --short HEAD) is not on main; refusing to release."; exit 1; }
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
+          cache: npm
+
+      # Secret scan runs before any dependency is installed.
+      - name: Secret scan (full history)
+        run: node scripts/scan-diff.ts --all
+
+      - name: Verify (lint, typecheck, tests incl. committed-snapshot audit)
+        run: |
+          npm ci
+          npm run lint
+          npm run typecheck
+          npm test
 
       - name: Short commit sha
         id: rev
@@ -75,9 +92,35 @@ jobs:
             type=raw,value=sha-${{ steps.rev.outputs.short }}
             type=raw,value=latest,enable=${{ steps.tag.outputs.latest == 'true' }}
 
+      # Release tags are immutable: a re-run reuses the image already published for this version.
+      # GitHub Packages API: HTTP 404 = package not published yet (build); any other error fails closed.
+      - name: Existing image for this version
+        id: existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.name }}
+        run: |
+          version="${TAG#v}"
+          pkg="users/${GITHUB_REPOSITORY_OWNER}/packages/container/${GITHUB_REPOSITORY#*/}/versions"
+          if out="$(gh api --paginate "$pkg" --jq ".[] | select(.metadata.container.tags | index(\"$version\")) | .name" 2>&1)"; then
+            digest="$(printf '%s' "$out" | head -n1)"
+            if [ -n "$digest" ]; then
+              echo "digest=$digest" >> "$GITHUB_OUTPUT"
+              echo "::notice::$IMAGE:$version already published as $digest; reusing it (no rebuild, no re-tag)."
+            else
+              echo "$IMAGE:$version not published yet; building."
+            fi
+          elif printf '%s' "$out" | grep -q 'HTTP 404'; then
+            echo "Package not published yet; building."
+          else
+            echo "::error::Could not determine whether $IMAGE:$version exists; refusing to (re)publish. API said: $out"
+            exit 1
+          fi
+
       # The only site build: `npm run build` runs inside this image build (Dockerfile build stage).
       - name: Build and push image
         id: build
+        if: steps.existing.outputs.digest == ''
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
@@ -88,7 +131,7 @@ jobs:
       # Take the static files from the exact image that was just published (by digest).
       - name: Extract static site from the published image
         env:
-          DIGEST: ${{ steps.build.outputs.digest }}
+          DIGEST: ${{ steps.existing.outputs.digest || steps.build.outputs.digest }}
         run: |
           cid="$(docker create "$IMAGE@$DIGEST")"
           trap 'docker rm "$cid" >/dev/null' EXIT
@@ -112,4 +155,6 @@ jobs:
             echo "$msg" >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
-          npx --yes "vercel@$VERCEL_CLI_VERSION" deploy --prebuilt --prod --token "$VERCEL_TOKEN"
+          # CLI from a lockfile with integrity hashes; lifecycle scripts disabled.
+          npm ci --prefix tools/vercel --ignore-scripts --no-audit --no-fund
+          tools/vercel/node_modules/.bin/vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN"

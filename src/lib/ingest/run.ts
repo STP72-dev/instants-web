@@ -16,7 +16,7 @@ import {
   type MissingExport,
   type SecretExclusion,
 } from '../manifest.ts';
-import { scanText } from '../secrets.ts';
+import { scanBinary, scanText } from '../secrets.ts';
 import { humanize, isKebab, MetaError, parseExcalidraw, parseMarkdown, parseMermaid, summarize, type EntryMeta } from './parse.ts';
 import { buildTopic, byCodePoint, deriveTopics } from './topics.ts';
 
@@ -60,6 +60,25 @@ function physicalPath(p: string): string {
   return join(realpathSync(existing), ...tail);
 }
 
+/**
+ * The output dir is replaced wholesale, so refuse anything that is not clearly a snapshot location:
+ * the working dir or any of its ancestors, the filesystem root, or an existing non-empty dir without a manifest.
+ */
+function assertSafeOutput(outDir: string): void {
+  const out = physicalPath(outDir);
+  const cwd = physicalPath(process.cwd());
+  const rel = relative(out, cwd);
+  if (out === dirname(out) || rel === '' || (!rel.startsWith('..') && !rel.startsWith(sep))) {
+    throw new IngestError([`refusing output dir ${outDir}: it is the working directory, one of its ancestors, or the filesystem root`]);
+  }
+  if (existsSync(out)) {
+    if (!statSync(out).isDirectory()) throw new IngestError([`refusing output dir ${outDir}: it exists and is not a directory`]);
+    if (readdirSync(out).length > 0 && !existsSync(join(out, 'manifest.json'))) {
+      throw new IngestError([`refusing output dir ${outDir}: it is not empty and holds no manifest.json (not a content snapshot)`]);
+    }
+  }
+}
+
 function assertSeparate(sourceDir: string, outDir: string): void {
   const inside = (child: string, parent: string) => {
     const rel = relative(parent, child);
@@ -101,6 +120,7 @@ export function runIngest({ sourceDir: rawSource, outDir: rawOut }: IngestOption
   const sourceDir = resolve(rawSource);
   const outDir = resolve(rawOut);
   assertSeparate(sourceDir, outDir);
+  assertSafeOutput(outDir);
   if (!existsSync(sourceDir)) throw new IngestError([`source dir not found: ${sourceDir}`]);
 
   const problems: string[] = [];
@@ -226,9 +246,9 @@ export function runIngest({ sourceDir: rawSource, outDir: rawOut }: IngestOption
             exportProblems.push(`${expRel}: not a regular file (symlinks are not followed)`);
             continue;
           }
-          // Exports are binary, but uncompressed text (PDF strings, PNG tEXt chunks) is still scanned.
+          // Exports are binary: raw bytes, inflated PDF streams and PNG text chunks are scanned.
           scannedFiles += 1;
-          const expHits = scanText(readFileSync(exp).toString('latin1'));
+          const expHits = scanBinary(readFileSync(exp));
           if (expHits.length > 0) {
             excluded.push({ path: expRel, rules: [...new Set(expHits.map((h) => h.rule))].sort(byCodePoint) });
             continue;

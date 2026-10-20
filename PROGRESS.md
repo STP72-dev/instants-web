@@ -16,10 +16,13 @@ Updated in every lead PR to the state after that PR merges (DECISIONS.md D0b).
 | #3 | #23 | Design system: tokens (contrast-tested), Fraunces/Geist/Geist Mono, layout shell, primitives, WebP thumbnails, snapshot file endpoints, `/styleguide/`, 404, `npm run screenshots` (1440/390/360, fails on overflow) |
 | #4 | #24 | Home: hero + diagram collage, stats, open/copy/done, manifest-driven topic grid (music topic featured; 0/1/n topics handled) |
 | #10 | #22 | Release workflow: image built once → GHCR, static files extracted by digest → Vercel Build Output v3 → `vercel deploy --prebuilt --prod`; clean skip + warning without secrets — by worker `infra-docker` |
-| #5 | this PR | Topic hubs: music chapters per track (overview → sound DNA → variants → workflow) with sticky story index; technical guided path (start → concepts → practice → reference → deep dives) |
+| #5 | #25 | Topic hubs: music chapters per track (overview → sound DNA → variants → workflow) with sticky story index; technical guided path (start → concepts → practice → reference → deep dives) |
+| #27 | this PR | Pre-release audit fixes: ingest output guard, deep binary secret scan (PDF streams, PNG text chunks), release guards (tag on main, scan + tests before build, immutable re-runs, lockfile-pinned Vercel CLI) |
 
 ## In progress
 - #6 entry page — worker `ui-entry` (contract IWEB-06), worktree `.worktrees/entry-6`.
+- #6 entry page — PR #26 (worker `ui-entry`), review fixes in progress; fonts self-hosted by lead.
+- #12 CSP + Permissions-Policy — worker `infra-docker` (contract IWEB-12a) on `chore/12-prerelease-hardening` (stacked on #6).
 - #8 search (`feat/8-search-tags`) — lead, committed locally; adds `minisearch` to package.json after #6 merges (worker owns package.json until then).
 - #7 downloads (`feat/7-downloads-zips`) — lead: dependency-free deterministic topic zips committed locally; UI wiring after #5/#6.
 - #11 docs (`docs/11-readme-smoke`) — README committed locally; smoke list after #6/#7.
@@ -45,14 +48,14 @@ Parallel now: UI lane (#4 → #5 → #6) ‖ infra lane (#10). After #6: #7 ‖ 
 | ui-entry | claude-code opus 5.5 (auto) | IWEB__BUILD__CLAUDE__ENTRY__04 (w4:t4) | pane w4:p4 | IWEB-06 entry page | #6 | running / alive | #3 ✔ | PR (pending) | report back |
 
 ## Open issues
-- #6–#8, #11, #12; epics #13–#16; blocked-on-user #17, #18.
+- #6–#8, #11, #12, #27; epics #13–#16; blocked-on-user #17, #18.
 
 ## Blocked on me
 1. #17 Vercel: create/link the project and set secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`.
 2. #18 Branch rules: make the repo public or upgrade to GitHub Pro, then `gh api -X POST repos/w7-mgfcode/instants-web/rulesets --input .github/ruleset-main.json`.
 
 ## Next step
-Merge #5 → review + merge #6 (worker `ui-entry`) → rebase #8 (add minisearch) and #7 (zip UI on hubs/entry) → #11 smoke list + README → #12 pre-release review, CSP, release v0.1.0.
+Merge #27 → merge #26 (#6) after review fixes → rebase #8 (add minisearch) and #7 (zip link on entry page) → #11 (README + scripts/verify-site.sh) → #12 (CSP from IWEB-12a, final verification: docker compose + verify-site + screenshots) → release v0.1.0.
 
 ## Verified facts vs assumptions
 - Verified: gh account w7-mgfcode on plan `free` (rulesets 403); herdr 0.9.5; codex 0.163.0; agy 1.4.3; docker 29.9 + compose v5.6; node 24.19.

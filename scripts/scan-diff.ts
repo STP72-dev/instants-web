@@ -2,6 +2,7 @@
  * Pre-push / CI secret scan: checks every line added by every commit in <base>..HEAD
  * (not just the net diff, so a secret added and later removed is still caught).
  * Usage: node scripts/scan-diff.ts [base-ref]   (default origin/main)
+ *        node scripts/scan-diff.ts --all        (every commit reachable from HEAD, root commits included)
  * Never prints matched values; fails closed when the range cannot be scanned.
  */
 import { spawnSync } from 'node:child_process';
@@ -20,13 +21,21 @@ function fail(message: string): never {
   process.exit(1);
 }
 
-const base = process.argv[2] ?? 'origin/main';
-if (!git(['rev-parse', '--verify', '--quiet', `${base}^{commit}`]).ok) fail(`base ref "${base}" not found (fetch it first).`);
-const mergeBase = git(['merge-base', base, 'HEAD']);
-if (!mergeBase.ok) fail(`no merge base between "${base}" and HEAD (shallow clone? fetch full history).`);
+const arg = process.argv[2] ?? 'origin/main';
+const all = arg === '--all';
+const base = all ? 'root' : arg;
+let range: string[];
+if (all) {
+  range = ['--root', 'HEAD'];
+} else {
+  if (!git(['rev-parse', '--verify', '--quiet', `${base}^{commit}`]).ok) fail(`base ref "${base}" not found (fetch it first).`);
+  const mergeBase = git(['merge-base', base, 'HEAD']);
+  if (!mergeBase.ok) fail(`no merge base between "${base}" and HEAD (shallow clone? fetch full history).`);
+  range = [`${mergeBase.out.trim()}..HEAD`];
+}
 
 // --text forces textual diffs for any non-excluded file git would classify as binary.
-const log = git(['log', '-p', '--text', '--unified=0', '--no-color', '--format=commit %H', `${mergeBase.out.trim()}..HEAD`, '--', '.', ...BINARY_EXCLUDES]);
+const log = git(['log', '-p', '--text', '--unified=0', '--no-color', '--format=commit %H', ...range, '--', '.', ...BINARY_EXCLUDES]);
 if (!log.ok) fail('git log failed; range not scanned.');
 
 let file = '';

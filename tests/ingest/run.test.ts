@@ -183,3 +183,17 @@ describe('runIngest', () => {
     expect(statSync(index).mtimeMs).toBe(before);
   });
 });
+
+describe('runIngest output guard', () => {
+  it('refuses the working directory, its ancestors and non-snapshot dirs', () => {
+    const t = baseTree();
+    const cwd = process.cwd();
+    expect(() => runIngest({ sourceDir: t.source, outDir: cwd })).toThrow(/working directory/);
+    expect(() => runIngest({ sourceDir: t.source, outDir: join(cwd, '..') })).toThrow(/working directory/);
+    expect(() => runIngest({ sourceDir: t.source, outDir: '/' })).toThrow(/working directory|filesystem root|must not overlap/);
+    mkdirSync(join(t.root, 'notes'));
+    writeFileSync(join(t.root, 'notes', 'keep.txt'), 'precious');
+    expect(() => runIngest({ sourceDir: t.source, outDir: join(t.root, 'notes') })).toThrow(/holds no manifest\.json/);
+    expect(readFileSync(join(t.root, 'notes', 'keep.txt'), 'utf8')).toBe('precious');
+  });
+});
