@@ -58,7 +58,10 @@ What ingest does (details in DECISIONS.md D6):
 ```bash
 npm run ci                               # lint + typecheck + unit tests + build (what CI runs)
 npm run scan:diff                        # secret scan of every commit on your branch vs origin/main
-scripts/smoke.sh http://localhost:8080   # status + content-type checks (add "path|type" arguments)
+scripts/verify-site.sh http://localhost:8080
+                                         # release smoke test: home, hubs, an entry per format, one download per file type,
+                                         # search index, thumbnails, zip Content-Disposition and the 404 page
+scripts/smoke.sh http://localhost:8080   # the underlying status + content-type checker (add "path|type" arguments)
 npm run screenshots -- http://localhost:4321 docs/screenshots/<name> / /topics/nonconformist/
                                          # 1440 / 390 / 360 px full-page shots; exits 1 on horizontal overflow
 ```
