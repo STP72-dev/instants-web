@@ -11,24 +11,37 @@ describe('renderMarkdown', () => {
     const { html } = await renderMarkdown(md('## Problem\n\ntext'));
     expect(html).not.toContain('title: T');
     expect(html).not.toMatch(/<h1/);
-    expect(html).toMatch(/<h2 id="problem">Problem<a class="heading-anchor" href="#problem">/);
+    expect(html).toMatch(/<h2 id="md-problem">Problem<a class="heading-anchor" href="#md-problem">/);
   });
 
   it('shifts headings so the shallowest is an h2, with ids, anchors and clean heading text', async () => {
     const { html, headings } = await renderMarkdown('### Deep\n\n#### Deeper');
-    expect(html).toMatch(/<h2 id="deep">/);
-    expect(html).toMatch(/<h3 id="deeper">/);
+    expect(html).toMatch(/<h2 id="md-deep">/);
+    expect(html).toMatch(/<h3 id="md-deeper">/);
     expect(headings).toEqual([
-      { depth: 2, slug: 'deep', text: 'Deep' },
-      { depth: 3, slug: 'deeper', text: 'Deeper' },
+      { depth: 2, slug: 'md-deep', text: 'Deep' },
+      { depth: 3, slug: 'md-deeper', text: 'Deeper' },
     ]);
   });
 
   it('keeps relative depth when a later h1 appears (it becomes an h2)', async () => {
     const { html } = await renderMarkdown('## Section\n\n# Stray top\n\n###### Tiny');
-    expect(html).toMatch(/<h3 id="section">/);
-    expect(html).toMatch(/<h2 id="stray-top">/);
-    expect(html).toMatch(/<h6 id="tiny">/);
+    expect(html).toMatch(/<h3 id="md-section">/);
+    expect(html).toMatch(/<h2 id="md-stray-top">/);
+    expect(html).toMatch(/<h6 id="md-tiny">/);
+  });
+
+  it('namespaces heading ids so they never collide with the entry page ids', async () => {
+    // Fixed ids rendered by src/pages/entries/[slug].astro and its components.
+    const pageIds = ['main', 'notes', 'diagram', 'diagram-title', 'sketch', 'sketch-title', 'downloads-title', 'toc-title', 'entry-mermaid'];
+    const { html, headings } = await renderMarkdown(
+      '## Notes\n\n## Diagram\n\n## Sketch\n\n## Downloads title\n\n## Notes\n\n```mermaid\ngraph TD; A-->B\n```',
+    );
+    const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
+    expect(html).toContain('<h2 id="md-notes">Notes<a class="heading-anchor" href="#md-notes">');
+    expect(headings.map((h) => h.slug)).toEqual(['md-notes', 'md-diagram', 'md-sketch', 'md-downloads-title', 'md-notes-1']);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids.filter((id) => pageIds.includes(id))).toEqual([]);
   });
 
   it('renders GFM tables inside a focusable horizontal scroll region', async () => {

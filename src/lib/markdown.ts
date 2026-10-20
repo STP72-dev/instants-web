@@ -49,6 +49,8 @@ function textContent(node: Node): string {
 }
 
 const HEADING = /^h([1-6])$/;
+/** Generated ids are namespaced: headings `md-…`, inline diagram figures `mdfig-…`; no fixed page id uses either. */
+export const HEADING_ID_PREFIX = 'md-';
 const SAFE_URL = /^(?:https?:|mailto:|#|\/(?!\/)|\.{1,2}\/|[^:/?#]+(?:[/?#]|$))/i;
 
 /** Raw HTML (block or inline) becomes literal text, so it is visible but can never execute. */
@@ -79,7 +81,7 @@ function demoteHeadings(tree: Node) {
 }
 
 function mermaidFigure(source: string, index: number): Element {
-  const id = `md-mermaid-${index + 1}`;
+  const id = `mdfig-mermaid-${index + 1}`;
   return el('figure', { className: ['mermaid-figure'], dataMermaid: '', ariaLabel: `Diagram ${index + 1}` }, [
     el('div', { className: ['mermaid-canvas'], id, dataMermaidCanvas: '', role: 'img', ariaLabel: `Diagram ${index + 1}` }, [
       el('p', { className: ['mermaid-status'], dataMermaidStatus: '' }, [text('Diagram renders when it scrolls into view.')]),
@@ -98,7 +100,13 @@ function rehypeEntry() {
 
     demoteHeadings(tree);
     // Assign ids now (rehypeHeadingIds keeps existing ids when Astro runs it again later), then add anchors.
+    // The "md-" prefix keeps them apart from the page's own ids (#notes, #diagram, #sketch, …).
     (rehypeHeadingIds() as unknown as (tree: Node, file: VFileLike) => void)(tree, file);
+    walk(tree, (node) => {
+      if (isElement(node) && HEADING.test(node.tagName) && typeof node.properties.id === 'string') {
+        node.properties.id = `${HEADING_ID_PREFIX}${node.properties.id}`;
+      }
+    });
 
     let mermaidCount = 0;
     walk(tree, (node, parent, index) => {

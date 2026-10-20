@@ -38,9 +38,13 @@ export async function renderSvg(url: string): Promise<SVGSVGElement> {
   return svg;
 }
 
-/** Mount the read-only viewer into `container`; returns an unmount function. */
-export async function mountViewer(container: HTMLElement, url: string): Promise<() => void> {
+/**
+ * Mount the read-only viewer into `container`; returns an unmount function.
+ * If `signal` is aborted while the scene loads, no React root is created and a no-op is returned.
+ */
+export async function mountViewer(container: HTMLElement, url: string, signal?: AbortSignal): Promise<() => void> {
   const { elements, appState, files } = await loadScene(url);
+  if (signal?.aborted) return () => {};
   const root: Root = createRoot(container);
   root.render(
     createElement(Excalidraw, {

@@ -130,25 +130,35 @@ try {
     const mount = dialog.querySelector<HTMLElement>('[data-exc-mount]')!;
     const status = dialog.querySelector<HTMLElement>('[data-exc-dialog-status]')!;
     let unmount: (() => void) | undefined;
-    let opening = false;
+    let abort: AbortController | undefined;
+    // Each open gets a generation; closing bumps it, so a mount that resolves after the dialog closed is discarded.
+    let generation = 0;
 
     openButton.addEventListener('click', async () => {
-      if (opening) return;
-      opening = true;
+      if (dialog.open) return;
+      const current = ++generation;
+      const controller = (abort = new AbortController());
+      const stale = () => current !== generation || !dialog.open;
       status.hidden = false;
       status.textContent = 'Loading canvas…';
       dialog.showModal();
       dialog.querySelector<HTMLButtonElement>('[data-exc-close]')?.focus();
+      const host = document.createElement('div');
+      host.className = 'host';
+      mount.append(host);
       try {
-        const host = document.createElement('div');
-        host.className = 'host';
-        mount.append(host);
-        unmount = await (await client()).mountViewer(host, src);
+        const { mountViewer } = await client();
+        if (stale()) return;
+        const dispose = await mountViewer(host, src, controller.signal);
+        if (stale()) {
+          dispose();
+          return;
+        }
+        unmount = dispose;
         status.hidden = true;
       } catch (error) {
+        if (stale()) return;
         status.textContent = `The canvas could not be loaded (${error instanceof Error ? error.message : 'unknown error'}).`;
-      } finally {
-        opening = false;
       }
     });
 
@@ -165,6 +175,8 @@ try {
     );
     dialog.querySelector('[data-exc-close]')?.addEventListener('click', () => dialog.close());
     dialog.addEventListener('close', () => {
+      generation++;
+      abort?.abort();
       unmount?.();
       unmount = undefined;
       mount.querySelectorAll('.host').forEach((host) => host.remove());
