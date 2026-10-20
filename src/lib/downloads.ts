@@ -25,7 +25,7 @@ function readme(slug: string): string {
   const missing = manifest.missingExports.filter((m) => getTopic(slug).entries.includes(m.slug));
   if (missing.length > 0) {
     lines.push('', 'Not exported yet:');
-    for (const m of missing) lines.push(`    ${m.format}/${m.slug}.${m.kind}`);
+    for (const m of missing) lines.push(`    exports/${m.format}/${m.slug}.${m.kind}`);
   }
   return `${lines.filter((l, i, all) => l !== '' || all[i - 1] !== '').join('\n')}\n`;
 }
@@ -44,16 +44,21 @@ export function topicZipFiles(slug: string): ZipFile[] {
   return files;
 }
 
-const cache = new Map<string, Uint8Array>();
-
-/** Deterministic archive bytes (timestamp = snapshot commit time); memoized so pages can show the size. */
+/** Deterministic archive bytes (timestamp = snapshot commit time). Built by the /downloads endpoint; not retained. */
 export function topicZip(slug: string): Uint8Array {
-  let zip = cache.get(slug);
-  if (!zip) {
-    zip = createZip(topicZipFiles(slug), manifest.source?.committedAt);
-    cache.set(slug, zip);
+  return createZip(topicZipFiles(slug), manifest.source?.committedAt);
+}
+
+// Only sizes are cached for the pages that display them, never archive buffers.
+const sizes = new Map<string, number>();
+
+export function topicZipSize(slug: string): number {
+  let size = sizes.get(slug);
+  if (size === undefined) {
+    size = topicZip(slug).length;
+    sizes.set(slug, size);
   }
-  return zip;
+  return size;
 }
 
 /** The one byte formatter used by every download label. */

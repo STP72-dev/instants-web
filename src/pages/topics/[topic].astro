@@ -5,7 +5,7 @@ import EntryCard from '../../components/EntryCard.astro';
 import TagChip from '../../components/TagChip.astro';
 import TopicMotif from '../../components/TopicMotif.astro';
 import { FORMAT_SHORT, formatsOf, getTopic, manifest, topicAccent, topicEntries, topicZipUrl } from '../../lib/content.ts';
-import { formatBytes, topicZip } from '../../lib/downloads.ts';
+import { formatBytes, topicZipSize } from '../../lib/downloads.ts';
 import { guidedPath, musicChapters } from '../../lib/hub.ts';
 import type { Format } from '../../lib/manifest.ts';
 
@@ -28,7 +28,7 @@ const formatCounts = (['md', 'mermaid', 'excalidraw'] as Format[])
   .map((f) => ({ f, n: entries.filter((e) => formatsOf(e).includes(f)).length }))
   .filter((x) => x.n > 0);
 
-const zipSize = formatBytes(topicZip(topic.slug).length);
+const zipSize = formatBytes(topicZipSize(topic.slug));
 const fileCount = entries.reduce((n, e) => n + Object.values(e.formats).reduce((m, f) => m + 1 + Object.keys(f!.exports).length, 0), 0);
 
 const intro = isMusic

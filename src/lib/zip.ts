@@ -10,6 +10,25 @@ export interface ZipFile {
   data: Uint8Array;
 }
 
+const MAX_U16 = 0xffff;
+const MAX_U32 = 0xffffffff;
+
+/**
+ * Strict entry-name policy (zip-slip safe on every extractor): relative POSIX path, no backslashes, no control characters,
+ * no drive prefix, no empty / "." / ".." segments, name ≤ 65535 UTF-8 bytes.
+ */
+export function assertSafeName(name: string): void {
+  const bad =
+    name === '' ||
+    name.startsWith('/') ||
+    name.includes('\\') ||
+    /[\u0000-\u001f\u007f]/.test(name) ||
+    /^[A-Za-z]:/.test(name) ||
+    name.split('/').some((seg) => seg === '' || seg === '.' || seg === '..') ||
+    Buffer.byteLength(name, 'utf8') > MAX_U16;
+  if (bad) throw new Error(`unsafe zip entry name: ${JSON.stringify(name)}`);
+}
+
 const DEFLATE = 8;
 const STORE = 0;
 const UTF8_FLAG = 0x0800;
@@ -31,8 +50,12 @@ export function createZip(files: ZipFile[], modified = '1980-01-01T00:00:00Z'): 
   let offset = 0;
   const seen = new Set<string>();
 
+  // Non-ZIP64 writer: every limit is checked before the field it guards is written.
+  if (files.length > MAX_U16) throw new Error('too many entries for a non-ZIP64 archive');
+  let centralSize = 0;
   for (const file of files) {
-    if (!file.name || file.name.startsWith('/') || file.name.split('/').includes('..')) throw new Error(`unsafe zip entry name: ${file.name}`);
+    assertSafeName(file.name);
+    if (file.data.length > MAX_U32) throw new Error(`entry too large for a non-ZIP64 archive: ${file.name}`);
     if (seen.has(file.name)) throw new Error(`duplicate zip entry: ${file.name}`);
     seen.add(file.name);
 
@@ -72,13 +95,14 @@ export function createZip(files: ZipFile[], modified = '1980-01-01T00:00:00Z'): 
     central.writeUInt32LE((0o100644 << 16) >>> 0, 38); // external attrs: regular file, rw-r--r--
     central.writeUInt32LE(offset, 42);
 
+    if (offset + local.length + name.length + body.length > MAX_U32) throw new Error('archive too large for a non-ZIP64 writer');
     locals.push(local, name, body);
     centrals.push(central, name);
     offset += local.length + name.length + body.length;
+    centralSize += central.length + name.length;
   }
 
-  const centralSize = centrals.reduce((n, b) => n + b.length, 0);
-  if (offset > 0xffffffff || files.length > 0xffff) throw new Error('archive too large for non-ZIP64 writer');
+  if (centralSize > MAX_U32 || offset + centralSize > MAX_U32) throw new Error('central directory too large for a non-ZIP64 writer');
   const end = Buffer.alloc(22);
   end.writeUInt32LE(0x06054b50, 0);
   end.writeUInt16LE(files.length, 8);

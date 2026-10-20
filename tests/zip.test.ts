@@ -5,7 +5,9 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { topicZip, topicZipFiles } from '../src/lib/downloads.ts';
 import { manifest } from '../src/lib/content.ts';
-import { createZip, dosDateTime } from '../src/lib/zip.ts';
+import type { APIContext } from 'astro';
+import { GET } from '../src/pages/downloads/[topic].zip.ts';
+import { assertSafeName, createZip, dosDateTime } from '../src/lib/zip.ts';
 
 const tmp = mkdtempSync(join(tmpdir(), 'iweb-zip-'));
 const write = (name: string, bytes: Uint8Array) => {
@@ -59,11 +61,42 @@ describe('topic archives (committed snapshot)', () => {
     const readme = new TextDecoder().decode(topicZipFiles('nonconformist')[0].data);
     expect(readme.split('\n')[0]).toBe('NONCONFORMIST — INSTANTS topic archive');
     expect(readme).toMatch(/01\. NONCONFORMIST — hell YEAH, release facts/);
-    expect(readme).toMatch(/Not exported yet:\n {4}md\/nonconformist-techtoon-ep01-overview\.pdf/);
+    expect(readme).toMatch(/Not exported yet:\n {4}exports\/md\/nonconformist-techtoon-ep01-overview\.pdf/);
   });
 
   it('archived bytes equal the snapshot files', () => {
     const f = topicZipFiles('git').find((x) => x.name.endsWith('.mmd'))!;
     expect(Buffer.from(f.data)).toEqual(readFileSync(join(import.meta.dirname, '..', 'content', f.name.replace(/^git\//, ''))));
+  });
+});
+
+describe('zip guards', () => {
+  it.each(['..\\outside.txt', 'C:\\outside.txt', 'C:/outside.txt', '\\\\server\\share\\f', 'a/../b', './a', 'a//b', 'a/', 'nul\u0000.txt', 'tab\tname', ''])(
+    'rejects %j',
+    (name) => {
+      expect(() => assertSafeName(name)).toThrow(/unsafe zip entry name/);
+    },
+  );
+
+  it('accepts ordinary unicode paths', () => {
+    expect(() => assertSafeName('t/ő könyvtár/a.md')).not.toThrow();
+  });
+
+  it('rejects names longer than 65535 UTF-8 bytes and more than 65535 entries', () => {
+    expect(() => assertSafeName('ő'.repeat(40_000))).toThrow(/unsafe/);
+    const many = Array.from({ length: 65_536 }, (_, i) => ({ name: `f${i}`, data: new Uint8Array() }));
+    expect(() => createZip(many)).toThrow(/too many entries/);
+  });
+});
+
+describe('/downloads/<topic>.zip endpoint', () => {
+  const call = (topic: string) => GET({ params: { topic } } as unknown as APIContext) as Response;
+  it('serves a zip for a known topic and 404s otherwise', async () => {
+    const ok = call('git');
+    expect(ok.status).toBe(200);
+    expect(ok.headers.get('content-type')).toBe('application/zip');
+    expect(new Uint8Array(await ok.arrayBuffer()).slice(0, 4)).toEqual(new Uint8Array([0x50, 0x4b, 0x03, 0x04]));
+    expect(call('../etc').status).toBe(404);
+    expect(call('nope').status).toBe(404);
   });
 });

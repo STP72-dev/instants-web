@@ -1,7 +1,7 @@
 ---
 /** Every file the manifest lists for one entry (sources + exports), plus the exports INSTANTS has not produced yet. */
 import { EXPORT_LABEL, FORMAT_LABEL, fileUrl, formatsOf, getTopic, topicZipUrl } from '../../lib/content.ts';
-import { formatBytes, topicZip } from '../../lib/downloads.ts';
+import { formatBytes, topicZipSize } from '../../lib/downloads.ts';
 import type { Entry, ExportKind, MissingExport } from '../../lib/manifest.ts';
 
 interface Props {
@@ -31,7 +31,7 @@ const groups = formatsOf(entry).map((format) => {
 const fileCount = groups.reduce((n, g) => n + g.files.length, 0);
 
 const topic = getTopic(entry.topic);
-const zipBytes = topicZip(topic.slug).length;
+const zipBytes = topicZipSize(topic.slug);
 ---
 
 <section class="downloads" aria-labelledby="downloads-title">
