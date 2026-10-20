@@ -92,15 +92,15 @@ const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : 
     music && (
       <div class="container chapters">
         {music.chapters.map((c, i) => (
-          <section class="chapter" id={`track-${c.slug}`} aria-labelledby={`h-${c.slug}`}>
+          <section class="chapter" id={`track-${c.slug}`} aria-labelledby={`h-track-${c.slug}`}>
             <header class="chapter-head">
               <p class="eyebrow">Track {String(i + 1).padStart(2, '0')}</p>
-              <h2 id={`h-${c.slug}`}>{c.title}</h2>
+              <h2 id={`h-track-${c.slug}`}>{c.title}</h2>
               {c.overview?.summary && <p class="chapter-lede">{c.overview.summary}</p>}
               <ol class="story-index" aria-label="Story">
                 {c.stages.map((s) => (
                   <li>
-                    <a href={`#${c.slug}-${s.id}`}>{s.label}</a>
+                    <a href={`#track-${c.slug}-${s.id}`}>{s.label}</a>
                     <span class="count">{s.entries.length}</span>
                   </li>
                 ))}
@@ -108,7 +108,7 @@ const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : 
             </header>
             <div class="chapter-body">
               {c.stages.map((s, si) => (
-                <div class="stage" id={`${c.slug}-${s.id}`}>
+                <div class="stage" id={`track-${c.slug}-${s.id}`}>
                   <h3 class="stage-label">
                     <span class="num" aria-hidden="true">
                       {String(si + 1).padStart(2, '0')}
@@ -128,16 +128,21 @@ const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : 
           </section>
         ))}
         {music.rest.length > 0 && (
-          <section class="across" aria-labelledby="h-across">
-            <p class="eyebrow">Across the tracks</p>
-            <h2 id="h-across">Topic-wide workflows</h2>
-            <ul class="cards">
-              {music.rest.map((e) => (
-                <li>
-                  <EntryCard entry={e} level={3} context={[topic.title]} />
-                </li>
-              ))}
-            </ul>
+          <section class="across" aria-labelledby="h-topic-wide">
+            <p class="eyebrow">{music.chapters.length > 0 ? 'Across the tracks' : 'The story'}</p>
+            <h2 id="h-topic-wide">{music.chapters.length > 0 ? `Topic-wide ${music.rest.map((s) => s.label.toLowerCase()).join(' · ')}` : topic.title}</h2>
+            {music.rest.map((s) => (
+              <div class="stage" id={`topic-${s.id}`}>
+                <h3 class="stage-label">{s.label}</h3>
+                <ul class:list={['cards', { single: s.entries.length === 1 }]}>
+                  {s.entries.map((e) => (
+                    <li>
+                      <EntryCard entry={e} level={4} wide={s.entries.length === 1} context={[topic.title]} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </section>
         )}
       </div>
@@ -149,12 +154,12 @@ const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : 
       <div class="container">
         <ol class="path">
           {path.map((s, i) => (
-            <li class="path-stage" aria-labelledby={`h-${s.id}`}>
+            <li class="path-stage" aria-labelledby={`h-stage-${s.id}`}>
               <span class="node" aria-hidden="true">
                 {String(i + 1).padStart(2, '0')}
               </span>
               <div class="path-body">
-                <h2 id={`h-${s.id}`}>{s.label}</h2>
+                <h2 id={`h-stage-${s.id}`}>{s.label}</h2>
                 <ul class:list={['cards', { single: s.entries.length === 1 }]}>
                   {s.entries.map((e) => (
                     <li>

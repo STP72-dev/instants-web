@@ -17,13 +17,16 @@ interface Props {
 
 const { entry, step, level = 3, showPreview = true, wide = false, context = [] } = Astro.props;
 // "NONCONFORMIST — hell YEAH, release facts" → "release facts" when topic and track are already on screen.
+// The link's accessible name keeps the full title; only the visible text is shortened.
 let title = entry.title;
 for (const prefix of context) {
   for (const sep of [' — ', ', ']) {
-    if (title.startsWith(prefix + sep) && title.length > prefix.length + sep.length) title = title.slice(prefix.length + sep.length);
+    const rest = title.startsWith(prefix + sep) ? title.slice(prefix.length + sep.length).trim() : '';
+    if (rest) title = rest;
   }
 }
 title = title.charAt(0).toUpperCase() + title.slice(1);
+const shortened = title !== entry.title;
 const Heading = `h${level}` as 'h2' | 'h3' | 'h4';
 const preview = showPreview ? thumbnail(entry) : null;
 const formats = formatsOf(entry);
@@ -43,7 +46,7 @@ const formats = formatsOf(entry);
       <span>{ROLE_LABEL[entry.role]}</span>
     </p>
     <Heading class="title">
-      <a href={entryUrl(entry.slug)} title={title === entry.title ? undefined : entry.title}>{title}</a>
+      <a href={entryUrl(entry.slug)} aria-label={shortened ? entry.title : undefined} title={shortened ? entry.title : undefined}>{title}</a>
     </Heading>
     {entry.summary && <p class="summary">{entry.summary}</p>}
     <ul class="formats" aria-label="Formats">

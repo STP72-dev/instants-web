@@ -36,8 +36,11 @@ function stagesFor(entries: Entry[], spec: Array<[string, string, Role[]]>): Sta
     .filter((s) => s.entries.length > 0);
 }
 
-/** Music topics: one chapter per track (overview → sound DNA → variants → workflow), then topic-level entries. */
-export function musicChapters(topic: Topic, entries: Entry[]): { chapters: Chapter[]; rest: Entry[] } {
+/**
+ * Music topics: one chapter per track (overview → sound DNA → variants → workflow), then topic-level entries
+ * grouped by the same story stages (a topic without tracks still reads overview → … → workflow).
+ */
+export function musicChapters(topic: Topic, entries: Entry[]): { chapters: Chapter[]; rest: Stage[] } {
   const chapters = topic.tracks.map((track) => {
     const members = entries.filter((e) => e.track === track.slug);
     return {
@@ -47,7 +50,7 @@ export function musicChapters(topic: Topic, entries: Entry[]): { chapters: Chapt
       stages: stagesFor(members, MUSIC_STAGES),
     };
   });
-  return { chapters, rest: entries.filter((e) => e.track === null) };
+  return { chapters, rest: stagesFor(entries.filter((e) => e.track === null), MUSIC_STAGES) };
 }
 
 /** Technical topics: a guided path of stages from orientation to detail. */
