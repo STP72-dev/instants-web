@@ -1,6 +1,7 @@
 ---
 /** Every file the manifest lists for one entry (sources + exports), plus the exports INSTANTS has not produced yet. */
-import { EXPORT_LABEL, FORMAT_LABEL, fileUrl, formatsOf } from '../../lib/content.ts';
+import { EXPORT_LABEL, FORMAT_LABEL, fileUrl, formatsOf, getTopic, topicZipUrl } from '../../lib/content.ts';
+import { formatBytes, topicZipSize } from '../../lib/downloads.ts';
 import type { Entry, ExportKind, MissingExport } from '../../lib/manifest.ts';
 
 interface Props {
@@ -11,12 +12,6 @@ interface Props {
 const { entry, missing } = Astro.props;
 
 const SOURCE_KIND: Record<string, string> = { md: 'Markdown source', mermaid: 'Mermaid source', excalidraw: 'Excalidraw scene' };
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
 
 const basename = (path: string) => path.slice(path.lastIndexOf('/') + 1);
 
@@ -34,6 +29,9 @@ const groups = formatsOf(entry).map((format) => {
   return { format, files };
 });
 const fileCount = groups.reduce((n, g) => n + g.files.length, 0);
+
+const topic = getTopic(entry.topic);
+const zipBytes = topicZipSize(topic.slug);
 ---
 
 <section class="downloads" aria-labelledby="downloads-title">
@@ -82,8 +80,23 @@ const fileCount = groups.reduce((n, g) => n + g.files.length, 0);
     )
   }
 
-  {/* SLOT(#7): topic zip download — link topicZipUrl(entry.topic) here once /downloads/<topic>.zip is built. */}
-  <slot name="topic-zip" />
+  <div class="group">
+    <h3 class="eyebrow">Whole topic</h3>
+    <ul role="list">
+      <li>
+        <a href={topicZipUrl(topic.slug)} download={`${topic.slug}.zip`} data-download-path={`downloads/${topic.slug}.zip`}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" />
+          </svg>
+          <span class="name">
+            <span class="label">{topic.title} archive</span>
+            <span class="file">.zip · {topic.entries.length} {topic.entries.length === 1 ? 'entry' : 'entries'}</span>
+          </span>
+          <span class="size">{formatBytes(zipBytes)}</span>
+        </a>
+      </li>
+    </ul>
+  </div>
 </section>
 
 <style>
