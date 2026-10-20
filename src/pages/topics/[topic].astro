@@ -1,9 +1,11 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ButtonLink from '../../components/ButtonLink.astro';
 import EntryCard from '../../components/EntryCard.astro';
 import TagChip from '../../components/TagChip.astro';
 import TopicMotif from '../../components/TopicMotif.astro';
-import { FORMAT_SHORT, formatsOf, getTopic, manifest, topicAccent, topicEntries } from '../../lib/content.ts';
+import { FORMAT_SHORT, formatsOf, getTopic, manifest, topicAccent, topicEntries, topicZipUrl } from '../../lib/content.ts';
+import { formatBytes, topicZip } from '../../lib/downloads.ts';
 import { guidedPath, musicChapters } from '../../lib/hub.ts';
 import type { Format } from '../../lib/manifest.ts';
 
@@ -25,6 +27,9 @@ const topTags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b
 const formatCounts = (['md', 'mermaid', 'excalidraw'] as Format[])
   .map((f) => ({ f, n: entries.filter((e) => formatsOf(e).includes(f)).length }))
   .filter((x) => x.n > 0);
+
+const zipSize = formatBytes(topicZip(topic.slug).length);
+const fileCount = entries.reduce((n, e) => n + Object.values(e.formats).reduce((m, f) => m + 1 + Object.keys(f!.exports).length, 0), 0);
 
 const intro = isMusic
   ? 'Each track is told as a story: what it is, how it is built, how to remake it in Suno, and the workflow that gets you there. Read a chapter top to bottom.'
@@ -60,7 +65,12 @@ const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : 
             ))
           }
         </ul>
-        {/* #7 adds the topic zip download here. */}
+        <ButtonLink href={topicZipUrl(topic.slug)} variant="primary" download={`${topic.slug}.zip`}>
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            ><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14"></path></svg
+          >
+          Download topic <span class="zip-meta">.zip · {fileCount} files · {zipSize}</span>
+        </ButtonLink>
       </div>
       {
         topTags.length > 0 && (
@@ -262,6 +272,12 @@ const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : 
 
   .fmt {
     color: var(--accent);
+  }
+
+  .zip-meta {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    opacity: 0.75;
   }
 
   .tags {
