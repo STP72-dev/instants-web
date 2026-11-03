@@ -48,16 +48,22 @@ Updated in every lead PR to the state after that PR merges (DECISIONS.md D0b).
 | ui-entry | claude-code opus 5.5 (auto) | IWEB__BUILD__CLAUDE__ENTRY__04 (w4:t4) | pane w4:p4 | IWEB-06 entry page | #6 | done / alive idle | — | PR #26 | none |
 
 ## Open issues
-- #17, #18 (blocked on user); epics #13 (M1, only #18 left) and #16 (M4, only #17 left). Epics #14 (M2) and #15 (M3) closed.
+- #17 done in practice (2026-10-21: project linked, secrets set, release re-run deployed production; 2026-11-03: owner chose a public
+  site, DECISIONS.md D11) — close it with this PR. #18 (blocked on user); epics #13 (M1, only #18 left) and #16 (M4, closes with #17).
+  Epics #14 (M2) and #15 (M3) closed.
+
+## Production
+- `https://instants-web.vercel.app` — **public by decision** (D11). Deployment `dpl_BD1reCVTq3S3hgwTmUUhqWh2evHj`, team `dns-72-dev`, Hobby plan.
+- Verified 2026-11-03: `scripts/verify-site.sh https://instants-web.vercel.app` 18/18 ok; security headers present.
 
 ## Blocked on me
-1. #17 Vercel: create/link the project and set secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`; then switch to a staged deploy (see #17 comment).
-2. #18 Branch rules: make the repo public or upgrade to GitHub Pro, then `gh api -X POST repos/w7-mgfcode/instants-web/rulesets --input .github/ruleset-main.json`.
+1. #18 Branch rules: make the repo public or upgrade to GitHub Pro, then `gh api -X POST repos/w7-mgfcode/instants-web/rulesets --input .github/ruleset-main.json`.
+   (The public site does not require a public repo.)
 
 ## Next step
-Nothing autonomous remains. Owner: #17 (Vercel secrets → re-run the release: `gh workflow run release.yml --ref main -f tag=v0.1.0`),
-#18 (branch rules). Follow-ups worth an issue: set `org.opencontainers.image.revision` to the tag commit on dispatch re-runs (it currently
-records the dispatching main commit); staged Vercel deploy (`--skip-domain` → verify-site → promote) once secrets exist.
+Nothing autonomous remains. Owner: #18 (branch rules / repo visibility). Follow-ups worth an issue: set `org.opencontainers.image.revision`
+to the tag commit on dispatch re-runs (it currently records the dispatching main commit); staged Vercel deploy (`--skip-domain` →
+verify-site → promote); secret/PII scan of the content snapshot as a release gate (the site is public, D11).
 
 ## Verified facts vs assumptions
 - Verified: gh account w7-mgfcode on plan `free` (rulesets 403); herdr 0.9.5; codex 0.163.0; agy 1.4.3; docker 29.9 + compose v5.6; node 24.19.

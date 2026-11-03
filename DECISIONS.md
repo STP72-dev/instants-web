@@ -136,3 +136,17 @@ each was instead reviewed adversarially by Codex in its PR. Recorded here so the
   check against the Docker image and before every Vercel deploy.
 - **D10 Orchestration**: at most 4 hosted sessions at once; the decision Codex session (`IWEB__DECIDE__CODEX__ARCH__01`) was reused as a
   second reviewer/auditor instead of opening a fifth session. Workers never merged; every merge, rebase and evaluation was done by the lead.
+
+## D11 — Public production site (owner decision, 2026-11-03)
+
+- **Decision:** `https://instants-web.vercel.app` stays **publicly readable**. Owner: "this is knowledge for everyone who is interested."
+- **Context:** the 2026-10-21 deploy (release run 39537610011, `dpl_BD1reCVTq3S3hgwTmUUhqWh2evHj`) made the production alias public;
+  Vercel protection `all_except_custom_domains` covers per-deployment URLs only, and the Hobby plan cannot protect production.
+  The owner had expected a login wall; on review they chose public.
+- **Scope:** only the built site is public. The GitHub repo `w7-mgfcode/instants-web` and the container image stay **private**
+  (repo visibility is a separate decision, #18).
+- **Evidence (2026-11-03):** `scripts/verify-site.sh https://instants-web.vercel.app` → 18/18 ok, exit 0; security headers present
+  (CSP, Permissions-Policy, Referrer-Policy, HSTS, nosniff, X-Frame-Options). Content snapshot (157 files) scanned: no owner email,
+  no key patterns (`sk-`, `AKIA`, `ghp_`, `github_pat_`, `AIza`, `xox*`, private keys), no absolute home paths. `prompts/` is not served (404).
+- **Consequence:** everything merged into INSTANTS and released is published. Secret/PII scan of the content snapshot belongs in every release.
+- **Reversal:** `vercel rm <deployment-url> --yes` and `gh secret delete VERCEL_TOKEN -R w7-mgfcode/instants-web` (future releases then skip Vercel).
