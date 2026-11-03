@@ -150,3 +150,15 @@ each was instead reviewed adversarially by Codex in its PR. Recorded here so the
   no key patterns (`sk-`, `AKIA`, `ghp_`, `github_pat_`, `AIza`, `xox*`, private keys), no absolute home paths. `prompts/` is not served (404).
 - **Consequence:** everything merged into INSTANTS and released is published. Secret/PII scan of the content snapshot belongs in every release.
 - **Reversal:** `vercel rm <deployment-url> --yes` and `gh secret delete VERCEL_TOKEN -R w7-mgfcode/instants-web` (future releases then skip Vercel).
+
+## D12 — Branch rules deferred; repo stays private (lead decision, owner-delegated, 2026-11-03)
+
+| Option | Pro | Contra |
+|---|---|---|
+| A Make the repo public → free rulesets | rulesets enforced for free; matches "knowledge for everyone" | exposes 7 tracked files with absolute home paths, commit author emails and the orchestration history; readers gain nothing — site and downloads are already public (D11) |
+| B GitHub Pro → rulesets on a private repo | enforcement, nothing exposed | recurring cost for a single-maintainer repo where only the lead merges |
+| **C Defer, close #18** | no cost, no exposure; PR + CI + lead-only squash merges already hold by convention; Release re-checks CSP before deploy | a direct push to `main` is technically possible (mitigated: release runs the full `ci` check first) |
+
+- **Choice: C.** #18 closed as deferred. Reopen trigger: a second collaborator, or a decision to make the repo public.
+  Then: `gh api -X POST repos/w7-mgfcode/instants-web/rulesets --input .github/ruleset-main.json` (`.github/ruleset-main.json` stays).
+- **Also decided:** a secret/PII scan of the content snapshot becomes a release gate (#37), because D11 publishes every release.

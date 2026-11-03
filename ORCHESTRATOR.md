@@ -31,7 +31,7 @@
 | Release | `v0.1.0` published 2026-10-20 |
 | Last runs | CI #35 ✔, Release (workflow_dispatch) ✔ — 2026-10-21 |
 | Secrets | `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, `VERCEL_TOKEN` set |
-| Issues | #17 (Vercel) OPEN; #18 (branch rules: needs public repo or GitHub Pro) open per PROGRESS.md |
+| Issues | #17 closed by PR #36; #18 closed as deferred (D12); epics #13 #16 closed; #37 (content scan release gate) open |
 | Vercel | project `dns-72-dev/instants-web` linked (`.vercel/`, git-ignored); 1 production deployment, Ready; CLI 62.0.0 (65.10.0 available) |
 | Local branches | `chore/17-ignore-vercel-link`, `design/3-design-system` — squash-merged, no upstream, safe to delete (ask) |
 | INSTANTS repo | no remote; no `w7-mgfcode/INSTANTS` on GitHub |
@@ -49,7 +49,7 @@ hand-written Vercel Build Output v3 → `vercel deploy --prebuilt`. Planned foll
 ## 4. herdr map (session as of 2026-11-03)
 | Workspace / tab | Pane | Occupant | State |
 |---|---|---|---|
-| `instants-web` (w3) / cc:CORE | w3:p1 | Claude orchestrator | idle, awaiting §5.1 |
+| `instants-web` (w3) / cc:CORE | w3:p1 | Claude orchestrator (old lead, 2026-10-21) | idle, superseded (§5.6) — do not answer |
 | | w3:p2 | Neovim | idle |
 | | w3:p3 | lazygit | idle, no changes |
 | / codex:ASSIST | w3:p4 | shell | empty (Codex session gone) |
@@ -61,15 +61,19 @@ hand-written Vercel Build Output v3 → `vercel deploy --prebuilt`. Planned foll
 
 Pane IDs are per herdr server; re-list before use.
 
-## 5. Decisions blocked on the owner
-1. ~~Public vs. offline vs. paid protection~~ → **decided 2026-11-03: public** (D11). Recorded locally in `DECISIONS.md` D11 and
-   `PROGRESS.md`; still to do with owner OK: branch `docs/17-public-site-decision` → PR → squash-merge → close #17 (and epic #16).
-   Reversal stays: `vercel rm <deployment-url> --yes` + `gh secret delete VERCEL_TOKEN -R w7-mgfcode/instants-web`.
-2. **#18 branch rules** — public repo or GitHub Pro. The public site does not force a public repo.
-3. **INSTANTS on GitHub (private)** — history secret scan first; push is gated. More urgent if the site stays public.
-4. **Housekeeping** — close dead IWEB tabs (w4:t3, w4:t4); delete the 2 merged local branches. Ask first.
+## 5. Decisions (2026-11-03 — owner delegated the calls to the orchestrator: "make the decision")
+1. **Public site → public** (D11). Recorded in PR #36; #17 and epic #16 closed.
+   Reversal: `vercel rm <deployment-url> --yes` + `gh secret delete VERCEL_TOKEN -R w7-mgfcode/instants-web`.
+2. **#18 branch rules → deferred, issue closed** (D12): repo stays private, no GitHub Pro, no ruleset. Reopen when a second
+   collaborator joins or the repo goes public; then `gh api -X POST repos/w7-mgfcode/instants-web/rulesets --input .github/ruleset-main.json`.
+3. **Content secret/PII scan as a release gate → yes**, issue #37 (priority:p1). Next build task.
+4. **INSTANTS on GitHub (private) → yes**. History scanned 2026-11-03 (54 commits): no key patterns, no `.env`/key files. Push stays
+   behind the INSTANTS gate; result is recorded in INSTANTS `HANDOFF.md`.
+5. **Housekeeping → done**: dead IWEB tabs w4:t3 / w4:t4 closed, merged local branches deleted. IWEB tabs 01/02 kept as empty slots.
+6. **Old lead session (w3:p1) → superseded.** Do not answer its offline/public question — D11 and PR #36 already did that work.
+   Resume with `claude --resume ff6df036-651b-4da0-883a-694bc6bc6202` only to read its history.
 
-All four need owner approval (removal / publish / settings). Nothing autonomous remains.
+Open for the owner: nothing. Next autonomous work: #37.
 
 ## 6. Re-check commands (read-only)
 ```bash

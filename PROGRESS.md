@@ -49,21 +49,20 @@ Updated in every lead PR to the state after that PR merges (DECISIONS.md D0b).
 
 ## Open issues
 - #17 done in practice (2026-10-21: project linked, secrets set, release re-run deployed production; 2026-11-03: owner chose a public
-  site, DECISIONS.md D11) — close it with this PR. #18 (blocked on user); epics #13 (M1, only #18 left) and #16 (M4, closes with #17).
-  Epics #14 (M2) and #15 (M3) closed.
+  site, DECISIONS.md D11) — closed by PR #36. #18 closed as deferred (D12). All epics #13–#16 closed.
+- Open: #37 (content secret/PII scan release gate).
 
 ## Production
 - `https://instants-web.vercel.app` — **public by decision** (D11). Deployment `dpl_BD1reCVTq3S3hgwTmUUhqWh2evHj`, team `dns-72-dev`, Hobby plan.
 - Verified 2026-11-03: `scripts/verify-site.sh https://instants-web.vercel.app` 18/18 ok; security headers present.
 
 ## Blocked on me
-1. #18 Branch rules: make the repo public or upgrade to GitHub Pro, then `gh api -X POST repos/w7-mgfcode/instants-web/rulesets --input .github/ruleset-main.json`.
-   (The public site does not require a public repo.)
+- Nothing. #18 closed as deferred (DECISIONS.md D12).
 
 ## Next step
-Nothing autonomous remains. Owner: #18 (branch rules / repo visibility). Follow-ups worth an issue: set `org.opencontainers.image.revision`
-to the tag commit on dispatch re-runs (it currently records the dispatching main commit); staged Vercel deploy (`--skip-domain` →
-verify-site → promote); secret/PII scan of the content snapshot as a release gate (the site is public, D11).
+#37 — secret/PII scan of the content snapshot as a release gate (priority:p1; the site is public, D11). Follow-ups worth an issue:
+set `org.opencontainers.image.revision` to the tag commit on dispatch re-runs (it currently records the dispatching main commit);
+staged Vercel deploy (`--skip-domain` → verify-site → promote). Orchestration state and HERDR rules: `ORCHESTRATOR.md`.
 
 ## Verified facts vs assumptions
 - Verified: gh account w7-mgfcode on plan `free` (rulesets 403); herdr 0.9.5; codex 0.163.0; agy 1.4.3; docker 29.9 + compose v5.6; node 24.19.
