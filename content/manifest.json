@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
   "source": {
-    "commit": "9c30daaa5eeeeade5eb45b9fb2b88e954590439d",
-    "committedAt": "2026-10-20T14:27:48+02:00",
+    "commit": "f2a791e6b791b0e83f3251708f77bd97a87a6918",
+    "committedAt": "2026-11-03T16:33:10+01:00",
     "dirty": false
   },
   "counts": {
-    "entries": 38,
-    "topics": 6,
+    "entries": 43,
+    "topics": 8,
     "files": {
-      "md": 30,
+      "md": 35,
       "mermaid": 13,
-      "excalidraw": 21
+      "excalidraw": 25
     },
     "exports": {
-      "png": 34,
-      "pdf": 58
+      "png": 38,
+      "pdf": 73
     }
   },
   "topics": [
@@ -42,6 +42,23 @@
         "secrets",
         "security",
         "workflow"
+      ]
+    },
+    {
+      "slug": "ai-tools",
+      "title": "AI tools",
+      "kind": "technical",
+      "entries": [
+        "ai-tools-github-steward-overview",
+        "ai-tools-github-steward-project-management"
+      ],
+      "tracks": [],
+      "tags": [
+        "agent",
+        "ai-tools",
+        "claude-code",
+        "github",
+        "project-management"
       ]
     },
     {
@@ -137,6 +154,27 @@
       ],
       "tracks": [],
       "tags": []
+    },
+    {
+      "slug": "mgf-monk",
+      "title": "mGF Monk v5.1",
+      "kind": "technical",
+      "entries": [
+        "mgf-monk-v51-overview",
+        "mgf-monk-v51-evidence",
+        "mgf-monk-v51-next-steps"
+      ],
+      "tracks": [],
+      "tags": [
+        "backtesting",
+        "baseline",
+        "forward-testing",
+        "indicator",
+        "mgf-monk",
+        "nas100",
+        "research-process",
+        "trading"
+      ]
     },
     {
       "slug": "nonconformist",
@@ -397,6 +435,120 @@
               "path": "exports/md/ai-start-guide.pdf",
               "bytes": 172451,
               "sha256": "3877e569e25f64756a591ac7006e2b770b63fa97d7b068d017800d0ef626c8d8",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "ai-tools-github-steward-overview",
+      "title": "AI tools — github-steward agent, what it owns and how it works",
+      "tags": [
+        "agent",
+        "ai-tools",
+        "claude-code",
+        "github",
+        "project-management"
+      ],
+      "source": "SlideRAG-mini .claude/agents/github-steward.md (my own Claude Code subagent, read 2026-11-03)",
+      "created": "2026-11-03",
+      "summary": "Explain in one minute what my github-steward subagent does, when it fires, and where it must stop and ask.",
+      "topic": "ai-tools",
+      "track": null,
+      "role": "overview",
+      "order": 0,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/ai-tools-github-steward-overview.md",
+            "bytes": 4381,
+            "sha256": "9cdaa7a5e6daa88d15884155aab80c7199bf495f0991091aedc0dfefc8558834"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/ai-tools-github-steward-overview.pdf",
+              "bytes": 134288,
+              "sha256": "f737f742fc3e8f66a5fbbc718e54682c06869ee2f8c41546a28e26f8a055f4ff",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/ai-tools-github-steward-overview.excalidraw",
+            "bytes": 57692,
+            "sha256": "a5dea0f4b6219a8403d76a65b74027d6a8d95d1923fb5badb5bac58a93270767"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/ai-tools-github-steward-overview.png",
+              "bytes": 770686,
+              "sha256": "0e0dcab6621e3fb7b27b0f110f3deb13dc00cfc4ad757f0239199ddebfb2521c",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/ai-tools-github-steward-overview.pdf",
+              "bytes": 93591,
+              "sha256": "deaad452d4a36be435f51ec927844373b7edf581912ad96b856c673b284a0acc",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "ai-tools-github-steward-project-management",
+      "title": "AI tools — github-steward agent, project management model",
+      "tags": [
+        "agent",
+        "ai-tools",
+        "claude-code",
+        "github",
+        "project-management"
+      ],
+      "source": "SlideRAG-mini .claude/agents/github-steward.md § 1 (my own Claude Code subagent, read 2026-11-03)",
+      "created": "2026-11-03",
+      "summary": "Turn a plan into a navigable, truthful GitHub issue tree — and keep it truthful as work lands.",
+      "topic": "ai-tools",
+      "track": null,
+      "role": "detail",
+      "order": 1,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/ai-tools-github-steward-project-management.md",
+            "bytes": 3611,
+            "sha256": "133d6d79cdcecddfe5de4b1afbe13cd621102a07547394da6686e213c40dfa2e"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/ai-tools-github-steward-project-management.pdf",
+              "bytes": 115993,
+              "sha256": "360e4cdb2a77540d4d8fe825184b2e649588d02b5bfaadbf31ebdd76e572b4e8",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/ai-tools-github-steward-project-management.excalidraw",
+            "bytes": 72377,
+            "sha256": "a694f0cc1cceb18fd0e2966889c80c9d8f281ba8740b7094b73c9308ac9bed64"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/ai-tools-github-steward-project-management.png",
+              "bytes": 558093,
+              "sha256": "ee5733ccb72d017abc6e78960b3ed83e4a3aa8e240c9442a99d1f98b0891a3c1",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/ai-tools-github-steward-project-management.pdf",
+              "bytes": 74351,
+              "sha256": "a3f75c1a31d67ab0ddd7f35955a320b434937a0914b411b0836a63d0ae6f9510",
               "freshness": "fresh"
             }
           }
@@ -1141,6 +1293,156 @@
       }
     },
     {
+      "slug": "mgf-monk-v51-evidence",
+      "title": "mGF Monk v5.1 — bizonyítékok, baseline és trading teszt",
+      "tags": [
+        "backtesting",
+        "baseline",
+        "mgf-monk",
+        "nas100",
+        "trading"
+      ],
+      "source": "mGF Monk v5.1 Visual Learning Guide (HTML), az mGF Monk v5.1 audit alapján; olvasva 2026-11-03",
+      "created": "2026-11-03",
+      "summary": "Tanulási célú összefoglaló. Nem befektetési tanács és nem kereskedési jelzés.",
+      "topic": "mgf-monk",
+      "track": null,
+      "role": "detail",
+      "order": 1,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/mgf-monk-v51-evidence.md",
+            "bytes": 2768,
+            "sha256": "5134a3fb4439e584f1c6cc2126728f28faa0b7eb03d63bc3fcf0dc8e2c9cf58c"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/mgf-monk-v51-evidence.pdf",
+              "bytes": 90436,
+              "sha256": "14bb69a4089c85e26b33686239f6139b3843e35d80f20c982cf9c8e77e97ef24",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "mgf-monk-v51-next-steps",
+      "title": "mGF Monk v5.1 — továbblépés (freeze, forward log, NAS100 validáció)",
+      "tags": [
+        "forward-testing",
+        "mgf-monk",
+        "nas100",
+        "research-process",
+        "trading"
+      ],
+      "source": "mGF Monk v5.1 Visual Learning Guide (HTML), az mGF Monk v5.1 audit alapján; olvasva 2026-11-03",
+      "created": "2026-11-03",
+      "summary": "Tanulási célú összefoglaló. Nem befektetési tanács és nem kereskedési jelzés.",
+      "topic": "mgf-monk",
+      "track": null,
+      "role": "detail",
+      "order": 2,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/mgf-monk-v51-next-steps.md",
+            "bytes": 2674,
+            "sha256": "0f87ba38020ae9c812ca286eca9470f22f01da6413458e87b686cb49a573bed7"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/mgf-monk-v51-next-steps.pdf",
+              "bytes": 68477,
+              "sha256": "715be790fccecbe2bb438c532f0157eb3e762c969951bee235683cc3c048bea0",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/mgf-monk-v51-next-steps.excalidraw",
+            "bytes": 45175,
+            "sha256": "62dc36ad076e2009c9680151bb10e9193c79509e2d1bbef7014a408166c00d1b"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/mgf-monk-v51-next-steps.png",
+              "bytes": 544085,
+              "sha256": "7709edf611ca8698e44082a9936441eb031d03a65f2da8f49f1d470784138e6d",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/mgf-monk-v51-next-steps.pdf",
+              "bytes": 70841,
+              "sha256": "124221b9d319e1e847c6178f048ca59a60a3a068efff5e48bbfa7e7b3640a120",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "mgf-monk-v51-overview",
+      "title": "mGF Monk v5.1 — mit tud valójában (verdikt, számok, működés)",
+      "tags": [
+        "backtesting",
+        "indicator",
+        "mgf-monk",
+        "nas100",
+        "trading"
+      ],
+      "source": "mGF Monk v5.1 Visual Learning Guide (HTML), az mGF Monk v5.1 audit alapján; olvasva 2026-11-03",
+      "created": "2026-11-03",
+      "summary": "Tanulási célú összefoglaló. Nem befektetési tanács és nem kereskedési jelzés.",
+      "topic": "mgf-monk",
+      "track": null,
+      "role": "overview",
+      "order": 0,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/mgf-monk-v51-overview.md",
+            "bytes": 2698,
+            "sha256": "d57fb465f05cc9d3a3fc2923153afb2e94c0be486a7b6ee9aa3ca57401f9f47f"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/mgf-monk-v51-overview.pdf",
+              "bytes": 78120,
+              "sha256": "8da13499a592be82dc6a10145fba0b2544c131a07dfb686e9f3ec23eeec86650",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/mgf-monk-v51-overview.excalidraw",
+            "bytes": 48229,
+            "sha256": "187f2c2ace26e5c439a53930ed4e00e0e93a7ede2addb0151ba1093b9d5206e6"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/mgf-monk-v51-overview.png",
+              "bytes": 566732,
+              "sha256": "71e364215a5432dc60d24b71167a29b1bae84a9629f576ab34e7cc3d19a3a35d",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/mgf-monk-v51-overview.pdf",
+              "bytes": 64062,
+              "sha256": "05b731ec5d060064d605cbd390184c65041e0fc0324d339c7692766b4afc746d",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
       "slug": "nonconformist-hell-yeah-overview",
       "title": "NONCONFORMIST — hell YEAH, release facts and musical identity",
       "tags": [
@@ -1821,7 +2123,14 @@
             "bytes": 2564,
             "sha256": "5b265a5d0936bd6819139cdb751228c0a5a0085b09f6358d93ec3d2fa1fe68aa"
           },
-          "exports": {}
+          "exports": {
+            "pdf": {
+              "path": "exports/md/nonconformist-techtoon-ep01-overview.pdf",
+              "bytes": 65568,
+              "sha256": "acf1a4a93376ffbb57c383a7d32127b57e119911c519c028a98ce906e372e35d",
+              "freshness": "fresh"
+            }
+          }
         },
         "excalidraw": {
           "source": {
@@ -1871,7 +2180,14 @@
             "bytes": 2430,
             "sha256": "fd8e6bedf57b3f2ebc9caba302d3e8be3e1fa5d05c1af2e9d934d8111a0a6b90"
           },
-          "exports": {}
+          "exports": {
+            "pdf": {
+              "path": "exports/md/nonconformist-techtoon-ep01-sound-dna.pdf",
+              "bytes": 66316,
+              "sha256": "a69d16b7e1a45978b4d190da7df2baf407ee0d7a7a436fb3f554075a7dd6cb22",
+              "freshness": "fresh"
+            }
+          }
         },
         "excalidraw": {
           "source": {
@@ -1921,7 +2237,14 @@
             "bytes": 3461,
             "sha256": "0223079bd9075706ee578b822bf6201041a9b5e267baaf9860cf61f28ba65b82"
           },
-          "exports": {}
+          "exports": {
+            "pdf": {
+              "path": "exports/md/nonconformist-techtoon-ep01-suno-a.pdf",
+              "bytes": 56927,
+              "sha256": "24ee134ce217dea588edbabc975a5addd5426587a7840f0912f516199315f253",
+              "freshness": "fresh"
+            }
+          }
         },
         "excalidraw": {
           "source": {
@@ -1971,7 +2294,14 @@
             "bytes": 3727,
             "sha256": "bb407eb0a61c128b30d291d175435c3139d88c1c025b8264ddaeef6f36efbc77"
           },
-          "exports": {}
+          "exports": {
+            "pdf": {
+              "path": "exports/md/nonconformist-techtoon-ep01-suno-b.pdf",
+              "bytes": 63378,
+              "sha256": "8e8efdf3482426ef274f67a2d23277ecf0eb2183aeb7a24baf16aa01902c6bc4",
+              "freshness": "fresh"
+            }
+          }
         },
         "excalidraw": {
           "source": {
@@ -2021,7 +2351,14 @@
             "bytes": 3802,
             "sha256": "a0382c94ca5bbb864a2a7ce6ee64fcaf264b651e505f027fb7e0d4aeebb45e8d"
           },
-          "exports": {}
+          "exports": {
+            "pdf": {
+              "path": "exports/md/nonconformist-techtoon-ep01-suno-c.pdf",
+              "bytes": 63621,
+              "sha256": "4434a5026bd2471230a73b258facc0781baf3c24633c14dae5f648d1783e91e9",
+              "freshness": "fresh"
+            }
+          }
         },
         "excalidraw": {
           "source": {
@@ -2071,7 +2408,14 @@
             "bytes": 4093,
             "sha256": "09e26239e17e2b9df1f4848ad73cc70100ece6c849165463f0118efab9bf6143"
           },
-          "exports": {}
+          "exports": {
+            "pdf": {
+              "path": "exports/md/nonconformist-techtoon-ep01-suno-workflow.pdf",
+              "bytes": 90014,
+              "sha256": "1c7cf948c5d49c23f3fb70fba2993d40ee2104275d31c156d0f7d15fa735bbe1",
+              "freshness": "fresh"
+            }
+          }
         },
         "excalidraw": {
           "source": {
@@ -2097,40 +2441,9 @@
       }
     }
   ],
-  "missingExports": [
-    {
-      "slug": "nonconformist-techtoon-ep01-overview",
-      "format": "md",
-      "kind": "pdf"
-    },
-    {
-      "slug": "nonconformist-techtoon-ep01-sound-dna",
-      "format": "md",
-      "kind": "pdf"
-    },
-    {
-      "slug": "nonconformist-techtoon-ep01-suno-a",
-      "format": "md",
-      "kind": "pdf"
-    },
-    {
-      "slug": "nonconformist-techtoon-ep01-suno-b",
-      "format": "md",
-      "kind": "pdf"
-    },
-    {
-      "slug": "nonconformist-techtoon-ep01-suno-c",
-      "format": "md",
-      "kind": "pdf"
-    },
-    {
-      "slug": "nonconformist-techtoon-ep01-suno-workflow",
-      "format": "md",
-      "kind": "pdf"
-    }
-  ],
+  "missingExports": [],
   "secretScan": {
-    "scannedFiles": 156,
+    "scannedFiles": 184,
     "excluded": []
   }
 }
