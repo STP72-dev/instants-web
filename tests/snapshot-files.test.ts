@@ -17,7 +17,7 @@ describe('snapshot file endpoints', () => {
 
   it('only list manifest paths', () => {
     const paths = (snapshotPaths('exports') as Array<{ params: { path: string } }>).map((p) => p.params.path);
-    expect(paths.length).toBe(92);
+    expect(paths.length).toBe(111);
     expect(paths.every((p) => /^(md|mermaid|excalidraw)\/[a-z0-9-]+\.(png|pdf)$/.test(p))).toBe(true);
   });
 });
