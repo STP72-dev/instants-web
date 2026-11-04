@@ -1,4 +1,4 @@
-import { inflateSync } from 'node:zlib';
+import { inflateRawSync, inflateSync } from 'node:zlib';
 
 /** Secret patterns shared by the ingest snapshot scan and the pre-push diff scan. */
 export interface SecretRule {
@@ -26,6 +26,19 @@ export const SECRET_RULES: readonly SecretRule[] = [
   },
 ];
 
+/**
+ * Personal data that must never reach the public site (DECISIONS.md D11). Only the publish scan uses these;
+ * the commit diff scan keeps SECRET_RULES, because code and docs may legitimately mention addresses or paths.
+ */
+export const PII_RULES: readonly SecretRule[] = [
+  // The domain must start with a letter, so asset names such as "icon@2x.png" do not match.
+  { id: 'email-address', pattern: /\b[A-Za-z0-9._%+-]+@[A-Za-z][A-Za-z0-9-]*(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}\b/ },
+  { id: 'home-path', pattern: /\/home\/[a-z_][a-z0-9_-]*\/|\/Users\/[^/\s"'`]+\/|\b[A-Za-z]:\\Users\\[^\\\s"'`]+/ },
+];
+
+/** Everything that is published (content snapshot, built site): secrets + personal data. */
+export const PUBLISH_RULES: readonly SecretRule[] = [...SECRET_RULES, ...PII_RULES];
+
 export interface SecretHit {
   rule: string;
   line: number;
@@ -43,11 +56,11 @@ function windows(line: string): string[] {
 }
 
 /** Returns every rule hit in `text` (1-based line numbers). Never returns the matched value. */
-export function scanText(text: string): SecretHit[] {
+export function scanText(text: string, rules: readonly SecretRule[] = SECRET_RULES): SecretHit[] {
   const hits: SecretHit[] = [];
   text.split('\n').forEach((line, i) => {
     const parts = windows(line);
-    for (const rule of SECRET_RULES) {
+    for (const rule of rules) {
       if (parts.some((part) => rule.pattern.test(part))) hits.push({ rule: rule.id, line: i + 1 });
     }
   });
@@ -62,16 +75,19 @@ export const UNSCANNABLE = 'unscannable-content';
 
 class Unscannable extends Error {}
 
-function inflateBounded(bytes: Buffer, budget: { left: number }): string {
+function inflateBuffer(bytes: Buffer, budget: { left: number }, raw = false): Buffer {
   let out: Buffer;
   try {
-    out = inflateSync(bytes, { maxOutputLength: Math.min(BINARY_LIMITS.maxInflated, budget.left) });
+    const opts = { maxOutputLength: Math.min(BINARY_LIMITS.maxInflated, budget.left) };
+    out = raw ? inflateRawSync(bytes, opts) : inflateSync(bytes, opts);
   } catch {
     throw new Unscannable();
   }
   budget.left -= out.length;
-  return out.toString('latin1');
+  return out;
 }
+
+const inflateBounded = (bytes: Buffer, budget: { left: number }): string => inflateBuffer(bytes, budget).toString('latin1');
 
 const IMAGE_FILTERS = new Set(['DCTDecode', 'JPXDecode', 'CCITTFaxDecode', 'JBIG2Decode', 'RunLengthDecode']);
 
@@ -124,20 +140,83 @@ function pngTexts(buf: Buffer, budget: { left: number }): string[] {
   return texts;
 }
 
-/** Text a binary export can carry: raw bytes, inflated PDF streams, PNG compressed text chunks. Throws Unscannable. */
-export function binaryTexts(buf: Buffer): string[] {
-  if (buf.length > BINARY_LIMITS.maxInput) throw new Unscannable();
-  const budget = { left: BINARY_LIMITS.maxTotalInflated };
+const ZIP_LOCAL = 0x04034b50;
+const ZIP_CENTRAL = 0x02014b50;
+const ZIP_END = 0x06054b50;
+
+/**
+ * ZIP (topic downloads): walk the local file headers and return each entry's uncompressed bytes. Stored (0) and
+ * deflated (8) entries only; data descriptors, other methods, truncated entries or an unknown record → unscannable.
+ */
+function zipEntries(buf: Buffer, budget: { left: number }): Buffer[] {
+  const out: Buffer[] = [];
+  let off = 0;
+  while (off + 4 <= buf.length && buf.readUInt32LE(off) === ZIP_LOCAL) {
+    if (off + 30 > buf.length) throw new Unscannable();
+    const flags = buf.readUInt16LE(off + 6);
+    const method = buf.readUInt16LE(off + 8);
+    const size = buf.readUInt32LE(off + 18);
+    const start = off + 30 + buf.readUInt16LE(off + 26) + buf.readUInt16LE(off + 28);
+    const end = start + size;
+    if (flags & 0x8 || end > buf.length || (method !== 0 && method !== 8)) throw new Unscannable();
+    const body = buf.subarray(start, end);
+    out.push(method === 8 ? inflateBuffer(body, budget, true) : body);
+    off = end;
+  }
+  if (off + 4 > buf.length || ![ZIP_CENTRAL, ZIP_END].includes(buf.readUInt32LE(off))) throw new Unscannable();
+  return out;
+}
+
+function expand(buf: Buffer, budget: { left: number }, depth: number): string[] {
   const texts = [buf.toString('latin1')];
   if (buf.subarray(0, 5).toString('latin1') === '%PDF-') texts.push(...pdfStreamTexts(buf, budget));
   if (buf.length > 8 && buf.readUInt32BE(0) === 0x89504e47) texts.push(...pngTexts(buf, budget));
+  if (buf.length >= 4 && buf.readUInt32LE(0) === ZIP_LOCAL) {
+    if (depth > 0) throw new Unscannable(); // no nested archives
+    for (const entry of zipEntries(buf, budget)) texts.push(...expand(entry, budget, depth + 1));
+  }
   return texts;
 }
 
-/** Secret scan for binary files (exports). A file that cannot be fully scanned yields an `unscannable-content` hit. */
-export function scanBinary(buf: Buffer): SecretHit[] {
+/**
+ * Text a binary file can carry: raw bytes, inflated PDF streams, PNG compressed text chunks, and the entries of a
+ * ZIP (each expanded the same way). Throws Unscannable.
+ */
+export function binaryTexts(buf: Buffer): string[] {
+  if (buf.length > BINARY_LIMITS.maxInput) throw new Unscannable();
+  return expand(buf, { left: BINARY_LIMITS.maxTotalInflated }, 0);
+}
+
+const PII_IDS = new Set(PII_RULES.map((r) => r.id));
+const MIN_READABLE_RUN = 16;
+
+/**
+ * Readable text runs (UTF-8, no control bytes, ≥ 16 chars) of a decoded binary. PII rules are short patterns that random
+ * compressed or pixel bytes can hit by chance (e.g. a 6-char "x@y.zz" inside a ZIP), so they only see these runs; a real
+ * address in PDF metadata or a text entry sits in such a run.
+ */
+function readableRuns(latin1: string): string {
+  return new TextDecoder()
+    .decode(Buffer.from(latin1, 'latin1'))
+    .split(/[�\u0000-\u0008\u000E-\u001F\u007F]+/)
+    .filter((s) => s.length >= MIN_READABLE_RUN)
+    .join('\n');
+}
+
+/**
+ * Secret scan for binary files (exports, downloads, images, fonts). A file that cannot be fully scanned yields an
+ * `unscannable-content` hit. PII hits inside binaries report line 0 (the runs have no stable line numbers).
+ */
+export function scanBinary(buf: Buffer, rules: readonly SecretRule[] = SECRET_RULES): SecretHit[] {
+  const nonPiiRules = rules.filter((r) => !PII_IDS.has(r.id));
+  const piiRules = rules.filter((r) => PII_IDS.has(r.id));
   try {
-    return binaryTexts(buf).flatMap((t) => scanText(t));
+    const texts = binaryTexts(buf);
+    const hits = texts.flatMap((t) => scanText(t, nonPiiRules));
+    if (piiRules.length > 0) {
+      for (const t of texts) hits.push(...scanText(readableRuns(t), piiRules).map((h) => ({ rule: h.rule, line: 0 })));
+    }
+    return hits;
   } catch (err) {
     if (err instanceof Unscannable) return [{ rule: UNSCANNABLE, line: 0 }];
     throw err;

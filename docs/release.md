@@ -17,6 +17,15 @@ Before anything is built it refuses tags whose commit is not on `main`, scans th
 dependencies), and runs lint, typecheck and the unit tests — including the committed-snapshot audit that sha256-checks and secret-scans every
 file in `content/` (PNG/PDF exports incl. inflated PDF streams and PNG text chunks).
 
+**Publish scan (#37).** The production site is public (DECISIONS.md D11), so whatever is released is published.
+`scripts/scan-publish.ts` scans every file under the given directories with the secret rules **plus** personal-data rules
+(email addresses, absolute home paths) — text files directly, binaries through `scanBinary` (PDF streams, PNG text chunks, and
+ZIP entries such as `/downloads/<topic>.zip`, each expanded; anything it cannot decode fails closed). It prints `file:line rule`,
+never the value, and treats a missing or empty directory as a failure. It runs in CI on `content/` and `dist/`
+(`npm run scan:publish`), in Release on `content/` before the build and on the site extracted from the image **before** the CSP check
+and the Vercel deploy. Reviewed false positives go into `publish-scan.allow.json` (glob `path` + `rule` + a mandatory `reason`);
+today only third-party JS bundles under `*/_astro/` are listed.
+
 Release tags are immutable: the workflow asks the GitHub Packages API whether `ghcr.io/stp72-dev/instants-web:<version>` exists. If it does
 (a re-run), that digest is reused — no rebuild, no re-tag — and only the extraction and the Vercel step repeat. HTTP 404 (package not
 published yet) means build; any other API error stops the release instead of guessing.
