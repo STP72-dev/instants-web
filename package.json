@@ -15,6 +15,7 @@
     "test": "vitest run",
     "ci": "npm run lint && npm run typecheck && npm test && npm run build",
     "scan:diff": "node scripts/scan-diff.ts",
+    "scan:publish": "node scripts/scan-publish.ts content dist",
     "ingest": "node scripts/ingest.ts",
     "screenshots": "node scripts/screenshots.ts",
     "e2e:search": "node scripts/e2e-search.ts",

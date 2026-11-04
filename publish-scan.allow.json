@@ -1,0 +1,14 @@
+{
+  "allow": [
+    {
+      "path": "*/_astro/**",
+      "rule": "credential-assignment",
+      "reason": "Minified third-party bundles (Mermaid, KaTeX, Excalidraw, pica) use TOKEN/SECRET-like identifiers in lexer and config code. Scoped to the JS bundles only; content, HTML, search index, files/ and downloads/ stay fully scanned, and site code is covered by the commit diff scan. Reviewed 2026-11-03 (#37)."
+    },
+    {
+      "path": "*/_astro/excalidraw.*.js",
+      "rule": "google-api-key",
+      "reason": "Public Firebase web config embedded by @excalidraw/excalidraw itself (VITE_APP_FIREBASE_CONFIG, same key in node_modules/@excalidraw/excalidraw/dist/prod). Not our key; browser web keys are public by design. Reviewed 2026-11-03 (#37)."
+    }
+  ]
+}

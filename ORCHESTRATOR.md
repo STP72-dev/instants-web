@@ -1,11 +1,11 @@
 # ORCHESTRATOR — INSTANTS Web session state
 
-> Snapshot: 2026-11-03, written from the INSTANTS session (read-only inspection via herdr, git, gh, vercel, curl).
+> Snapshot: 2026-11-03, written from the INSTANTS session (read-only inspection via herdr, git, gh, vercel, curl). §2, §3, §5, §6 refreshed 2026-11-04 (#37 PR).
 > Read this first when resuming orchestration; then re-run the checks in §6. **Live state wins over this file.**
 > Task contracts: `.orchestrator/contracts/IWEB-*.md`. Project log: `PROGRESS.md`, `DECISIONS.md`, `docs/release.md`.
 
 ## 1. Site is PUBLIC — by owner decision (2026-11-03, `DECISIONS.md` D11)
-- Owner: "public because this is knowledge for everyone who is interested." Repo and container image stay private.
+- Owner: "public because this is knowledge for everyone who is interested." Since 2026-11-04 the repo is public too (D13).
 - 2026-11-03 checks: `verify-site.sh` on production 18/18 ok; security headers present; content snapshot (157 files) has no owner email,
   no key patterns, no absolute home paths. Everything released from INSTANTS is now published → scan content before every release.
 - History: `https://instants-web.vercel.app` (production) answered **200 to anyone** since 2026-10-21, before the owner had approved it.
@@ -16,6 +16,10 @@
   Scan for the repo-local git email on entry pages: **unknown** (home page exposed no entry links to crawl).
 
 ## 2. Where the flow stopped
+- **2026-11-04:** content refresh (#39/#40) → `v0.1.1` blocked by Vercel's Hobby commit-author check → repo moved to `STP72-dev`,
+  made public, ruleset on (D13); release deploys from a non-git dir + `vercel.json` stops Git deploys (#43/#44) → **v0.1.2 live**.
+  #37 (publish scan) finished in the PR that refreshed this file. No open issues.
+- Below: state as of 2026-11-03 (history).
 - All IWEB contracts done (last: IWEB-12a, CSP hardening). v0.1.0 released 2026-10-20.
 - 2026-10-21: owner ran `vercel link` → PR #35 (ignore `.vercel`, `.env*`) merged at `d0b07e1` → secrets set →
   Release re-run `39537610011` (reused image `sha256:fc6a6ad0…`, CSP check passed) → production deploy.
@@ -24,17 +28,16 @@
 - The orchestrator session (pane `w3:p1`, Claude session `ff6df036-…`) is idle, waiting for the decision in §5.1.
 - `PROGRESS.md` and issue #17 are **stale** (still say Vercel secrets are missing). Update them after §5.1 is decided.
 
-## 3. GitHub / Vercel state (2026-11-03)
+## 3. GitHub / Vercel state (2026-11-04)
 | Item | State |
 |---|---|
-| Repo | `w7-mgfcode/instants-web`, **private**, `main` = `origin/main` at `d0b07e1`, clean |
-| Release | `v0.1.0` published 2026-10-20 |
-| Last runs | CI #35 ✔, Release (workflow_dispatch) ✔ — 2026-10-21 |
-| Secrets | `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, `VERCEL_TOKEN` set |
-| Issues | #17 closed by PR #36; #18 closed as deferred (D12); epics #13 #16 closed; #37 (content scan release gate) open |
-| Vercel | project `dns-72-dev/instants-web` linked (`.vercel/`, git-ignored); 1 production deployment, Ready; CLI 62.0.0 (65.10.0 available) |
-| Local branches | `chore/17-ignore-vercel-link`, `design/3-design-system` — squash-merged, no upstream, safe to delete (ask) |
-| INSTANTS repo | no remote; no `w7-mgfcode/INSTANTS` on GitHub |
+| Repo | **`STP72-dev/instants-web`, public** (moved from `w7-mgfcode`, old URL redirects). Ruleset `protect-main`: PR + squash, required `ci`, no bypass. Auto-merge on |
+| Release | **`v0.1.2`** (2026-11-04, run 41791036992 ✔); image `ghcr.io/stp72-dev/instants-web` |
+| Secrets | `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, `VERCEL_TOKEN` set (moved with the repo) |
+| Issues | none open after #37 |
+| Vercel | team `dns-72-dev` (Hobby), account linked to a different GitHub user than the commit author → release deploys without git metadata (D13). Project is Git-connected; `vercel.json` disables Git deploys |
+| Local | only the main checkout; local git identity = GitHub noreply address |
+| INSTANTS repo | `w7-mgfcode/INSTANTS`, private, CI green |
 
 Deploy path (from `DECISIONS.md` option A, `docs/release.md`): build `dist/` once → Docker image (nginx unprivileged :8080) and
 hand-written Vercel Build Output v3 → `vercel deploy --prebuilt`. Planned follow-up: staged deploy (`--skip-domain` → verify-site → promote).
@@ -64,24 +67,24 @@ Pane IDs are per herdr server; re-list before use.
 ## 5. Decisions (2026-11-03 — owner delegated the calls to the orchestrator: "make the decision")
 1. **Public site → public** (D11). Recorded in PR #36; #17 and epic #16 closed.
    Reversal: `vercel rm <deployment-url> --yes` + `gh secret delete VERCEL_TOKEN -R w7-mgfcode/instants-web`.
-2. **#18 branch rules → deferred, issue closed** (D12): repo stays private, no GitHub Pro, no ruleset. Reopen when a second
-   collaborator joins or the repo goes public; then `gh api -X POST repos/w7-mgfcode/instants-web/rulesets --input .github/ruleset-main.json`.
-3. **Content secret/PII scan as a release gate → yes**, issue #37 (priority:p1). Next build task.
+2. **#18 branch rules → deferred, issue closed** (D12). *Superseded 2026-11-04 (D13): repo public, ruleset applied.*
+3. **Content secret/PII scan as a release gate → yes**, issue #37 (priority:p1). *Done 2026-11-04.*
 4. **INSTANTS on GitHub (private) → yes**. History scanned 2026-11-03 (54 commits): no key patterns, no `.env`/key files. Push stays
    behind the INSTANTS gate; result is recorded in INSTANTS `HANDOFF.md`.
 5. **Housekeeping → done**: dead IWEB tabs w4:t3 / w4:t4 closed, merged local branches deleted. IWEB tabs 01/02 kept as empty slots.
 6. **Old lead session (w3:p1) → superseded.** Do not answer its offline/public question — D11 and PR #36 already did that work.
    Resume with `claude --resume ff6df036-651b-4da0-883a-694bc6bc6202` only to read its history.
 
-Open for the owner: nothing. Next autonomous work: #37.
+Open for the owner: nothing. Next autonomous work: none queued (follow-ups in `PROGRESS.md` → Next step).
 
 ## 6. Re-check commands (read-only)
 ```bash
 cd ~/w7-workspace/selfbase/knowledge/instants-web
 git status -sb && git log --oneline -3
-gh repo view w7-mgfcode/instants-web --json visibility,latestRelease
-gh run list -R w7-mgfcode/instants-web -L 4
-gh issue view 17 -R w7-mgfcode/instants-web --json state
+gh repo view STP72-dev/instants-web --json visibility,latestRelease
+gh run list -R STP72-dev/instants-web -L 4
+gh issue list -R STP72-dev/instants-web
+gh api repos/STP72-dev/instants-web/rules/branches/main --jq '[.[].type]'
 vercel ls instants-web
 curl -s -o /dev/null -w '%{http_code}\n' https://instants-web.vercel.app/   # 200 = still public
 herdr workspace list && herdr agent list

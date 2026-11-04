@@ -162,3 +162,19 @@ each was instead reviewed adversarially by Codex in its PR. Recorded here so the
 - **Choice: C.** #18 closed as deferred. Reopen trigger: a second collaborator, or a decision to make the repo public.
   Then: `gh api -X POST repos/w7-mgfcode/instants-web/rulesets --input .github/ruleset-main.json` (`.github/ruleset-main.json` stays).
 - **Also decided:** a secret/PII scan of the content snapshot becomes a release gate (#37), because D11 publishes every release.
+
+## D13 — Repo moved to `STP72-dev` and made public; branch rules on; Vercel deploys without git metadata (owner decisions, 2026-11-04)
+
+- **Repo:** transferred `w7-mgfcode/instants-web` → **`STP72-dev/instants-web`** (org; old URL redirects; issues, PRs, tags, secrets moved)
+  and made **public**. Supersedes D12's "repo stays private". Before going public the full history was scanned: no secrets; the absolute
+  home paths were removed (#41/#42); the owner's private commit email remains in 4 old commits — **accepted by the owner** rather than
+  rewriting history (would change every SHA and both tags). New commits use the GitHub noreply address.
+- **Branch rules (D12 reopen trigger met):** ruleset `protect-main` from `.github/ruleset-main.json` applied — PR + squash only, required
+  check `ci` (strict), linear history, no deletion / force-push, **no bypass** (the owner merges through PRs too). Auto-merge enabled.
+- **Vercel author check (#43/#44):** the Hobby team blocks deployments whose commit author does not match the owner's linked GitHub
+  account (it is linked to a different GitHub user), which blocked `v0.1.1`. Release now deploys the prebuilt output from
+  `$RUNNER_TEMP/vercel-deploy` (outside any git checkout → the pinned CLI sends no `gitMetadata`). Rejected: re-linking the Vercel
+  account's GitHub login (would affect another project and the owner's login), Vercel Pro (cost). Trade-off: deployments show no commit.
+- **Vercel Git integration:** the project became Git-connected and built PR previews; `vercel.json` `git.deploymentEnabled: false` keeps
+  production on the release-tag path only (image → publish scan → CSP check → deploy).
+- **Evidence:** `v0.1.2` (run 41791036992) → production deployment Ready, site "43 entries · 8 topics", `/topics/mgf-monk/` 200.

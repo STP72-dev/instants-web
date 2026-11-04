@@ -36,6 +36,8 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      - name: Publish scan (content snapshot + built site; secrets and personal data, D11 / #37)
+        run: npm run scan:publish
 
       # The shipped artifact: build the Docker image, serve it, and prove the CSP holds in a real browser.
       - name: Build and start the Docker image
