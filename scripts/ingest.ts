@@ -2,11 +2,21 @@
  * Ingest INSTANTS (read-only) into the committed content snapshot.
  * Usage: INSTANTS_DIR=/path/to/INSTANTS npm run ingest   (CONTENT_DIR overrides the output, default ./content)
  */
-import { resolve } from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { dirname, resolve } from 'node:path';
 import { IngestError, runIngest } from '../src/lib/ingest/run.ts';
 
-const DEFAULT_INSTANTS = '/home/w7-loqker/w7-workspace/selfbase/knowledge/INSTANTS';
-const sourceDir = process.env.INSTANTS_DIR || DEFAULT_INSTANTS;
+// Default: INSTANTS checked out next to this repo's main checkout (…/{INSTANTS,instants-web}).
+// Resolved via the git common dir so it also works from a worktree under .worktrees/.
+function defaultInstantsDir(): string {
+  const gitCommonDir = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], {
+    cwd: import.meta.dirname,
+    encoding: 'utf8',
+  }).trim();
+  return resolve(dirname(gitCommonDir), '..', 'INSTANTS');
+}
+
+const sourceDir = process.env.INSTANTS_DIR || defaultInstantsDir();
 const outDir = resolve(process.env.CONTENT_DIR || 'content');
 
 try {

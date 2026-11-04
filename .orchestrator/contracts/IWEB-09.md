@@ -4,7 +4,7 @@
 task_id: IWEB-09
 issue: "#9"
 branch: feat/9-docker-compose-nginx
-worktree: /home/w7-loqker/w7-workspace/selfbase/knowledge/instants-web/.worktrees/docker-9
+worktree: .worktrees/docker-9
 role: infra_dev
 engine: claude-code (claude-sonnet-5-5, permission-mode auto)
 herdr_tab: IWEB__BUILD__CLAUDE__DOCKER__03

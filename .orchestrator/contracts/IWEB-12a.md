@@ -4,7 +4,7 @@
 task_id: IWEB-12a
 issue: "#12"
 branch: chore/12-prerelease-hardening   # stacked on feat/6-entry-page (PR #26); lead rebases after #26 merges
-worktree: /home/w7-loqker/w7-workspace/selfbase/knowledge/instants-web/.worktrees/harden-12
+worktree: .worktrees/harden-12
 role: infra_dev
 engine: claude-code (claude-sonnet-5-5, permission-mode auto)
 herdr_tab: IWEB__BUILD__CLAUDE__RELEASE__03 (same session)

@@ -34,7 +34,7 @@ npm run preview      # serve dist/
 
 ## Refresh content from INSTANTS
 
-INSTANTS (`/home/w7-loqker/w7-workspace/selfbase/knowledge/INSTANTS`) is **read-only** for this project. The ingest script copies it into
+INSTANTS (sibling checkout `../INSTANTS` by default; `INSTANTS_DIR` overrides it) is **read-only** for this project. The ingest script copies it into
 `content/` and nothing ever writes back.
 
 ```bash
@@ -102,7 +102,7 @@ rules are followed by discipline until the repo is public or on Pro (issue #18).
    gh release create v0.1.0 --target main --generate-notes
    ```
 3. The release workflow refuses tags that are not on `main`, scans the full history for secrets, runs lint/typecheck/tests, builds the Docker
-   image once, pushes it to `ghcr.io/w7-mgfcode/instants-web` (`0.1.0`, `0.1`, `sha-…`, `latest`), extracts the static site from that image
+   image once, pushes it to `ghcr.io/stp72-dev/instants-web` (`0.1.0`, `0.1`, `sha-…`, `latest`), extracts the static site from that image
    and deploys it to Vercel with `vercel deploy --prebuilt` (CLI pinned in `tools/vercel/`). Re-running a release reuses the published image.
    Without the `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` secrets the Vercel step is skipped with a warning (issue #17).
 

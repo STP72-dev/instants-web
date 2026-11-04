@@ -3,7 +3,7 @@
 Resumable status file. A fresh session reads this and `DECISIONS.md`, checks GitHub matches (`gh pr list`, `gh issue list`), and continues from **Next step**.
 Updated in every lead PR to the state after that PR merges (DECISIONS.md D0b).
 
-- Repo: https://github.com/w7-mgfcode/instants-web (private) · source content: `/home/w7-loqker/w7-workspace/selfbase/knowledge/INSTANTS` (read-only; git queries only with `--no-optional-locks`)
+- Repo: https://github.com/STP72-dev/instants-web (private; moved from `w7-mgfcode` 2026-11-04) · source content: sibling `../INSTANTS` (read-only; git queries only with `--no-optional-locks`)
 - HERDR workspace `IWEB` (w4) hosts every agent session; the lead runs in workspace `instants-web` (w3).
 - Worktrees live in `instants-web/.worktrees/<scope>-<issue>` (ignored via `.git/info/exclude`). Task contracts: `.orchestrator/contracts/IWEB-<nn>.md`.
 

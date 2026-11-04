@@ -4,7 +4,7 @@
 task_id: IWEB-10
 issue: "#10"
 branch: ci/10-release-workflow
-worktree: /home/w7-loqker/w7-workspace/selfbase/knowledge/instants-web/.worktrees/release-10
+worktree: .worktrees/release-10
 role: infra_dev
 engine: claude-code (claude-sonnet-5-5, permission-mode auto)
 herdr_tab: IWEB__BUILD__CLAUDE__DOCKER__03 (same session as IWEB-09, renamed scope RELEASE)
