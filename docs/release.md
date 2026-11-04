@@ -17,13 +17,13 @@ Before anything is built it refuses tags whose commit is not on `main`, scans th
 dependencies), and runs lint, typecheck and the unit tests — including the committed-snapshot audit that sha256-checks and secret-scans every
 file in `content/` (PNG/PDF exports incl. inflated PDF streams and PNG text chunks).
 
-Release tags are immutable: the workflow asks the GitHub Packages API whether `ghcr.io/w7-mgfcode/instants-web:<version>` exists. If it does
+Release tags are immutable: the workflow asks the GitHub Packages API whether `ghcr.io/stp72-dev/instants-web:<version>` exists. If it does
 (a re-run), that digest is reused — no rebuild, no re-tag — and only the extraction and the Vercel step repeat. HTTP 404 (package not
 published yet) means build; any other API error stops the release instead of guessing.
 
 The site is built **once**, inside the Docker image build (`npm run build` in the Dockerfile build stage).
 
-1. Build the image and push it to `ghcr.io/w7-mgfcode/instants-web` using `GITHUB_TOKEN`
+1. Build the image and push it to `ghcr.io/stp72-dev/instants-web` using `GITHUB_TOKEN`
    (job permissions: `contents: read`, `packages: write`). Tags: `{{version}}`, `{{major}}.{{minor}}`, `sha-<7>`, and `latest` (stable tags only).
 2. `docker create` the pushed image **by digest**, `docker cp /usr/share/nginx/html`, and run
    `node scripts/vercel-output.ts <html-dir> .vercel/output`. That writes a [Build Output API v3](https://vercel.com/docs/build-output-api)

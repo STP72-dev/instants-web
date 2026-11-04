@@ -4,7 +4,7 @@
 task_id: IWEB-06
 issue: "#6"
 branch: feat/6-entry-page        # stacked on design/3-design-system (PR #23); lead rebases onto main after #23 merges
-worktree: /home/w7-loqker/w7-workspace/selfbase/knowledge/instants-web/.worktrees/entry-6
+worktree: .worktrees/entry-6
 role: frontend_dev
 engine: claude-code (claude-opus-5-5, permission-mode auto)
 herdr_tab: IWEB__BUILD__CLAUDE__ENTRY__04

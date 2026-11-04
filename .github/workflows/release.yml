@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  IMAGE: ghcr.io/w7-mgfcode/instants-web
+  IMAGE: ghcr.io/stp72-dev/instants-web
 
 jobs:
   release:
@@ -102,7 +102,7 @@ jobs:
           TAG: ${{ steps.tag.outputs.name }}
         run: |
           version="${TAG#v}"
-          pkg="users/${GITHUB_REPOSITORY_OWNER}/packages/container/${GITHUB_REPOSITORY#*/}/versions"
+          pkg="orgs/${GITHUB_REPOSITORY_OWNER}/packages/container/${GITHUB_REPOSITORY#*/}/versions"
           if out="$(gh api --paginate "$pkg" --jq ".[] | select(.metadata.container.tags | index(\"$version\")) | .name" 2>&1)"; then
             digest="$(printf '%s' "$out" | head -n1)"
             if [ -n "$digest" ]; then
