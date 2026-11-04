@@ -61,7 +61,7 @@ describe('topic archives (committed snapshot)', () => {
     const readme = new TextDecoder().decode(topicZipFiles('nonconformist')[0].data);
     expect(readme.split('\n')[0]).toBe('NONCONFORMIST — INSTANTS topic archive');
     expect(readme).toMatch(/01\. NONCONFORMIST — hell YEAH, release facts/);
-    expect(readme).not.toMatch(/Not exported yet/); // snapshot f2a791e: missingExports is empty
+    expect(readme).not.toMatch(/Not exported yet/); // snapshot 70e9d8e: missingExports is empty
   });
 
   it('archived bytes equal the snapshot files', () => {

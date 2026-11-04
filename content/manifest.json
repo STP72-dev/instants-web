@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
   "source": {
-    "commit": "f2a791e6b791b0e83f3251708f77bd97a87a6918",
-    "committedAt": "2026-11-03T16:33:10+01:00",
+    "commit": "70e9d8e2201ac57496420663b0cf719ccfc39b4c",
+    "committedAt": "2026-11-04T09:56:49+01:00",
     "dirty": false
   },
   "counts": {
-    "entries": 43,
-    "topics": 8,
+    "entries": 48,
+    "topics": 9,
     "files": {
-      "md": 35,
+      "md": 40,
       "mermaid": 13,
-      "excalidraw": 25
+      "excalidraw": 28
     },
     "exports": {
-      "png": 38,
-      "pdf": 73
+      "png": 41,
+      "pdf": 81
     }
   },
   "topics": [
@@ -244,6 +244,35 @@
         "techno",
         "track-dna",
         "workflow"
+      ]
+    },
+    {
+      "slug": "sliderag-mini",
+      "title": "SlideRAG-mini",
+      "kind": "technical",
+      "entries": [
+        "sliderag-mini-overview",
+        "sliderag-mini-architecture-stack",
+        "sliderag-mini-upload-citation-flow",
+        "sliderag-mini-milestones-reference",
+        "sliderag-mini-release-gate-verification"
+      ],
+      "tracks": [],
+      "tags": [
+        "architecture",
+        "aws-ec2",
+        "chroma",
+        "citations",
+        "fastapi",
+        "github-projects",
+        "langgraph",
+        "milestones",
+        "pptx",
+        "python-pptx",
+        "rag",
+        "release-gate",
+        "sliderag-mini",
+        "testing"
       ]
     }
   ],
@@ -2439,11 +2468,248 @@
           }
         }
       }
+    },
+    {
+      "slug": "sliderag-mini-architecture-stack",
+      "title": "SlideRAG-mini — Architektúra és technológiai stack",
+      "tags": [
+        "architecture",
+        "chroma",
+        "fastapi",
+        "langgraph",
+        "sliderag-mini"
+      ],
+      "source": "SlideRAG-mini @aea4579 (docs/.prepare/execution-plan.md, decision-log.md) + GitHub issues #2, #11, olvasva 2026-11-04",
+      "created": "2026-11-04",
+      "summary": "Jóváhagyott terv (EXEC-01, 2026-11-03) — nem igazolt működés. A main ágon még nincs alkalmazáskód.",
+      "topic": "sliderag-mini",
+      "track": null,
+      "role": "concept",
+      "order": 1,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/sliderag-mini-architecture-stack.md",
+            "bytes": 6262,
+            "sha256": "50fbb37dd1f63d17b32b48af36be3f6678b4a9c22fb911a6df92f3843acaef17"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/sliderag-mini-architecture-stack.pdf",
+              "bytes": 118860,
+              "sha256": "1a04063d281b5f4c69bbb04813bd165e66090819d69027b0b558191fc0177ac9",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/sliderag-mini-architecture-stack.excalidraw",
+            "bytes": 36555,
+            "sha256": "88a544649154aa15edc224785c845c1b77d8b5b90dfb529592ecddaf2638be9a"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/sliderag-mini-architecture-stack.png",
+              "bytes": 501866,
+              "sha256": "443a95834da64941c04506d97a1d4077be60452695f6c83e9856a2c2f51c880f",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/sliderag-mini-architecture-stack.pdf",
+              "bytes": 31838,
+              "sha256": "4eec4538f315a65add6538fc24a0d125da109698e9562450afaf140dd9b5b36c",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "sliderag-mini-milestones-reference",
+      "title": "SlideRAG-mini — Mérföldkövek és GitHub-projekt",
+      "tags": [
+        "github-projects",
+        "milestones",
+        "sliderag-mini"
+      ],
+      "source": "SlideRAG-mini @aea4579 (docs/.prepare/execution-plan.md, decision-log.md) + GitHub issues #1–#15, milestones, project 5, olvasva 2026-11-04",
+      "created": "2026-11-04",
+      "summary": "A kimenetek tervek (EXEC-01 §8). Ellenőrzött csak a GitHub-állapot: mérföldkövek, issue-hierarchia, board, 2026-11-04-i olvasás szerint.",
+      "topic": "sliderag-mini",
+      "track": null,
+      "role": "reference",
+      "order": 3,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/sliderag-mini-milestones-reference.md",
+            "bytes": 5756,
+            "sha256": "61a3ecc39c50421123ced0c8f56385b97f0465d3992ab4649f7577d7d0f88fce"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/sliderag-mini-milestones-reference.pdf",
+              "bytes": 113088,
+              "sha256": "b9329d05f949515a3f604b37a18eb6ab72004e3398938edbc9985abe19771363",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "sliderag-mini-overview",
+      "title": "SlideRAG-mini — Mire való és hol tart?",
+      "tags": [
+        "pptx",
+        "rag",
+        "sliderag-mini"
+      ],
+      "source": "SlideRAG-mini @aea4579 (docs/.prepare/execution-plan.md, decision-log.md, brainstorm-plan.md) + GitHub issues #1–#15, PR #16, milestones, project 5, olvasva 2026-11-04",
+      "created": "2026-11-04",
+      "summary": "Jóváhagyott terv (EXEC-01, 2026-11-03), nem működő termék: 2026-11-04-én a main ágon csak dokumentáció van.",
+      "topic": "sliderag-mini",
+      "track": null,
+      "role": "overview",
+      "order": 0,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/sliderag-mini-overview.md",
+            "bytes": 4954,
+            "sha256": "80c767d5a17b8ebe114a69ae03a1e86302e8f6a73a0b62d2dbe5f8b4b7a0658a"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/sliderag-mini-overview.pdf",
+              "bytes": 103833,
+              "sha256": "9c77e2ff1a265de052db085d0769bbee1915862691d43d37425076fd8bed2deb",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "sliderag-mini-release-gate-verification",
+      "title": "SlideRAG-mini — Mit kell igazolni a kiadás előtt?",
+      "tags": [
+        "aws-ec2",
+        "release-gate",
+        "sliderag-mini",
+        "testing"
+      ],
+      "source": "SlideRAG-mini @aea4579 (docs/.prepare/execution-plan.md, decision-log.md) + GitHub issues #11–#15, olvasva 2026-11-04",
+      "created": "2026-11-04",
+      "summary": "Jóváhagyott terv (EXEC-01, 2026-11-03), nem igazolt működés. 2026-11-04-én minden pont kipipálatlan: nincs kód, teszt, CI-futás, tag vagy release.",
+      "topic": "sliderag-mini",
+      "track": null,
+      "role": "detail",
+      "order": 4,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/sliderag-mini-release-gate-verification.md",
+            "bytes": 5230,
+            "sha256": "27fb74141a72f330f36223136591eaf422d2e9412bc61040e19101693ad522bb"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/sliderag-mini-release-gate-verification.pdf",
+              "bytes": 112947,
+              "sha256": "5f589794036df63862baa5e52e67e177d8e8b17856fc4f1b1e4a6f988750135a",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/sliderag-mini-release-gate-verification.excalidraw",
+            "bytes": 32764,
+            "sha256": "efda1d14e05a895334840592b13b3041e2ef04af3e4e6180282bf97833d063a8"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/sliderag-mini-release-gate-verification.png",
+              "bytes": 520771,
+              "sha256": "284070f99708bc399f11a4b82563d1edafe063e038659740f302f7ada2da1713",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/sliderag-mini-release-gate-verification.pdf",
+              "bytes": 55282,
+              "sha256": "591440427870d696cc171dd45aedf9e16f595874783814de19d1cb7c0ba1bfbb",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "sliderag-mini-upload-citation-flow",
+      "title": "SlideRAG-mini — Feltöltéstől a diahivatkozásig",
+      "tags": [
+        "citations",
+        "python-pptx",
+        "rag",
+        "sliderag-mini"
+      ],
+      "source": "SlideRAG-mini @aea4579 (docs/.prepare/execution-plan.md, brainstorm-plan.md) + GitHub issues #12, #13, olvasva 2026-11-04",
+      "created": "2026-11-04",
+      "summary": "Jóváhagyott terv (EXEC-01, 2026-11-03), nem igazolt működés: 2026-11-04-én a main (aea4579) csak dokumentációt tartalmaz.",
+      "topic": "sliderag-mini",
+      "track": null,
+      "role": "practice",
+      "order": 2,
+      "metadataFrom": "md",
+      "formats": {
+        "md": {
+          "source": {
+            "path": "files/md/sliderag-mini-upload-citation-flow.md",
+            "bytes": 4880,
+            "sha256": "359b8e134fed5c2c33f457a3a16a757f7bee4d0edd6750f9387b495df8dbc9dd"
+          },
+          "exports": {
+            "pdf": {
+              "path": "exports/md/sliderag-mini-upload-citation-flow.pdf",
+              "bytes": 101182,
+              "sha256": "49c7535bc83dace9a2b7111f103c6cc38966c77f13e3a05a9d95bdbbad40f667",
+              "freshness": "fresh"
+            }
+          }
+        },
+        "excalidraw": {
+          "source": {
+            "path": "files/excalidraw/sliderag-mini-upload-citation-flow.excalidraw",
+            "bytes": 44953,
+            "sha256": "b9e645d42871ad284b32a81e776e1dcc830fd4f375eb05e9733348165ec4d015"
+          },
+          "exports": {
+            "png": {
+              "path": "exports/excalidraw/sliderag-mini-upload-citation-flow.png",
+              "bytes": 612561,
+              "sha256": "92986efd10823290be04e606050797379ff93b0f55d568322a103fee56aae286",
+              "freshness": "fresh"
+            },
+            "pdf": {
+              "path": "exports/excalidraw/sliderag-mini-upload-citation-flow.pdf",
+              "bytes": 81111,
+              "sha256": "1afb77f4630a9c523842c8de7cf44a5c758f5223050813cfd8bc2e01f81bc526",
+              "freshness": "fresh"
+            }
+          }
+        }
+      }
     }
   ],
   "missingExports": [],
   "secretScan": {
-    "scannedFiles": 184,
+    "scannedFiles": 203,
     "excluded": []
   }
 }
