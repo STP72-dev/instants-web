@@ -31,6 +31,14 @@ The site is built **once**, inside the Docker image build (`npm run build` in th
    The base image's own `50x.html` rides along; it is harmless.
 3. Deploy that directory with `vercel deploy --prebuilt --prod`, using the CLI pinned in `tools/vercel/package-lock.json`
    (installed with `npm ci --ignore-scripts`, so integrity hashes are checked and no install scripts run).
+   The deploy runs from a copy in `$RUNNER_TEMP/vercel-deploy`, outside any git checkout, so the CLI sends no
+   `gitMetadata`. The Vercel team is on Hobby, which blocks deployments whose commit author does not match the
+   owner's linked GitHub account ("commit email could not be matched", #43). The step fails if that directory is
+   inside a git repository.
+
+The Vercel project is also connected to this GitHub repo (Git integration). `vercel.json` sets
+`git.deploymentEnabled: false`, so pushes and PRs never deploy on their own: production only changes through a
+release tag and this workflow. The release deploys from a folder without `vercel.json`, so it is not affected.
 
 Docker and Vercel therefore serve the same files.
 

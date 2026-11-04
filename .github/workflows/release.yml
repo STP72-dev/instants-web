@@ -168,4 +168,15 @@ jobs:
           fi
           # CLI from a lockfile with integrity hashes; lifecycle scripts disabled.
           npm ci --prefix tools/vercel --ignore-scripts --no-audit --no-fund
-          tools/vercel/node_modules/.bin/vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN"
+          # Deploy from outside any git checkout: the CLI then sends no gitMetadata (commit author),
+          # which a Hobby team blocks unless it matches the owner's linked GitHub account (#43).
+          deploy_dir="$RUNNER_TEMP/vercel-deploy"
+          mkdir -p "$deploy_dir/.vercel"
+          cp -R .vercel/output "$deploy_dir/.vercel/output"
+          if git -C "$deploy_dir" rev-parse --git-dir >/dev/null 2>&1; then
+            echo "::error::$deploy_dir is inside a git repository; refusing to deploy with commit metadata."
+            exit 1
+          fi
+          cli="$GITHUB_WORKSPACE/tools/vercel/node_modules/.bin/vercel"
+          cd "$deploy_dir"
+          "$cli" deploy --prebuilt --prod --token "$VERCEL_TOKEN"
